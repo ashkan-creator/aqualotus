@@ -25,6 +25,7 @@ const PaymentPage = () => {
                 <p className='text-muted'>
                   پس از ثبت سفارش، اطلاعات کارت بانکی نمایش داده می‌شود.
                   رسید پرداخت را آپلود کنید تا سفارش تأیید شود.
+      
                 </p>
               </div>
               <Button className='w-100 btn-aqualotus' onClick={submitHandler}>

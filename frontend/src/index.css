@@ -461,3 +461,11 @@ body {
   .search-input { min-width: 140px; }
   .care-level-bar .d-flex { flex-wrap: wrap; gap: 6px !important; }
 }
+.shipping-notice {
+  background: #f0f7f4;
+  border-right: 4px solid var(--primary);
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 0.95rem;
+  color: var(--text-dark);
+}

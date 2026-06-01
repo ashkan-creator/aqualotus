@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import {
   Row, Col, Image, ListGroup, Card, Button,
   Form, Container, Badge,
@@ -22,7 +22,6 @@ const careLevelConfig = {
 const ProductPage = () => {
   const { id: productId } = useParams()
   const dispatch = useDispatch()
-  const navigate = useNavigate()
 
   const [qty, setQty] = useState(1)
   const [rating, setRating] = useState(0)
@@ -30,11 +29,22 @@ const ProductPage = () => {
 
   const { data: product, isLoading, error, refetch } = useGetProductDetailsQuery(productId)
   const { userInfo } = useSelector((state) => state.auth)
+  const isAdmin = userInfo?.isAdmin
   const [createReview, { isLoading: loadingReview }] = useCreateReviewMutation()
 
   const addToCartHandler = () => {
-    dispatch(addToCart({ ...product, qty: Number(qty) }))
-    navigate('/cart')
+    dispatch(addToCart({
+      _id: product._id,
+      name: product.name,
+      image: product.image,
+      price: product.price,
+      countInStock: product.countInStock,
+      discount: product.discount,
+      discountMinQty: product.discountMinQty,
+      discountQtyPercent: product.discountQtyPercent,
+      qty: Number(qty),
+    }))
+    toast.success('محصول به سبد خرید اضافه شد 🛒')
   }
 
   const submitReviewHandler = async (e) => {
@@ -68,7 +78,7 @@ const ProductPage = () => {
               {product.video && (
                 <div className='mt-3'>
                   <video controls className='w-100 rounded'>
-                    <source src={product.video} type='video/mp4' />
+                    <source src={product.video} />
                   </video>
                 </div>
               )}
@@ -96,7 +106,6 @@ const ProductPage = () => {
                   <p className='mt-2'>{product.description}</p>
                 </ListGroup.Item>
 
-                {/* اطلاعات گیاه */}
                 {product.category === 'گیاه زنده' && (
                   <ListGroup.Item>
                     <div className='plant-info'>
@@ -112,6 +121,18 @@ const ProductPage = () => {
                         <span>🌱 رشد:</span>
                         <Badge bg='success'>{product.growthRate}</Badge>
                       </div>
+                      {product.family && (
+                        <div className='plant-info-item mt-1'>
+                          <span>🌿 خانواده:</span>
+                          <Badge bg='primary'>{product.family}</Badge>
+                        </div>
+                      )}
+                      {product.position && product.position !== 'نامشخص' && (
+                        <div className='plant-info-item mt-1'>
+                          <span>📍 محل کاشت:</span>
+                          <Badge bg='warning'>{product.position}</Badge>
+                        </div>
+                      )}
                     </div>
                   </ListGroup.Item>
                 )}
@@ -184,19 +205,18 @@ const ProductPage = () => {
 
                   <ListGroup.Item>
                     <Button
-                      className='w-100 btn-aqualotus'
-                      disabled={product.countInStock === 0}
-                      onClick={addToCartHandler}
-                    >
-                      افزودن به سبد خرید
-                    </Button>
+  className='w-100 btn-aqualotus'
+  disabled={product.countInStock === 0 || isAdmin}
+  onClick={addToCartHandler}
+>
+  {isAdmin ? 'ادمین نمی‌تواند خرید کند' : 'افزودن به سبد خرید'}
+</Button>
                   </ListGroup.Item>
                 </ListGroup>
               </Card>
             </Col>
           </Row>
 
-          {/* بخش نظرات */}
           <Row className='mt-5'>
             <Col md={6}>
               <h4>نظرات کاربران</h4>
@@ -218,7 +238,10 @@ const ProductPage = () => {
                     <Form onSubmit={submitReviewHandler}>
                       <Form.Group className='mb-2'>
                         <Form.Label>امتیاز</Form.Label>
-                        <Form.Select value={rating} onChange={(e) => setRating(Number(e.target.value))}>
+                        <Form.Select
+                          value={rating}
+                          onChange={(e) => setRating(Number(e.target.value))}
+                        >
                           <option value=''>انتخاب کنید</option>
                           <option value='1'>1 - ضعیف</option>
                           <option value='2'>2 - متوسط</option>
@@ -236,7 +259,11 @@ const ProductPage = () => {
                           onChange={(e) => setComment(e.target.value)}
                         />
                       </Form.Group>
-                      <Button type='submit' className='btn-aqualotus' disabled={loadingReview}>
+                      <Button
+                        type='submit'
+                        className='btn-aqualotus'
+                        disabled={loadingReview}
+                      >
                         ثبت نظر
                       </Button>
                     </Form>

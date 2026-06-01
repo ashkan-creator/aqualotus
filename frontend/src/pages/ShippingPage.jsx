@@ -61,7 +61,17 @@ const ShippingPage = () => {
                     onChange={(e) => setPostalCode(e.target.value)}
                   />
                 </Form.Group>
-
+                  <div className='shipping-notice mb-4'>
+  <div className='notice-item'>
+    📦 سفارشات فقط به صورت <strong>پس کرایه</strong> ارسال می‌شوند و هزینه کرایه به عهده مشتری است.
+  </div>
+  <div className='notice-item mt-2'>
+    🚚 ارسال به خارج از تهران: <strong>تیپاکس</strong> و <strong>پست پیشتاز</strong>
+  </div>
+  <div className='notice-item mt-2'>
+    🛵 ارسال در تهران: <strong>اسنپ</strong> و <strong>الوپیک</strong>
+  </div>
+</div>
                 <Button type='submit' className='w-100 btn-aqualotus'>
                   ادامه
                 </Button>
