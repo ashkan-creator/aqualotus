@@ -2,19 +2,17 @@ import asyncHandler from 'express-async-handler'
 import User from '../models/userModel.js'
 import generateToken from '../utils/generateToken.js'
 
-// @desc    ورود کاربر و دریافت توکن
-// @route   POST /api/users/login
-// @access  Public
 const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body
   const user = await User.findOne({ email })
-
   if (user && (await user.matchPassword(password))) {
     generateToken(res, user._id)
     res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
+      phone: user.phone,
+      address: user.address,
       isAdmin: user.isAdmin,
     })
   } else {
@@ -23,26 +21,22 @@ const authUser = asyncHandler(async (req, res) => {
   }
 })
 
-// @desc    ثبت‌نام کاربر جدید
-// @route   POST /api/users
-// @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body
+  const { name, email, password, phone, address } = req.body
   const userExists = await User.findOne({ email })
-
   if (userExists) {
     res.status(400)
     throw new Error('این ایمیل قبلاً ثبت شده است')
   }
-
-  const user = await User.create({ name, email, password })
-
+  const user = await User.create({ name, email, password, phone, address })
   if (user) {
     generateToken(res, user._id)
     res.status(201).json({
       _id: user._id,
       name: user.name,
       email: user.email,
+      phone: user.phone,
+      address: user.address,
       isAdmin: user.isAdmin,
     })
   } else {
@@ -51,28 +45,20 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 })
 
-// @desc    خروج کاربر و پاک کردن کوکی
-// @route   POST /api/users/logout
-// @access  Private
 const logoutUser = asyncHandler(async (req, res) => {
-  res.cookie('jwt', '', {
-    httpOnly: true,
-    expires: new Date(0),
-  })
+  res.cookie('jwt', '', { httpOnly: true, expires: new Date(0) })
   res.status(200).json({ message: 'با موفقیت خارج شدید' })
 })
 
-// @desc    دریافت پروفایل کاربر
-// @route   GET /api/users/profile
-// @access  Private
 const getUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id)
-
   if (user) {
     res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
+      phone: user.phone,
+      address: user.address,
       isAdmin: user.isAdmin,
     })
   } else {
@@ -81,23 +67,21 @@ const getUserProfile = asyncHandler(async (req, res) => {
   }
 })
 
-// @desc    آپدیت پروفایل کاربر
-// @route   PUT /api/users/profile
-// @access  Private
 const updateUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id)
-
   if (user) {
     user.name = req.body.name || user.name
     user.email = req.body.email || user.email
-    if (req.body.password) {
-      user.password = req.body.password
-    }
+    user.phone = req.body.phone || user.phone
+    user.address = req.body.address || user.address
+    if (req.body.password) { user.password = req.body.password }
     const updatedUser = await user.save()
     res.json({
       _id: updatedUser._id,
       name: updatedUser.name,
       email: updatedUser.email,
+      phone: updatedUser.phone,
+      address: updatedUser.address,
       isAdmin: updatedUser.isAdmin,
     })
   } else {
@@ -106,20 +90,13 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   }
 })
 
-// @desc    دریافت همه کاربران (ادمین)
-// @route   GET /api/users
-// @access  Private/Admin
 const getUsers = asyncHandler(async (req, res) => {
   const users = await User.find({})
   res.json(users)
 })
 
-// @desc    حذف کاربر (ادمین)
-// @route   DELETE /api/users/:id
-// @access  Private/Admin
 const deleteUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id)
-
   if (user) {
     if (user.isAdmin) {
       res.status(400)
@@ -133,9 +110,6 @@ const deleteUser = asyncHandler(async (req, res) => {
   }
 })
 
-// @desc    دریافت کاربر با ID (ادمین)
-// @route   GET /api/users/:id
-// @access  Private/Admin
 const getUserById = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id).select('-password')
   if (user) {
@@ -146,12 +120,8 @@ const getUserById = asyncHandler(async (req, res) => {
   }
 })
 
-// @desc    آپدیت کاربر (ادمین)
-// @route   PUT /api/users/:id
-// @access  Private/Admin
 const updateUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id)
-
   if (user) {
     user.name = req.body.name || user.name
     user.email = req.body.email || user.email
@@ -161,6 +131,8 @@ const updateUser = asyncHandler(async (req, res) => {
       _id: updatedUser._id,
       name: updatedUser.name,
       email: updatedUser.email,
+      phone: updatedUser.phone,
+      address: updatedUser.address,
       isAdmin: updatedUser.isAdmin,
     })
   } else {
@@ -170,13 +142,7 @@ const updateUser = asyncHandler(async (req, res) => {
 })
 
 export {
-  authUser,
-  registerUser,
-  logoutUser,
-  getUserProfile,
-  updateUserProfile,
-  getUsers,
-  deleteUser,
-  getUserById,
-  updateUser,
+  authUser, registerUser, logoutUser,
+  getUserProfile, updateUserProfile,
+  getUsers, deleteUser, getUserById, updateUser,
 }

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useGetSlidersQuery } from '../../slices/sliderApiSlice'
 
-const slides = [
+const staticSlides = [
   {
-    id: 1,
+    _id: '1',
     title: 'گیاهان زنده آکواریوم',
     subtitle: 'طبیعت رو به خونت بیار',
     buttonText: 'مشاهده گیاهان',
@@ -11,7 +12,7 @@ const slides = [
     bg: 'linear-gradient(135deg, #1b4332 0%, #2d6a4f 50%, #52b788 100%)',
   },
   {
-    id: 2,
+    _id: '2',
     title: 'گیاهان آسان نگهداری',
     subtitle: 'مناسب برای مبتدیان',
     buttonText: 'مشاهده',
@@ -19,7 +20,7 @@ const slides = [
     bg: 'linear-gradient(135deg, #0d4f8b 0%, #1a6b9a 50%, #48cae4 100%)',
   },
   {
-    id: 3,
+    _id: '3',
     title: 'کود و لوازم جانبی',
     subtitle: 'همه چیز برای آکواریوم شما',
     buttonText: 'مشاهده محصولات',
@@ -30,33 +31,44 @@ const slides = [
 
 const HeroSlider = () => {
   const [current, setCurrent] = useState(0)
+  const { data: dbSliders } = useGetSlidersQuery()
+
+  // اگه ادمین اسلاید تو دیتابیس داشت از اونا استفاده کن وگرنه static
+  const slides = dbSliders && dbSliders.length > 0 ? dbSliders : staticSlides
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % slides.length)
     }, 4000)
     return () => clearInterval(timer)
-  }, [])
+  }, [slides.length])
 
   return (
     <div className='hero-slider'>
       {slides.map((slide, index) => (
         <div
-          key={slide.id}
+          key={slide._id}
           className={`hero-slide ${index === current ? 'active' : ''}`}
-          style={{ background: slide.bg }}
+          style={
+            slide.image
+              ? {
+                  backgroundImage: `url(${slide.image})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }
+              : { background: slide.bg || 'linear-gradient(135deg, #1b4332, #2d6a4f)' }
+          }
         >
           <div className='hero-content'>
-            <h1 className='hero-title'>{slide.title}</h1>
-            <p className='hero-subtitle'>{slide.subtitle}</p>
-            <Link to={slide.link} className='hero-btn'>
-              {slide.buttonText}
+            {slide.title && <h1 className='hero-title'>{slide.title}</h1>}
+            {slide.subtitle && <p className='hero-subtitle'>{slide.subtitle}</p>}
+            <Link to={slide.link || '/'} className='hero-btn'>
+              {slide.buttonText || 'مشاهده'}
             </Link>
           </div>
         </div>
       ))}
 
-      {/* نقاط ناوبری */}
       <div className='hero-dots'>
         {slides.map((_, index) => (
           <button

@@ -12,16 +12,17 @@ import Message from '../../components/ui/Message'
 
 const ProductListPage = () => {
   const navigate = useNavigate()
-  const { data, isLoading, error, refetch } = useGetProductsQuery({})
+  // admin=true پاس میدیم تا همه محصولات بیان بدون pagination
+  const { data, isLoading, error, refetch } = useGetProductsQuery({ admin: true })
   const [createProduct, { isLoading: loadingCreate }] = useCreateProductMutation()
   const [deleteProduct, { isLoading: loadingDelete }] = useDeleteProductMutation()
 
   const createProductHandler = async () => {
     if (window.confirm('یک محصول جدید ساخته می‌شود. ادامه می‌دهید؟')) {
       try {
-        await createProduct().unwrap()
-        refetch()
+        const createdProduct = await createProduct().unwrap()
         toast.success('محصول جدید ساخته شد')
+        navigate(`/admin/product/${createdProduct._id}/edit`)
       } catch (err) {
         toast.error(err?.data?.message || 'خطا در ساخت محصول')
       }
@@ -43,13 +44,12 @@ const ProductListPage = () => {
   return (
     <Container className='py-4'>
       <div className='d-flex justify-content-between align-items-center mb-4'>
-        <h2>مدیریت محصولات</h2>
-        <Button className='btn-aqualotus' onClick={createProductHandler}>
-          <FaPlus className='ms-1' /> محصول جدید
+        <h2>مدیریت محصولات ({data?.products?.length || 0} محصول)</h2>
+        <Button className='btn-aqualotus' onClick={createProductHandler} disabled={loadingCreate}>
+          <FaPlus className='ms-1' /> {loadingCreate ? 'در حال ساخت...' : 'محصول جدید'}
         </Button>
       </div>
 
-      {loadingCreate && <Loader />}
       {loadingDelete && <Loader />}
 
       {isLoading ? (
@@ -86,9 +86,7 @@ const ProductListPage = () => {
                 <td>
                   {product.discount > 0 ? (
                     <Badge bg='danger'>{product.discount}%</Badge>
-                  ) : (
-                    '-'
-                  )}
+                  ) : '-'}
                 </td>
                 <td>
                   <Button

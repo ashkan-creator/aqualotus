@@ -9,35 +9,43 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/')
   },
   filename(req, file, cb) {
-    cb(
-      null,
-      `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`
-    )
+    cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`)
   },
 })
 
 function checkFileType(file, cb) {
-  const filetypes = /jpg|jpeg|png/
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase())
-  const mimetype = filetypes.test(file.mimetype)
-  if (extname && mimetype) {
+  const imageTypes = /jpg|jpeg|png|webp/
+  const videoTypes = /mp4|webm|mov|avi/
+  const ext = path.extname(file.originalname).toLowerCase().replace('.', '')
+  const isImage = imageTypes.test(ext) && imageTypes.test(file.mimetype)
+  const isVideo = videoTypes.test(ext)
+
+  if (isImage || isVideo) {
     return cb(null, true)
   } else {
-    cb(new Error('فقط فرمت‌های jpg، jpeg و png مجاز هستند'))
+    cb(new Error('فرمت مجاز نیست. عکس: jpg,jpeg,png,webp | ویدیو: mp4,webm,mov,avi'))
   }
 }
 
 const upload = multer({
   storage,
-  fileFilter: function (req, file, cb) {
-    checkFileType(file, cb)
-  },
+  fileFilter: (req, file, cb) => checkFileType(file, cb),
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
 })
 
+// آپلود عکس
 router.post('/', upload.single('image'), (req, res) => {
-  res.send({
-    message: 'تصویر با موفقیت آپلود شد',
+  res.json({
+    message: 'فایل با موفقیت آپلود شد',
     image: `/${req.file.path}`,
+  })
+})
+
+// آپلود ویدیو
+router.post('/video', upload.single('video'), (req, res) => {
+  res.json({
+    message: 'ویدیو با موفقیت آپلود شد',
+    video: `/${req.file.path}`,
   })
 })
 

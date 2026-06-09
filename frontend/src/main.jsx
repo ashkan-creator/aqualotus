@@ -7,8 +7,6 @@ import store from './store'
 import App from './App.jsx'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './index.css'
-
-// صفحات
 import HomePage from './pages/HomePage'
 import ProductPage from './pages/ProductPage'
 import CartPage from './pages/CartPage'
@@ -19,15 +17,21 @@ import PaymentPage from './pages/PaymentPage'
 import PlaceOrderPage from './pages/PlaceOrderPage'
 import OrderPage from './pages/OrderPage'
 import ProfilePage from './pages/ProfilePage'
-
-// صفحات ادمین
+import ContactPage from './pages/ContactPage'
+import AboutPage from './pages/AboutPage'
+import BlogPage from './pages/BlogPage'
+import BlogPostPage from './pages/BlogPostPage'
 import AdminProductListPage from './pages/admin/ProductListPage'
 import AdminProductEditPage from './pages/admin/ProductEditPage'
 import AdminOrderListPage from './pages/admin/OrderListPage'
 import AdminUserListPage from './pages/admin/UserListPage'
+import AdminUserEditPage from './pages/admin/UserEditPage'
 import AdminFamilyListPage from './pages/admin/FamilyListPage'
-
-// محافظت از روت‌ها
+import AdminSettingsPage from './pages/admin/SettingsPage'
+import AdminDashboardPage from './pages/admin/DashboardPage'
+import AdminBlogListPage from './pages/admin/BlogListPage'
+import AdminSliderListPage from './pages/admin/SliderListPage'
+import AdminBlogEditPage from './pages/admin/BlogEditPage'
 import PrivateRoute from './components/PrivateRoute'
 import AdminRoute from './components/AdminRoute'
 
@@ -43,7 +47,12 @@ const router = createBrowserRouter([
       { path: 'register', element: <RegisterPage /> },
       { path: 'search/:keyword', element: <HomePage /> },
       { path: 'page/:pageNumber', element: <HomePage /> },
+      { path: 'filter', element: <HomePage /> },
       { path: 'search/:keyword/page/:pageNumber', element: <HomePage /> },
+      { path: 'contact', element: <ContactPage /> },
+      { path: 'about', element: <AboutPage /> },
+      { path: 'blog', element: <BlogPage /> },
+      { path: 'blog/:id', element: <BlogPostPage /> },
       {
         path: '',
         element: <PrivateRoute />,
@@ -59,11 +68,17 @@ const router = createBrowserRouter([
         path: 'admin',
         element: <AdminRoute />,
         children: [
+          { path: 'dashboard', element: <AdminDashboardPage /> },
           { path: 'productlist', element: <AdminProductListPage /> },
           { path: 'product/:id/edit', element: <AdminProductEditPage /> },
           { path: 'orderlist', element: <AdminOrderListPage /> },
           { path: 'userlist', element: <AdminUserListPage /> },
+          { path: 'user/:id/edit', element: <AdminUserEditPage /> },
           { path: 'familylist', element: <AdminFamilyListPage /> },
+          { path: 'settings', element: <AdminSettingsPage /> },
+          { path: 'blog', element: <AdminBlogListPage /> },
+          { path: 'sliders', element: <AdminSliderListPage /> },
+          { path: 'blog/:id/edit', element: <AdminBlogEditPage /> },
         ],
       },
     ],

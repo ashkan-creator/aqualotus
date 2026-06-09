@@ -469,3 +469,52 @@ body {
   font-size: 0.95rem;
   color: var(--text-dark);
 }
+/* فاصله بین کارت‌های محصول */
+.row > [class*="col-"] {
+  margin-bottom: 1.5rem;
+}
+
+/* نوار اطلاع‌رسانی */
+.announcement-bar {
+  background: linear-gradient(135deg, #1b4332, #2d6a4f);
+  color: #fff;
+  font-size: 0.9rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+.care-level-bar {
+  display: none !important;
+}
+
+/* fix چک‌باکس در صفحات RTL */
+.form-check {
+  padding-right: 1.5em !important;
+  padding-left: 0 !important;
+}
+
+.form-check .form-check-input {
+  float: right !important;
+  margin-right: -1.5em !important;
+  margin-left: 0 !important;
+}
+
+.form-check-label {
+  padding-right: 0.5em;
+}
+
+/* fix چک‌باکس در صفحات RTL */
+.form-check {
+  padding-right: 1.5em !important;
+  padding-left: 0 !important;
+}
+
+.form-check .form-check-input {
+  float: right !important;
+  margin-right: -1.5em !important;
+  margin-left: 0 !important;
+}
+
+.form-check-label {
+  padding-right: 0.5em;
+}

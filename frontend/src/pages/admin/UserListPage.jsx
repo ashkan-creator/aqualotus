@@ -28,13 +28,9 @@ const UserListPage = () => {
 
   return (
     <Container className='py-4'>
-      <h2 className='mb-4'>مدیریت کاربران</h2>
-
+      <h2 className='mb-4'>مدیریت کاربران ({users?.length || 0} کاربر)</h2>
       {loadingDelete && <Loader />}
-
-      {isLoading ? (
-        <Loader />
-      ) : error ? (
+      {isLoading ? <Loader /> : error ? (
         <Message variant='danger'>{error?.data?.message}</Message>
       ) : (
         <Table striped hover responsive className='admin-table'>
@@ -43,6 +39,8 @@ const UserListPage = () => {
               <th>شناسه</th>
               <th>نام</th>
               <th>ایمیل</th>
+              <th>📱 تلفن</th>
+              <th>📍 آدرس</th>
               <th>ادمین</th>
               <th>تاریخ ثبت</th>
               <th></th>
@@ -55,15 +53,31 @@ const UserListPage = () => {
                 <td>{user.name}</td>
                 <td>{user.email}</td>
                 <td>
+                  {user.phone ? (
+                    <a href={`tel:${user.phone}`} style={{ color: '#2d6a4f', textDecoration: 'none' }}>
+                      {user.phone}
+                    </a>
+                  ) : (
+                    <span className='text-muted' style={{ fontSize: '0.8rem' }}>ثبت نشده</span>
+                  )}
+                </td>
+                <td style={{ maxWidth: '200px' }}>
+                  {user.address ? (
+                    <small title={user.address}>
+                      {user.address.length > 40 ? user.address.slice(0, 40) + '...' : user.address}
+                    </small>
+                  ) : (
+                    <span className='text-muted' style={{ fontSize: '0.8rem' }}>ثبت نشده</span>
+                  )}
+                </td>
+                <td>
                   {user.isAdmin ? (
                     <FaCheck className='text-success' />
                   ) : (
                     <FaTimes className='text-danger' />
                   )}
                 </td>
-                <td>
-                  {new Date(user.createdAt).toLocaleDateString('fa-IR')}
-                </td>
+                <td>{new Date(user.createdAt).toLocaleDateString('fa-IR')}</td>
                 <td>
                   <Button
                     size='sm'

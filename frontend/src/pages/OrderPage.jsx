@@ -208,7 +208,7 @@ const OrderPage = () => {
                         {import.meta.env.VITE_BANK_SHABA || 'IR290170000000364929005001'}
                       </p>
                       <p className='mb-1'>
-                        <strong>به نام:</strong> اشکان
+                        <strong>به نام:</strong> محمدحسین اکبری زرین
                       </p>
                       <p className='text-danger mt-2'>
                         <small>

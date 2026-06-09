@@ -2,11 +2,7 @@ import mongoose from 'mongoose'
 
 const reviewSchema = new mongoose.Schema(
   {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      ref: 'User',
-    },
+    user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
     name: { type: String, required: true },
     rating: { type: Number, required: true },
     comment: { type: String, required: true },
@@ -14,15 +10,25 @@ const reviewSchema = new mongoose.Schema(
   { timestamps: true }
 )
 
+// سایزبندی محصول
+const variantSchema = new mongoose.Schema({
+  size: { type: String, required: true },
+  price: { type: Number, required: true },
+  countInStock: { type: Number, required: true, default: 0 },
+})
+
 const productSchema = new mongoose.Schema(
   {
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      ref: 'User',
-    },
+    user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
     name: { type: String, required: true },
     image: { type: String, required: true },
+    images: [{ type: String }],
+    cultivationType: {
+      type: String,
+      enum: ['آبزی', 'هیدروپونیک', 'هر دو'],
+      default: 'آبزی',
+    },
+    needsSoil: { type: Boolean, default: false },
     brand: { type: String, required: true },
     category: {
       type: String,
@@ -35,48 +41,22 @@ const productSchema = new mongoose.Schema(
     numReviews: { type: Number, required: true, default: 0 },
     price: { type: Number, required: true, default: 0 },
     countInStock: { type: Number, required: true, default: 0 },
-
-    // سیستم تخفیف
     discount: { type: Number, default: 0 },
     discountMinQty: { type: Number, default: 0 },
     discountQtyPercent: { type: Number, default: 0 },
-
-    // ویدیو معرفی محصول
     video: { type: String, default: '' },
-
-    // سختی نگهداری
-    careLevel: {
-      type: String,
-      enum: ['آسان', 'متوسط', 'سخت'],
-      default: 'آسان',
-    },
-
-    // اطلاعات تکمیلی گیاه
-    lightNeeds: {
-      type: String,
-      enum: ['کم', 'متوسط', 'زیاد'],
-      default: 'متوسط',
-    },
-    co2Needs: {
-      type: String,
-      enum: ['بدون CO2', 'اختیاری', 'ضروری'],
-      default: 'اختیاری',
-    },
-    growthRate: {
-      type: String,
-      enum: ['کند', 'متوسط', 'سریع'],
-      default: 'متوسط',
-    },
-
-    // خانواده گیاه
+    careLevel: { type: String, enum: ['آسان', 'متوسط', 'سخت'], default: 'آسان' },
+    lightNeeds: { type: String, enum: ['کم', 'متوسط', 'زیاد'], default: 'متوسط' },
+    co2Needs: { type: String, enum: ['بدون CO2', 'اختیاری', 'ضروری'], default: 'اختیاری' },
+    growthRate: { type: String, enum: ['کند', 'متوسط', 'سریع'], default: 'متوسط' },
     family: { type: String, default: '' },
-
-    // محل کاشت در آکواریوم
     position: {
       type: String,
       enum: ['جلو', 'میانه', 'پشت', 'شناور', 'نامشخص'],
       default: 'نامشخص',
     },
+    // سایزبندی - اگه خالی باشه یعنی محصول سایز ندارد
+    variants: [variantSchema],
   },
   { timestamps: true }
 )
