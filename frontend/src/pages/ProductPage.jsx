@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
   Row, Col, Image, ListGroup, Card, Button,
@@ -6,11 +6,15 @@ import {
 } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
+import { Helmet } from 'react-helmet-async'
 import { useGetProductDetailsQuery, useCreateReviewMutation } from '../slices/productsApiSlice'
+import { useFlyToCart } from '../hooks/useFlyToCart'
 import { addToCart } from '../slices/cartSlice'
 import Rating from '../components/ui/Rating'
 import Loader from '../components/ui/Loader'
 import Message from '../components/ui/Message'
+import StarRatingInput from '../components/ui/StarRatingInput'
+import ReviewItem from '../components/ui/ReviewItem'
 import { calcDiscountedPrice } from '../utils/cartUtils'
 
 const careLevelConfig = {
@@ -38,6 +42,8 @@ const ProductPage = () => {
   const { userInfo } = useSelector((state) => state.auth)
   const isAdmin = userInfo?.isAdmin
   const [createReview, { isLoading: loadingReview }] = useCreateReviewMutation()
+  const flyToCart = useFlyToCart()
+  const productImageRef = useRef(null)
 
   const hasVariants = product?.variants && product.variants.length > 0
 
@@ -69,15 +75,20 @@ const ProductPage = () => {
       // سایز انتخاب شده
       selectedSize: selectedVariant ? selectedVariant.size : null,
     }))
+    flyToCart(productImageRef.current, product.image)
     toast.success(`محصول${selectedVariant ? ` (${selectedVariant.size})` : ''} به سبد خرید اضافه شد 🛒`)
   }
 
   const submitReviewHandler = async (e) => {
     e.preventDefault()
+    if (!rating) {
+      toast.error('لطفاً امتیاز را انتخاب کنید')
+      return
+    }
     try {
-      await createReview({ productId, rating, comment }).unwrap()
+      const res = await createReview({ productId, rating, comment }).unwrap()
       refetch()
-      toast.success('نظر شما ثبت شد')
+      toast.success(res.message)
       setRating(0)
       setComment('')
     } catch (err) {
@@ -93,10 +104,23 @@ const ProductPage = () => {
         <Message variant='danger'>{error?.data?.message}</Message>
       ) : (
         <>
+          <Helmet>
+            <title>{product.name} | فروشگاه AquaLotus</title>
+            <meta
+              name='description'
+              content={product.description?.slice(0, 155)}
+            />
+            <meta property='og:title' content={`${product.name} | AquaLotus`} />
+            <meta property='og:description' content={product.description?.slice(0, 155)} />
+            <meta property='og:image' content={product.image} />
+            <meta property='og:type' content='product' />
+            <link rel='canonical' href={`https://aqualotus.ir/product/${product._id}`} />
+          </Helmet>
           <Row>
             {/* تصاویر */}
             <Col md={5}>
               <Image
+                ref={productImageRef}
                 src={selectedImage || product.image}
                 alt={product.name}
                 fluid
@@ -162,43 +186,43 @@ const ProductPage = () => {
 
                 <ListGroup.Item>
                   <div className='d-flex flex-column gap-2'>
-                    {product.lightNeeds && (
+                    {product.category === 'گیاه زنده' && product.lightNeeds && (
                       <div className='d-flex align-items-center gap-2'>
                         <span>💡 نیاز نوری:</span>
                         <Badge bg='info'>{product.lightNeeds}</Badge>
                       </div>
                     )}
-                    {product.co2Needs && (
+                    {product.category === 'گیاه زنده' && product.co2Needs && (
                       <div className='d-flex align-items-center gap-2'>
                         <span>💨 CO2:</span>
                         <Badge bg='secondary'>{co2Label(product.co2Needs)}</Badge>
                       </div>
                     )}
-                    {product.growthRate && (
+                    {product.category === 'گیاه زنده' && product.growthRate && (
                       <div className='d-flex align-items-center gap-2'>
                         <span>🌱 سرعت رشد:</span>
                         <Badge bg='success'>{product.growthRate}</Badge>
                       </div>
                     )}
-                    {product.family && (
+                    {product.category === 'گیاه زنده' && product.family && (
                       <div className='d-flex align-items-center gap-2'>
                         <span>🌿 خانواده:</span>
                         <Badge bg='primary'>{product.family}</Badge>
                       </div>
                     )}
-                    {product.position && product.position !== 'نامشخص' && (
+                    {product.category === 'گیاه زنده' && product.position && product.position !== 'نامشخص' && (
                       <div className='d-flex align-items-center gap-2'>
                         <span>📍 محل کاشت:</span>
                         <Badge bg='warning' text='dark'>{product.position}</Badge>
                       </div>
                     )}
-                    {product.cultivationType && (
+                    {product.category === 'گیاه زنده' && product.cultivationType && (
                       <div className='d-flex align-items-center gap-2'>
                         <span>🪴 نوع کشت:</span>
                         <Badge bg='success'>{product.cultivationType}</Badge>
                       </div>
                     )}
-                    {product.needsSoil !== undefined && (
+                    {product.category === 'گیاه زنده' && product.needsSoil !== undefined && (
                       <div className='d-flex align-items-center gap-2'>
                         <span>🪨 نیاز به بستر:</span>
                         <Badge bg={product.needsSoil ? 'warning' : 'secondary'} text='dark'>
@@ -337,41 +361,38 @@ const ProductPage = () => {
 
           {/* نظرات */}
           <Row className='mt-5'>
-            <Col md={6}>
-              <h4>نظرات کاربران</h4>
-              {product.reviews.length === 0 && <Message>هنوز نظری ثبت نشده</Message>}
-              <ListGroup variant='flush'>
-                {product.reviews.map((review) => (
-                  <ListGroup.Item key={review._id}>
-                    <strong>{review.name}</strong>
-                    <Rating value={review.rating} />
-                    <p className='mt-1'>{review.comment}</p>
-                  </ListGroup.Item>
+            <Col md={7}>
+              <h4 className='mb-3'>نظرات کاربران</h4>
+              {product.reviews.filter((r) => r.isApproved).length === 0 && (
+                <Message>هنوز نظری ثبت نشده</Message>
+              )}
+              {product.reviews
+                .filter((r) => r.isApproved)
+                .map((review) => (
+                  <ReviewItem
+                    key={review._id}
+                    review={review}
+                    productId={productId}
+                    userInfo={userInfo}
+                  />
                 ))}
-                {userInfo && !isAdmin && (
-                  <ListGroup.Item>
-                    <h5>نظر خود را بنویسید</h5>
-                    <Form onSubmit={submitReviewHandler}>
-                      <Form.Group className='mb-2'>
-                        <Form.Label>امتیاز</Form.Label>
-                        <Form.Select value={rating} onChange={(e) => setRating(Number(e.target.value))}>
-                          <option value=''>انتخاب کنید</option>
-                          <option value='1'>1 - ضعیف</option>
-                          <option value='2'>2 - متوسط</option>
-                          <option value='3'>3 - خوب</option>
-                          <option value='4'>4 - عالی</option>
-                          <option value='5'>5 - فوق‌العاده</option>
-                        </Form.Select>
-                      </Form.Group>
-                      <Form.Group className='mb-2'>
-                        <Form.Label>نظر</Form.Label>
-                        <Form.Control as='textarea' rows={3} value={comment} onChange={(e) => setComment(e.target.value)} />
-                      </Form.Group>
-                      <Button type='submit' className='btn-aqualotus' disabled={loadingReview}>ثبت نظر</Button>
-                    </Form>
-                  </ListGroup.Item>
-                )}
-              </ListGroup>
+
+              {userInfo && !isAdmin && (
+                <Card className='p-3 mt-4'>
+                  <h5>نظر خود را بنویسید</h5>
+                  <Form onSubmit={submitReviewHandler}>
+                    <Form.Group className='mb-3'>
+                      <Form.Label className='d-block'>امتیاز</Form.Label>
+                      <StarRatingInput value={rating} onChange={setRating} />
+                    </Form.Group>
+                    <Form.Group className='mb-2'>
+                      <Form.Label>نظر</Form.Label>
+                      <Form.Control as='textarea' rows={3} value={comment} onChange={(e) => setComment(e.target.value)} />
+                    </Form.Group>
+                    <Button type='submit' className='btn-aqualotus' disabled={loadingReview}>ثبت نظر</Button>
+                  </Form>
+                </Card>
+              )}
             </Col>
           </Row>
         </>

@@ -30,7 +30,14 @@ const CartPage = () => {
     <Container className='py-4'>
       <h2 className='mb-4'>سبد خرید</h2>
       {cartItems.length === 0 ? (
-        <Message>سبد خرید شما خالی است. <Link to='/'>بازگشت به فروشگاه</Link></Message>
+        <div className='aq-empty-state'>
+          <div className='aq-empty-icon'>🪴</div>
+          <h4 className='mt-3' style={{ color: 'var(--primary)' }}>آکواریومت هنوز خالیه!</h4>
+          <p className='text-muted mb-4'>هنوز هیچ گیاهی به سبدت اضافه نکردی — بریم یه نگاهی به فروشگاه بندازیم؟</p>
+          <Link to='/' className='btn btn-aqualotus px-4'>
+            🌿 بریم گیاه انتخاب کنیم
+          </Link>
+        </div>
       ) : (
         <Row>
           <Col md={8}>

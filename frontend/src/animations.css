@@ -1,0 +1,267 @@
+/* ==========================================================================
+   AquaLotus — Motion & Signature Layer
+   حرکت، عمق و امضای بصری سایت — بدون تغییر پالت رنگی یا چیدمان اصلی
+   ========================================================================== */
+
+/* ----- متغیرهای حرکت ----- */
+:root {
+  --ease-fluid: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 180ms;
+  --dur-base: 320ms;
+  --dur-slow: 600ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-light);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--primary-light);
+  border-radius: 10px;
+  border: 2px solid var(--bg-light);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+html {
+  scrollbar-color: var(--primary-light) var(--bg-light);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body {
+    cursor: none;
+  }
+  .aq-cursor-dot,
+  .aq-cursor-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    will-change: transform;
+  }
+  .aq-cursor-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--primary);
+    transition: transform var(--dur-fast) var(--ease-soft), opacity var(--dur-fast);
+  }
+  .aq-cursor-ring {
+    width: 32px;
+    height: 32px;
+    border: 1.5px solid var(--primary-light);
+    background: rgba(82, 183, 136, 0.08);
+    transition: width var(--dur-base) var(--ease-fluid), height var(--dur-base) var(--ease-fluid),
+      border-color var(--dur-base), background var(--dur-base), transform 90ms linear;
+  }
+  .aq-cursor-ring.is-active {
+    width: 50px;
+    height: 50px;
+    border-color: var(--primary);
+    background: rgba(45, 106, 79, 0.12);
+  }
+  .aq-cursor-ring.is-clicking {
+    width: 26px;
+    height: 26px;
+  }
+}
+@media (hover: none), (pointer: coarse) {
+  .aq-cursor-dot,
+  .aq-cursor-ring {
+    display: none;
+  }
+}
+
+@keyframes aq-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes aq-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes aq-float {
+  0%, 100% { transform: translateY(0) translateX(0); }
+  50% { transform: translateY(-14px) translateX(6px); }
+}
+
+@keyframes aq-float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-22px); }
+}
+
+@keyframes aq-pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(45, 106, 79, 0.35); }
+  70% { box-shadow: 0 0 0 10px rgba(45, 106, 79, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(45, 106, 79, 0); }
+}
+
+@keyframes aq-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.aq-reveal {
+  opacity: 0;
+  animation: aq-fade-up var(--dur-slow) var(--ease-fluid) forwards;
+}
+.aq-reveal-1 { animation-delay: 0.05s; }
+.aq-reveal-2 { animation-delay: 0.12s; }
+.aq-reveal-3 { animation-delay: 0.19s; }
+.aq-reveal-4 { animation-delay: 0.26s; }
+
+.aq-scroll-init {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 4s var(--ease-fluid), transform 4s var(--ease-fluid);
+}
+.aq-scroll-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.aq-bubbles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.aq-bubble {
+  position: absolute;
+  bottom: -60px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 28% 24%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.9) 8%, transparent 9%),
+    transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.65);
+  box-shadow: inset -2px -2px 4px rgba(255, 255, 255, 0.25), inset 2px 2px 3px rgba(0, 0, 0, 0.03);
+  animation: aq-bubble-rise linear infinite;
+}
+@keyframes aq-bubble-rise {
+  0% {
+    transform: translateY(0) translateX(0) scale(0.6);
+    opacity: 0;
+  }
+  12% { opacity: 0.95; transform: translateY(-10%) translateX(0) scale(1); }
+  88% { opacity: 0.75; }
+  100% {
+    transform: translateY(-130%) translateX(var(--drift, 20px)) scale(0.85);
+    opacity: 0;
+  }
+}
+
+.aq-product-media {
+  position: relative;
+  overflow: hidden;
+}
+.aq-product-media img {
+  transition: transform var(--dur-slow) var(--ease-fluid);
+}
+.aq-product-card:hover .aq-product-media img {
+  transform: scale(1.08);
+}
+.aq-product-card {
+  transition: transform var(--dur-base) var(--ease-fluid), box-shadow var(--dur-base) var(--ease-fluid);
+}
+.aq-product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 14px rgba(45, 106, 79, 0.08), 0 22px 34px rgba(45, 106, 79, 0.16);
+}
+.aq-product-badge-slide {
+  transform: translateY(100%);
+  transition: transform var(--dur-base) var(--ease-fluid);
+}
+.aq-product-card:hover .aq-product-badge-slide {
+  transform: translateY(0);
+}
+
+.btn, button {
+  transition: transform 120ms var(--ease-soft), box-shadow var(--dur-base) var(--ease-soft),
+    background-color var(--dur-base) var(--ease-soft), filter var(--dur-base) var(--ease-soft);
+}
+.btn:active, button:active {
+  transform: scale(0.96);
+}
+.btn-aqualotus {
+  position: relative;
+  overflow: hidden;
+}
+
+.aq-pulse-on-select {
+  animation: aq-pulse-ring 520ms var(--ease-soft);
+}
+
+.aq-fly-item {
+  position: fixed;
+  z-index: 9998;
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: var(--card-shadow);
+}
+
+.aq-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(149, 213, 178, 0.15) 25%,
+    rgba(149, 213, 178, 0.35) 37%,
+    rgba(149, 213, 178, 0.15) 63%
+  );
+  background-size: 400% 100%;
+  animation: aq-shimmer 1.4s ease-in-out infinite;
+  border-radius: 10px;
+}
+
+.aq-leaf-texture {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.06;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cpath d='M100 20 C140 50 160 90 100 180 C40 90 60 50 100 20 Z' fill='none' stroke='%232d6a4f' stroke-width='2'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  background-repeat: repeat;
+}
+
+.aq-empty-state {
+  text-align: center;
+  padding: 56px 20px;
+}
+.aq-empty-state .aq-empty-icon {
+  font-size: 3rem;
+  display: inline-block;
+  animation: aq-float 4s ease-in-out infinite;
+}
+
+.aq-display-title {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+.aq-page-transition {
+  animation: aq-fade-in var(--dur-base) var(--ease-soft);
+}

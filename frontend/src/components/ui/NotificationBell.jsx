@@ -1,0 +1,206 @@
+import { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { FaBell } from 'react-icons/fa'
+import {
+  useGetNotificationsQuery,
+  useGetUnreadCountQuery,
+  useMarkNotificationReadMutation,
+  useMarkAllNotificationsReadMutation,
+} from '../../slices/notificationsApiSlice'
+
+const typeIcons = {
+  new_review: '⭐',
+  new_reply: '💬',
+  new_order: '🛒',
+  low_stock: '📦',
+  new_message: '✉️',
+}
+
+const timeAgo = (dateString) => {
+  const now = new Date()
+  const date = new Date(dateString)
+  const diffMinutes = Math.floor((now - date) / 60000)
+  const diffHours = Math.floor(diffMinutes / 60)
+  const diffDays = Math.floor(diffHours / 24)
+  if (diffMinutes < 1) return 'همین الان'
+  if (diffMinutes < 60) return `${diffMinutes} دقیقه پیش`
+  if (diffHours < 24) return `${diffHours} ساعت پیش`
+  if (diffDays < 30) return `${diffDays} روز پیش`
+  return date.toLocaleDateString('fa-IR')
+}
+
+const NotificationBell = () => {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+  const navigate = useNavigate()
+
+  const { data: unreadData } = useGetUnreadCountQuery(undefined, {
+    pollingInterval: 30000,
+  })
+  const { data: notifications, isLoading } = useGetNotificationsQuery(undefined, {
+    skip: !open,
+  })
+  const [markRead] = useMarkNotificationReadMutation()
+  const [markAllRead] = useMarkAllNotificationsReadMutation()
+
+  const unreadCount = unreadData?.count || 0
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const handleItemClick = async (notif) => {
+    if (!notif.isRead) {
+      try {
+        await markRead(notif._id).unwrap()
+      } catch (err) {
+        // ignore
+      }
+    }
+    setOpen(false)
+    if (notif.link) {
+      navigate(notif.link)
+    }
+  }
+
+  const handleMarkAll = async (e) => {
+    e.stopPropagation()
+    try {
+      await markAllRead().unwrap()
+    } catch (err) {
+      // ignore
+    }
+  }
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        style={{
+          background: 'none',
+          border: 'none',
+          position: 'relative',
+          cursor: 'pointer',
+          color: 'inherit',
+          fontSize: '1.2rem',
+          padding: '6px 10px',
+        }}
+      >
+        <FaBell />
+        {unreadCount > 0 && (
+          <span
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              backgroundColor: '#e63946',
+              color: '#fff',
+              borderRadius: '50%',
+              fontSize: '0.65rem',
+              minWidth: '18px',
+              height: '18px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '0 3px',
+            }}
+          >
+            {unreadCount > 99 ? '99+' : unreadCount}
+          </span>
+        )}
+      </button>
+
+      {open && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '110%',
+            left: 0,
+            width: '320px',
+            maxHeight: '420px',
+            overflowY: 'auto',
+            backgroundColor: '#fff',
+            color: '#212529',
+            borderRadius: '12px',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
+            zIndex: 2000,
+          }}
+        >
+          <div
+            className='d-flex justify-content-between align-items-center'
+            style={{ padding: '12px 14px', borderBottom: '1px solid #eee' }}
+          >
+            <strong>نوتیفیکیشن‌ها</strong>
+            {unreadCount > 0 && (
+              <button
+                onClick={handleMarkAll}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#2d6a4f',
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                }}
+              >
+                علامت‌گذاری همه
+              </button>
+            )}
+          </div>
+
+          {isLoading ? (
+            <div className='text-center p-3 text-muted'>در حال بارگذاری...</div>
+          ) : !notifications || notifications.length === 0 ? (
+            <div className='text-center p-3 text-muted'>نوتیفیکیشنی وجود ندارد</div>
+          ) : (
+            notifications.map((notif) => (
+              <div
+                key={notif._id}
+                onClick={() => handleItemClick(notif)}
+                style={{
+                  padding: '10px 14px',
+                  borderBottom: '1px solid #f1f1f1',
+                  cursor: 'pointer',
+                  backgroundColor: notif.isRead ? '#fff' : '#f0f7f3',
+                  display: 'flex',
+                  gap: '10px',
+                  alignItems: 'flex-start',
+                }}
+              >
+                <span style={{ fontSize: '1.1rem' }}>{typeIcons[notif.type] || '🔔'}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: notif.isRead ? 'normal' : 'bold', fontSize: '0.88rem' }}>
+                    {notif.title}
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: '#555' }}>{notif.message}</div>
+                  <div style={{ fontSize: '0.72rem', color: '#999', marginTop: '2px' }}>
+                    {timeAgo(notif.createdAt)}
+                  </div>
+                </div>
+                {!notif.isRead && (
+                  <span
+                    style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      backgroundColor: '#2d6a4f',
+                      marginTop: '4px',
+                      flexShrink: 0,
+                    }}
+                  />
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default NotificationBell

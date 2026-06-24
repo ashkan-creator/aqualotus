@@ -1,11 +1,24 @@
 import mongoose from 'mongoose'
 
+const replySchema = new mongoose.Schema(
+  {
+    user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
+    name: { type: String, required: true },
+    comment: { type: String, required: true },
+    isAdmin: { type: Boolean, default: false },
+    isApproved: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+)
+
 const reviewSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
     name: { type: String, required: true },
     rating: { type: Number, required: true },
     comment: { type: String, required: true },
+    isApproved: { type: Boolean, default: false },
+    replies: [replySchema],
   },
   { timestamps: true }
 )

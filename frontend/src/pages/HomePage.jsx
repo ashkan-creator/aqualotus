@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Row, Col, Container, Button } from 'react-bootstrap'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { useGetProductsQuery } from '../slices/productsApiSlice'
 import ProductCard from '../components/ui/ProductCard'
 import HeroSlider from '../components/ui/HeroSlider'
@@ -62,6 +63,20 @@ const HomePage = () => {
 
   return (
     <>
+      <Helmet>
+        <title>AquaLotus | فروشگاه آنلاین گیاهان آبزی و آکواریوم</title>
+        <meta
+          name='description'
+          content='خرید آنلاین گیاهان زنده آکواریوم، کود و مکمل، بستر و لوازم جانبی آکواریوم با ارسال به سراسر ایران'
+        />
+        <meta property='og:title' content='AquaLotus | فروشگاه گیاهان آبزی' />
+        <meta
+          property='og:description'
+          content='خرید آنلاین گیاهان زنده آکواریوم، کود و مکمل، بستر و لوازم جانبی آکواریوم'
+        />
+        <meta property='og:type' content='website' />
+        <link rel='canonical' href='https://aqualotus.ir/' />
+      </Helmet>
       {!keyword && !activeFilterCount && <HeroSlider />}
       <Container className='py-4'>
 
@@ -97,7 +112,14 @@ const HomePage = () => {
 
             <Col lg={10}>
               {data?.products?.length === 0 ? (
-                <Message>محصولی با این مشخصات پیدا نشد</Message>
+                <div className='aq-empty-state'>
+                  <div className='aq-empty-icon'>🔍</div>
+                  <h4 className='mt-3' style={{ color: 'var(--primary)' }}>گیاهی پیدا نشد!</h4>
+                  <p className='text-muted mb-4'>متأسفانه چیزی با این مشخصات تو آکواریوم ما نداریم — یه جستجوی دیگه امتحان کن؟</p>
+                  <Link to='/' className='btn btn-aqualotus px-4'>
+                    🌿 همه محصولات
+                  </Link>
+                </div>
               ) : (
                 <>
                   <Row className='g-3'>

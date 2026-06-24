@@ -59,10 +59,16 @@ const HeroSlider = () => {
               : { background: slide.bg || 'linear-gradient(135deg, #1b4332, #2d6a4f)' }
           }
         >
-          <div className='hero-content'>
-            {slide.title && <h1 className='hero-title'>{slide.title}</h1>}
-            {slide.subtitle && <p className='hero-subtitle'>{slide.subtitle}</p>}
-            <Link to={slide.link || '/'} className='hero-btn'>
+          <div className='hero-content' style={{ position: 'relative', zIndex: 1 }}>
+            {slide.title && (
+              <h1 className='hero-title aq-display-title aq-reveal aq-reveal-1'>
+                {slide.title}
+              </h1>
+            )}
+            {slide.subtitle && (
+              <p className='hero-subtitle aq-reveal aq-reveal-2'>{slide.subtitle}</p>
+            )}
+            <Link to={slide.link || '/'} className='hero-btn aq-reveal aq-reveal-3'>
               {slide.buttonText || 'مشاهده'}
             </Link>
           </div>

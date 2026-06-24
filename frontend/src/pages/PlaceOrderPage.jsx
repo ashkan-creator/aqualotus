@@ -1,12 +1,13 @@
 import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
-  Row, Col, ListGroup, Image, Button, Card, Container,
+  Row, Col, ListGroup, Image, Button, Card, Container, Badge,
 } from 'react-bootstrap'
 import { useSelector, useDispatch } from 'react-redux'
 import { toast } from 'react-toastify'
 import { useCreateOrderMutation } from '../slices/ordersApiSlice'
 import { clearCartItems } from '../slices/cartSlice'
+import { calcDiscountedPrice } from '../utils/cartUtils'
 import Loader from '../components/ui/Loader'
 import Message from '../components/ui/Message'
 
@@ -26,7 +27,12 @@ const PlaceOrderPage = () => {
   const placeOrderHandler = async () => {
     try {
       const res = await createOrder({
-        orderItems: cartItems,
+        // ✅ selectedSize همراه با هر آیتم ارسال میشه
+        orderItems: cartItems.map((item) => ({
+          ...item,
+          selectedSize: item.selectedSize || '',
+          price: Math.round(calcDiscountedPrice(item)),
+        })),
         shippingAddress,
         paymentMethod: 'کارت به کارت',
         itemsPrice,
@@ -49,7 +55,8 @@ const PlaceOrderPage = () => {
             <ListGroup.Item>
               <h4>آدرس ارسال</h4>
               <p>
-                {shippingAddress?.address}، {shippingAddress?.city}،{' '}
+                {shippingAddress?.address}، {shippingAddress?.city}
+                {shippingAddress?.province && `، استان ${shippingAddress.province}`}،{' '}
                 کد پستی: {shippingAddress?.postalCode}
               </p>
             </ListGroup.Item>
@@ -65,22 +72,55 @@ const PlaceOrderPage = () => {
                 <Message>سبد خرید خالی است</Message>
               ) : (
                 <ListGroup variant='flush'>
-                  {cartItems.map((item, index) => (
-                    <ListGroup.Item key={index}>
-                      <Row className='align-items-center'>
-                        <Col md={2}>
-                          <Image src={item.image} alt={item.name} fluid rounded />
-                        </Col>
-                        <Col>
-                          <Link to={`/product/${item._id}`}>{item.name}</Link>
-                        </Col>
-                        <Col md={4} className='text-end'>
-                          {item.qty} × {item.price.toLocaleString('fa-IR')} ={' '}
-                          {(item.qty * item.price).toLocaleString('fa-IR')} تومان
-                        </Col>
-                      </Row>
-                    </ListGroup.Item>
-                  ))}
+                  {cartItems.map((item, index) => {
+                    const discountedPrice = calcDiscountedPrice(item)
+                    const hasDiscount = discountedPrice < item.price
+                    return (
+                      <ListGroup.Item key={index}>
+                        <Row className='align-items-center'>
+                          <Col md={2}>
+                            <Image src={item.image} alt={item.name} fluid rounded />
+                          </Col>
+                          <Col>
+                            <Link to={`/product/${item._id}`}>{item.name}</Link>
+                            {/* ✅ نمایش سایز انتخاب شده */}
+                            {item.selectedSize && (
+                              <div className='mt-1'>
+                                <Badge bg='success'>📐 سایز: {item.selectedSize}</Badge>
+                              </div>
+                            )}
+                            {hasDiscount && (
+                              <div>
+                                <small className='text-danger'>
+                                  {item.discount > 0
+                                    ? `${item.discount}% تخفیف`
+                                    : `تخفیف تعداد ${item.discountQtyPercent}%`}
+                                </small>
+                              </div>
+                            )}
+                          </Col>
+                          <Col md={4} className='text-end'>
+                            {hasDiscount ? (
+                              <>
+                                <small className='text-muted text-decoration-line-through d-block'>
+                                  {item.qty} × {item.price.toLocaleString('fa-IR')}
+                                </small>
+                                <span className='text-danger'>
+                                  {item.qty} × {Math.round(discountedPrice).toLocaleString('fa-IR')} ={' '}
+                                  {(item.qty * Math.round(discountedPrice)).toLocaleString('fa-IR')} تومان
+                                </span>
+                              </>
+                            ) : (
+                              <span>
+                                {item.qty} × {item.price.toLocaleString('fa-IR')} ={' '}
+                                {(item.qty * item.price).toLocaleString('fa-IR')} تومان
+                              </span>
+                            )}
+                          </Col>
+                        </Row>
+                      </ListGroup.Item>
+                    )
+                  })}
                 </ListGroup>
               )}
             </ListGroup.Item>

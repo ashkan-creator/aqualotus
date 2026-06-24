@@ -7,6 +7,7 @@ import store from './store'
 import App from './App.jsx'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './index.css'
+import './animations.css'
 import HomePage from './pages/HomePage'
 import ProductPage from './pages/ProductPage'
 import CartPage from './pages/CartPage'
@@ -32,6 +33,7 @@ import AdminDashboardPage from './pages/admin/DashboardPage'
 import AdminBlogListPage from './pages/admin/BlogListPage'
 import AdminSliderListPage from './pages/admin/SliderListPage'
 import AdminBlogEditPage from './pages/admin/BlogEditPage'
+import AdminReviewsPage from './pages/admin/AdminReviewsPage'
 import PrivateRoute from './components/PrivateRoute'
 import AdminRoute from './components/AdminRoute'
 
@@ -79,6 +81,7 @@ const router = createBrowserRouter([
           { path: 'blog', element: <AdminBlogListPage /> },
           { path: 'sliders', element: <AdminSliderListPage /> },
           { path: 'blog/:id/edit', element: <AdminBlogEditPage /> },
+          { path: 'reviews', element: <AdminReviewsPage /> },
         ],
       },
     ],

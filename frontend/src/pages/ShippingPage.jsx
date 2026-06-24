@@ -3,20 +3,30 @@ import { useNavigate } from 'react-router-dom'
 import { Form, Button, Container, Card, Row, Col } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import { saveShippingAddress } from '../slices/cartSlice'
+import { iranProvinces } from '../data/iranProvinces'
 
 const ShippingPage = () => {
   const { shippingAddress } = useSelector((state) => state.cart)
 
   const [address, setAddress] = useState(shippingAddress?.address || '')
+  const [province, setProvince] = useState(shippingAddress?.province || '')
   const [city, setCity] = useState(shippingAddress?.city || '')
   const [postalCode, setPostalCode] = useState(shippingAddress?.postalCode || '')
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
+  const selectedProvinceData = iranProvinces.find((p) => p.province === province)
+  const availableCities = selectedProvinceData ? selectedProvinceData.cities : []
+
+  const handleProvinceChange = (e) => {
+    setProvince(e.target.value)
+    setCity('')
+  }
+
   const submitHandler = (e) => {
     e.preventDefault()
-    dispatch(saveShippingAddress({ address, city, postalCode, country: 'ایران' }))
+    dispatch(saveShippingAddress({ address, province, city, postalCode, country: 'ایران' }))
     navigate('/placeorder')
   }
 
@@ -28,6 +38,40 @@ const ShippingPage = () => {
             <Card.Body className='p-4'>
               <h2 className='mb-4 text-center'>آدرس ارسال</h2>
               <Form onSubmit={submitHandler}>
+                <Row>
+                  <Col xs={12} md={6}>
+                    <Form.Group className='mb-3'>
+                      <Form.Label>استان</Form.Label>
+                      <Form.Select value={province} required onChange={handleProvinceChange}>
+                        <option value=''>انتخاب استان</option>
+                        {iranProvinces.map((p) => (
+                          <option key={p.province} value={p.province}>
+                            {p.province}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                  <Col xs={12} md={6}>
+                    <Form.Group className='mb-3'>
+                      <Form.Label>شهر</Form.Label>
+                      <Form.Select
+                        value={city}
+                        required
+                        disabled={!province}
+                        onChange={(e) => setCity(e.target.value)}
+                      >
+                        <option value=''>{province ? 'انتخاب شهر' : 'ابتدا استان را انتخاب کنید'}</option>
+                        {availableCities.map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                </Row>
+
                 <Form.Group className='mb-3'>
                   <Form.Label>آدرس کامل</Form.Label>
                   <Form.Control
@@ -40,17 +84,6 @@ const ShippingPage = () => {
                   />
                 </Form.Group>
 
-                <Form.Group className='mb-3'>
-                  <Form.Label>شهر</Form.Label>
-                  <Form.Control
-                    type='text'
-                    placeholder='شهر'
-                    value={city}
-                    required
-                    onChange={(e) => setCity(e.target.value)}
-                  />
-                </Form.Group>
-
                 <Form.Group className='mb-4'>
                   <Form.Label>کد پستی</Form.Label>
                   <Form.Control
@@ -58,20 +91,22 @@ const ShippingPage = () => {
                     placeholder='کد پستی ۱۰ رقمی'
                     value={postalCode}
                     required
+                    pattern='[0-9]{10}'
+                    title='کد پستی باید ۱۰ رقم باشد'
                     onChange={(e) => setPostalCode(e.target.value)}
                   />
                 </Form.Group>
-                  <div className='shipping-notice mb-4'>
-  <div className='notice-item'>
-    📦 سفارشات فقط به صورت <strong>پس کرایه</strong> ارسال می‌شوند و هزینه کرایه به عهده مشتری است.
-  </div>
-  <div className='notice-item mt-2'>
-    🚚 ارسال به خارج از تهران: <strong>تیپاکس</strong> و <strong>پست پیشتاز</strong>
-  </div>
-  <div className='notice-item mt-2'>
-    🛵 ارسال در تهران: <strong>اسنپ</strong> و <strong>الوپیک</strong>
-  </div>
-</div>
+                <div className='shipping-notice mb-4'>
+                  <div className='notice-item'>
+                    📦 سفارشات فقط به صورت <strong>پس کرایه</strong> ارسال می‌شوند و هزینه کرایه به عهده مشتری است.
+                  </div>
+                  <div className='notice-item mt-2'>
+                    🚚 ارسال به خارج از تهران: <strong>تیپاکس</strong> و <strong>پست پیشتاز</strong>
+                  </div>
+                  <div className='notice-item mt-2'>
+                    🛵 ارسال در تهران: <strong>اسنپ</strong> و <strong>الوپیک</strong>
+                  </div>
+                </div>
                 <Button type='submit' className='w-100 btn-aqualotus'>
                   ادامه
                 </Button>

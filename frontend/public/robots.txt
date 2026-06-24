@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /profile
+Disallow: /cart
+Disallow: /shipping
+Disallow: /payment
+Disallow: /placeorder
+Disallow: /order/
+
+Sitemap: https://aqualotus.ir/sitemap.xml

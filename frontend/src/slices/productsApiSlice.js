@@ -55,6 +55,59 @@ export const productsApiSlice = apiSlice.injectEndpoints({
       query: (data) => ({ url: `${PRODUCTS_URL}/${data.productId}/reviews`, method: 'POST', body: data }),
       invalidatesTags: (result, error, { productId }) => [{ type: 'Product', id: productId }],
     }),
+    addReviewReply: builder.mutation({
+      query: (data) => ({
+        url: `${PRODUCTS_URL}/${data.productId}/reviews/${data.reviewId}/replies`,
+        method: 'POST',
+        body: { comment: data.comment },
+      }),
+      invalidatesTags: (result, error, { productId }) => [{ type: 'Product', id: productId }],
+    }),
+    getPendingReviews: builder.query({
+      query: () => ({ url: `${PRODUCTS_URL}/reviews/pending` }),
+      providesTags: ['PendingReviews'],
+      keepUnusedDataFor: 5,
+    }),
+    approveReview: builder.mutation({
+      query: (data) => ({
+        url: `${PRODUCTS_URL}/${data.productId}/reviews/${data.reviewId}/approve`,
+        method: 'PUT',
+      }),
+      invalidatesTags: (result, error, { productId }) => [
+        { type: 'Product', id: productId },
+        'PendingReviews',
+      ],
+    }),
+    rejectReview: builder.mutation({
+      query: (data) => ({
+        url: `${PRODUCTS_URL}/${data.productId}/reviews/${data.reviewId}/reject`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, { productId }) => [
+        { type: 'Product', id: productId },
+        'PendingReviews',
+      ],
+    }),
+    approveReply: builder.mutation({
+      query: (data) => ({
+        url: `${PRODUCTS_URL}/${data.productId}/reviews/${data.reviewId}/replies/${data.replyId}/approve`,
+        method: 'PUT',
+      }),
+      invalidatesTags: (result, error, { productId }) => [
+        { type: 'Product', id: productId },
+        'PendingReviews',
+      ],
+    }),
+    rejectReply: builder.mutation({
+      query: (data) => ({
+        url: `${PRODUCTS_URL}/${data.productId}/reviews/${data.reviewId}/replies/${data.replyId}/reject`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, { productId }) => [
+        { type: 'Product', id: productId },
+        'PendingReviews',
+      ],
+    }),
     getTopProducts: builder.query({
       query: () => ({ url: `${PRODUCTS_URL}/top` }),
       keepUnusedDataFor: 5,
@@ -70,5 +123,11 @@ export const {
   useUploadProductImageMutation,
   useDeleteProductMutation,
   useCreateReviewMutation,
+  useAddReviewReplyMutation,
+  useGetPendingReviewsQuery,
+  useApproveReviewMutation,
+  useRejectReviewMutation,
+  useApproveReplyMutation,
+  useRejectReplyMutation,
   useGetTopProductsQuery,
 } = productsApiSlice

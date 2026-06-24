@@ -19,6 +19,9 @@
 /* ===== تنظیمات پایه RTL ===== */
 * {
   font-family: 'Vazirmatn', sans-serif !important;
+.fas, .far, .fab, .fal, .fad, .fa-solid, .fa-regular, .fa-brands {
+  font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Brands' !important;
+}
 }
 
 body {
@@ -409,16 +412,21 @@ body {
   font-size: 0.85rem;
 }
 
-/* ===== جستجو ===== */
-.search-form { margin: 0 12px; }
-
-.search-form { margin: 0 12px; }
+.search-form {
+  margin: 0;
+  display: flex;
+  width: 100%; /* در موبایل کل عرض کانتینر خودش را بگیرد */
+}
 
 .search-input {
   border-radius: 0 10px 10px 0 !important;
   border: none;
-  min-width: 200px;
   text-align: right;
+  font-size: 0.9rem;
+  padding: 5px 10px;
+  height: 34px;
+  flex-grow: 1; /* در موبایل کش بیاید تا فضا را پر کند */
+  width: 100%;  /* جلوی محدود شدن عرض را در ۳۶۰ پیکسل می‌گیرد */
 }
 
 .search-btn {
@@ -427,8 +435,44 @@ body {
   border-radius: 10px 0 0 10px !important;
   color: var(--primary-dark);
   font-weight: 600;
+  padding: 5px 12px;
+  height: 34px;
+  white-space: nowrap; /* مانع از شکستن متن دکمه در سایز کوچک می‌شود */
 }
 
+/* تبلت و دسکتاپ (برگشتن به ابعاد استاندارد) */
+@media (max-width: 400px) {
+  /* کوچک‌تر کردن لوگو برای باز شدن فضا */
+  .brand-logo {
+    font-size: 1.3rem !important;
+    gap: 4px !important;
+  }
+  
+  /* ایجاد یک ردیف مجزا و اختصاصی برای سرچ‌باکس در سایزهای خیلی کوچک */
+  .header-search-container {
+    display: block !important;
+    width: 100% !important;
+    margin-top: 10px !important;
+    margin-bottom: 5px !important;
+  }
+
+  .search-form {
+    width: 100% !important;
+  }
+
+  .search-input {
+    font-size: 0.85rem !important;
+    padding: 5px 8px !important;
+    /* آزاد کردن کامل عرض برای پر کردن خط جدید */
+    min-width: 0 !important; 
+    width: 100% !important;
+  }
+  
+  .search-btn {
+    padding: 5px 10px !important;
+    font-size: 0.85rem !important;
+  }
+}
 /* ===== فیلتر سختی ===== */
 .care-filter {
   background: white;
@@ -517,4 +561,84 @@ body {
 
 .form-check-label {
   padding-right: 0.5em;
+}
+
+/* ==========================================================================
+   AquaLotus Responsive Header Styles (v2 Architecture)
+   ========================================================================== */
+:root {
+  --primary: #1b4d3e;
+  --primary-dark: #113329;
+  --accent: #e2b659; /* رنگ طلایی/لوتوس برای بچ‌ها و هایلایت‌ها */
+  --white: #ffffff;
+}
+
+.aqualotus-navbar {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+  padding: 14px 0;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--white) !important;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.custom-toggler {
+  border: none !important;
+  color: var(--white) !important;
+  font-size: 1.3rem;
+  padding: 4px 8px;
+}
+
+.custom-toggler:focus {
+  box-shadow: none !important;
+}
+
+.header-search-container {
+  width: 100%;
+  max-width: 450px;
+}
+
+/* استایل لینک‌ها و دکمه‌های منو */
+.aqualotus-navbar .nav-link {
+  color: rgba(255,255,255,0.9) !important;
+  font-weight: 500;
+  padding: 10px 15px !important;
+  border-radius: 6px;
+  transition: all 0.25s ease;
+}
+
+.aqualotus-navbar .nav-link:hover {
+  color: var(--accent) !important;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ریسپانسیو اختصاصی برای منوی بازشونده در موبایل (زیر سایز lg) */
+@media (max-width: 991px) {
+  .aqualotus-navbar .navbar-collapse {
+    background: rgba(17, 51, 41, 0.98);
+    margin-top: 15px;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  
+  .header-search-container {
+    max-width: 100%;
+    margin-bottom: 15px;
+  }
+}
+
+.cart-badge {
+  background-color: var(--accent) !important;
+  color: var(--primary-dark) !important;
+  font-weight: 700;
+  font-size: 0.75rem;
 }

@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler'
 import Order from '../models/orderModel.js'
+import Notification from '../models/notificationModel.js'
 
 // @desc    ساخت سفارش جدید
 // @route   POST /api/orders
@@ -34,6 +35,15 @@ const addOrderItems = asyncHandler(async (req, res) => {
   })
 
   const createdOrder = await order.save()
+
+  await Notification.create({
+    type: 'new_order',
+    title: 'سفارش جدید ثبت شد',
+    message: `${req.user.name} یک سفارش جدید به مبلغ ${totalPrice.toLocaleString('fa-IR')} تومان ثبت کرد`,
+    link: `/admin/orderlist`,
+    relatedId: createdOrder._id,
+  })
+
   res.status(201).json(createdOrder)
 })
 

@@ -9,6 +9,7 @@ import { useGetSettingsQuery } from '../../slices/settingsApiSlice'
 import { useGetFamiliesQuery } from '../../slices/familiesApiSlice'
 import { logout } from '../../slices/authSlice'
 import SearchBox from '../ui/SearchBox'
+import NotificationBell from '../ui/NotificationBell'
 
 const Header = () => {
   const { cartItems } = useSelector((state) => state.cart)
@@ -35,7 +36,6 @@ const Header = () => {
     setOpenSection(openSection === section ? null : section)
   }
 
-  // navigate با query params برای فیلترها
   const goToFilter = (params) => {
     setDrawerOpen(false)
     setOpenSection(null)
@@ -53,90 +53,107 @@ const Header = () => {
 
   return (
     <header>
-      <Navbar expand='md' collapseOnSelect className='aqualotus-navbar' style={{ padding: '8px 0' }}>
-        <Container>
-          <LinkContainer to='/'>
-            <Navbar.Brand className='brand-logo d-flex align-items-center' style={{ gap: '10px' }}>
-              <img
-                src='/logo.png'
-                alt='AquaLotus'
-                style={{ width: '52px', height: '52px', borderRadius: '50%', objectFit: 'cover' }}
-              />
-              <span style={{ fontWeight: '600', fontSize: '1.1rem' }}>AquaLotus</span>
-            </Navbar.Brand>
-          </LinkContainer>
+      <Navbar className='aqualotus-navbar' style={{ padding: '10px 0' }}>
+        <Container fluid='md'>
+          <div className='d-flex align-items-center w-100' style={{ gap: '8px' }}>
 
-          <div className='d-none d-md-flex mx-auto'>
+            {/* لوگو */}
+            <LinkContainer to='/'>
+              <Navbar.Brand className='brand-logo d-flex align-items-center me-0' style={{ gap: '8px' }}>
+                <img
+                  src='/logo.png'
+                  alt='AquaLotus'
+                  style={{ width: '44px', height: '44px', borderRadius: '50%', objectFit: 'cover' }}
+                />
+                <span className='d-none d-sm-inline' style={{ fontWeight: '600', fontSize: '1rem' }}>AquaLotus</span>
+              </Navbar.Brand>
+            </LinkContainer>
+
+            {/* سرچ — وسط، فقط دسکتاپ */}
+            <div className='d-none d-md-flex flex-grow-1 mx-3'>
+              <SearchBox />
+            </div>
+
+            {/* آیکون‌ها — همیشه سمت چپ */}
+            <div className='d-flex align-items-center ms-auto' style={{ gap: '12px' }}>
+              {(!userInfo || !userInfo.isAdmin) && (
+                <div id='cart-icon-target' style={{ position: 'relative', cursor: 'pointer' }} onClick={() => navigate('/cart')}>
+                  <FaShoppingCart style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.3rem' }} />
+                  {totalCartItems > 0 && (
+                    <Badge pill bg='danger' style={{
+                      position: 'absolute', top: '-8px', left: '-8px',
+                      fontSize: '0.65rem', minWidth: '18px', height: '18px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      {totalCartItems}
+                    </Badge>
+                  )}
+                </div>
+              )}
+
+              {userInfo?.isAdmin && <NotificationBell />}
+
+              {userInfo ? (
+                <NavDropdown
+                  title={
+                    <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem' }}>
+                      <span className='d-none d-sm-inline'>{userInfo.name}</span>
+                      <FaUser className='d-sm-none' style={{ fontSize: '1.1rem' }} />
+                    </span>
+                  }
+                  id='user-menu'
+                  align='end'
+                >
+                  {!userInfo.isAdmin && (
+                    <LinkContainer to='/profile'>
+                      <NavDropdown.Item>پروفایل و سفارش‌هایم</NavDropdown.Item>
+                    </LinkContainer>
+                  )}
+                  {userInfo.isAdmin && (
+                    <>
+                      <LinkContainer to='/profile'><NavDropdown.Item>پروفایل</NavDropdown.Item></LinkContainer>
+                      <NavDropdown.Divider />
+                      <LinkContainer to='/admin/dashboard'><NavDropdown.Item>📊 داشبورد</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/productlist'><NavDropdown.Item>محصولات</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/orderlist'><NavDropdown.Item>سفارش‌ها</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/reviews'><NavDropdown.Item>💬 نظرات و پاسخ‌ها</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/userlist'><NavDropdown.Item>کاربران</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/familylist'><NavDropdown.Item>خانواده‌های گیاهی</NavDropdown.Item></LinkContainer>
+                      <NavDropdown.Divider />
+                      <LinkContainer to='/admin/sliders'><NavDropdown.Item>🖼️ اسلایدر</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/blog'><NavDropdown.Item>📝 وبلاگ</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/settings'><NavDropdown.Item>⚙️ تنظیمات</NavDropdown.Item></LinkContainer>
+                    </>
+                  )}
+                  <NavDropdown.Divider />
+                  <NavDropdown.Item onClick={logoutHandler}>خروج</NavDropdown.Item>
+                </NavDropdown>
+              ) : (
+                <div style={{ cursor: 'pointer' }} onClick={() => navigate('/login')}>
+                  <FaUser style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.2rem' }} />
+                </div>
+              )}
+
+              {/* دکمه دسته‌بندی */}
+              <button
+                onClick={() => setDrawerOpen(true)}
+                style={{
+                  background: 'rgba(255,255,255,0.15)', border: 'none',
+                  borderRadius: '8px', padding: '7px 10px', color: 'white',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px',
+                  fontSize: '0.85rem', whiteSpace: 'nowrap',
+                }}
+              >
+                <span style={{ fontSize: '1rem' }}>☰</span>
+                <span className='d-none d-sm-inline'>دسته‌بندی</span>
+              </button>
+            </div>
+          </div>
+
+          {/* سرچ — موبایل، زیر ردیف اول */}
+          <div className='d-md-none mt-2' style={{ padding: '0 12px 8px', boxSizing: 'border-box' }}>
             <SearchBox />
           </div>
-
-          <div className='d-flex align-items-center gap-3'>
-            {(!userInfo || !userInfo.isAdmin) && (
-              <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => navigate('/cart')}>
-                <FaShoppingCart style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.3rem' }} />
-                {totalCartItems > 0 && (
-                  <Badge pill bg='danger' style={{
-                    position: 'absolute', top: '-8px', left: '-8px',
-                    fontSize: '0.65rem', minWidth: '18px', height: '18px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    {totalCartItems}
-                  </Badge>
-                )}
-              </div>
-            )}
-
-            {userInfo ? (
-              <NavDropdown
-                title={<span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem' }}>{userInfo.name}</span>}
-                id='user-menu' align='end'
-              >
-                {!userInfo.isAdmin && (
-                  <LinkContainer to='/profile'>
-                    <NavDropdown.Item>پروفایل و سفارش‌هایم</NavDropdown.Item>
-                  </LinkContainer>
-                )}
-                {userInfo.isAdmin && (
-                  <>
-                    <LinkContainer to='/profile'><NavDropdown.Item>پروفایل</NavDropdown.Item></LinkContainer>
-                    <NavDropdown.Divider />
-                    <LinkContainer to='/admin/dashboard'><NavDropdown.Item>📊 داشبورد</NavDropdown.Item></LinkContainer>
-                    <LinkContainer to='/admin/productlist'><NavDropdown.Item>محصولات</NavDropdown.Item></LinkContainer>
-                    <LinkContainer to='/admin/orderlist'><NavDropdown.Item>سفارش‌ها</NavDropdown.Item></LinkContainer>
-                    <LinkContainer to='/admin/userlist'><NavDropdown.Item>کاربران</NavDropdown.Item></LinkContainer>
-                    <LinkContainer to='/admin/familylist'><NavDropdown.Item>خانواده‌های گیاهی</NavDropdown.Item></LinkContainer>
-                    <NavDropdown.Divider />
-                    <LinkContainer to='/admin/sliders'><NavDropdown.Item>🖼️ اسلایدر</NavDropdown.Item></LinkContainer>
-                    <LinkContainer to='/admin/blog'><NavDropdown.Item>📝 وبلاگ</NavDropdown.Item></LinkContainer>
-                    <LinkContainer to='/admin/settings'><NavDropdown.Item>⚙️ تنظیمات</NavDropdown.Item></LinkContainer>
-                  </>
-                )}
-                <NavDropdown.Divider />
-                <NavDropdown.Item onClick={logoutHandler}>خروج</NavDropdown.Item>
-              </NavDropdown>
-            ) : (
-              <div style={{ cursor: 'pointer' }} onClick={() => navigate('/login')}>
-                <FaUser style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.2rem' }} />
-              </div>
-            )}
-
-            <button
-              onClick={() => setDrawerOpen(true)}
-              style={{
-                background: 'rgba(255,255,255,0.15)', border: 'none',
-                borderRadius: '8px', padding: '7px 12px', color: 'white',
-                fontSize: '0.85rem', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', gap: '6px',
-              }}
-            >
-              <span style={{ fontSize: '1.1rem' }}>☰</span>
-              دسته‌بندی
-            </button>
-          </div>
-        </Container>
-
-        <Container className='d-md-none mt-2'>
-          <SearchBox />
         </Container>
       </Navbar>
 

@@ -44,7 +44,6 @@ const OrderPage = () => {
     formData.append('image', file)
 
     try {
-      // آپلود عکس رسید
       const uploadRes = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
@@ -105,7 +104,8 @@ const OrderPage = () => {
                   <p>
                     <strong>{order.user.name}</strong> |{' '}
                     {order.shippingAddress.address}،{' '}
-                    {order.shippingAddress.city}،{' '}
+                    {order.shippingAddress.city}
+                    {order.shippingAddress.province && `، استان ${order.shippingAddress.province}`}،{' '}
                     کد پستی: {order.shippingAddress.postalCode}
                   </p>
                   {order.isDelivered ? (
@@ -141,6 +141,12 @@ const OrderPage = () => {
                           </Col>
                           <Col>
                             <Link to={`/product/${item.product}`}>{item.name}</Link>
+                            {/* ✅ نمایش سایز - هم برای کاربر هم ادمین */}
+                            {item.selectedSize && (
+                              <div className='mt-1'>
+                                <Badge bg='success'>📐 سایز: {item.selectedSize}</Badge>
+                              </div>
+                            )}
                           </Col>
                           <Col md={4} className='text-end'>
                             {item.qty} × {item.price.toLocaleString('fa-IR')} ={' '}
