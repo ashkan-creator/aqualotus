@@ -29,9 +29,10 @@ const staticSlides = [
   },
 ]
 
-const HeroSlider = () => {
+// BLOG_HERO_MARK
+const HeroSlider = ({ location = 'home' }) => {
   const [current, setCurrent] = useState(0)
-  const { data: dbSliders } = useGetSlidersQuery()
+  const { data: dbSliders } = useGetSlidersQuery(location)
 
   // اگه ادمین اسلاید تو دیتابیس داشت از اونا استفاده کن وگرنه static
   const slides = dbSliders && dbSliders.length > 0 ? dbSliders : staticSlides

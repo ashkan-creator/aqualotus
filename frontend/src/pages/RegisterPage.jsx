@@ -7,6 +7,7 @@ import { setCredentials } from '../slices/authSlice'
 import { toast } from 'react-toastify'
 import Loader from '../components/ui/Loader'
 import { FaLeaf } from 'react-icons/fa'
+import { Helmet } from 'react-helmet-async'
 
 const RegisterPage = () => {
   const [name, setName] = useState('')
@@ -48,7 +49,9 @@ const RegisterPage = () => {
   }
 
   return (
-    <Container className='py-5'>
+    <>
+      <Helmet><title>ثبت‌نام | AquaLotus</title></Helmet>
+      <Container className='py-5'>
       <Row className='justify-content-center'>
         <Col xs={12} md={7} lg={6}>
           <Card className='auth-card'>
@@ -154,6 +157,7 @@ const RegisterPage = () => {
         </Col>
       </Row>
     </Container>
+    </>
   )
 }
 

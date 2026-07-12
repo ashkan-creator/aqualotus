@@ -9,6 +9,7 @@ import mongoSanitize from 'express-mongo-sanitize'
 import connectDB from './config/db.js'
 import { notFound, errorHandler } from './middleware/errorMiddleware.js'
 import userRoutes from './routes/userRoutes.js'
+import activityLogRoutes from './routes/activityLogRoutes.js'
 import productRoutes from './routes/productRoutes.js'
 import orderRoutes from './routes/orderRoutes.js'
 import uploadRoutes from './routes/uploadRoutes.js'
@@ -17,6 +18,9 @@ import settingsRoutes from './routes/settingsRoutes.js'
 import sliderRoutes from './routes/sliderRoutes.js'
 import blogRoutes from './routes/blogRoutes.js'
 import notificationRoutes from './routes/notificationRoutes.js'
+import linkPageRoutes from './routes/linkPageRoutes.js'
+import customPageRoutes from './routes/customPageRoutes.js'
+import { redirectShortLink } from './controllers/linkPageController.js'
 import { generateSitemap } from './controllers/sitemapController.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -57,6 +61,7 @@ app.use('/api', generalLimiter)
 app.use('/api/users/login', authLimiter)
 app.use('/api/users/register', authLimiter)
 app.use('/api/users', userRoutes)
+app.use('/api/activity-logs', activityLogRoutes)
 app.use('/api/products', productRoutes)
 app.use('/api/orders', orderRoutes)
 app.use('/api/upload', uploadRoutes)
@@ -65,6 +70,9 @@ app.use('/api/settings', settingsRoutes)
 app.use('/api/sliders', sliderRoutes)
 app.use('/api/blog', blogRoutes)
 app.use('/api/notifications', notificationRoutes)
+app.use('/api/linkpages', linkPageRoutes)
+app.use('/api/custompages', customPageRoutes)
+app.get('/go/:shortCode', redirectShortLink)
 app.get('/sitemap.xml', generateSitemap)
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')))

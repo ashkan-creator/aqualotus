@@ -1,11 +1,14 @@
 import asyncHandler from 'express-async-handler'
 import Slider from '../models/sliderModel.js'
+import logActivity from '../utils/logActivity.js'
 
 // @desc    دریافت همه اسلایدهای فعال
 // @route   GET /api/sliders
 // @access  Public
 const getSliders = asyncHandler(async (req, res) => {
-  const sliders = await Slider.find({ isActive: true }).sort({ order: 1 })
+  const filter = { isActive: true }
+  if (req.query.location) filter.location = req.query.location
+  const sliders = await Slider.find(filter).sort({ order: 1 })
   res.json(sliders)
 })
 
@@ -13,7 +16,9 @@ const getSliders = asyncHandler(async (req, res) => {
 // @route   GET /api/sliders/all
 // @access  Private/Admin
 const getAllSliders = asyncHandler(async (req, res) => {
-  const sliders = await Slider.find({}).sort({ order: 1 })
+  const filter = {}
+  if (req.query.location) filter.location = req.query.location
+  const sliders = await Slider.find(filter).sort({ order: 1 })
   res.json(sliders)
 })
 
@@ -23,6 +28,7 @@ const getAllSliders = asyncHandler(async (req, res) => {
 const createSlider = asyncHandler(async (req, res) => {
   const { title, image, link, order } = req.body
   const slider = await Slider.create({ title, image, link, order })
+  await logActivity(req.user, 'ساخت اسلاید', 'Slider', slider._id.toString(), slider.title)
   res.status(201).json(slider)
 })
 
@@ -38,6 +44,7 @@ const updateSlider = asyncHandler(async (req, res) => {
     slider.isActive = req.body.isActive ?? slider.isActive
     slider.order = req.body.order ?? slider.order
     const updated = await slider.save()
+    await logActivity(req.user, 'ویرایش اسلایدر', 'Slider', updated._id.toString(), updated.title)
     res.json(updated)
   } else {
     res.status(404)
@@ -52,6 +59,7 @@ const deleteSlider = asyncHandler(async (req, res) => {
   const slider = await Slider.findById(req.params.id)
   if (slider) {
     await Slider.deleteOne({ _id: slider._id })
+    await logActivity(req.user, 'حذف اسلاید', 'Slider', slider._id.toString(), slider.title)
     res.json({ message: 'اسلاید حذف شد' })
   } else {
     res.status(404)

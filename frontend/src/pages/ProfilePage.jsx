@@ -6,6 +6,7 @@ import { useProfileMutation } from '../slices/usersApiSlice'
 import { useGetMyOrdersQuery } from '../slices/ordersApiSlice'
 import { setCredentials } from '../slices/authSlice'
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import Loader from '../components/ui/Loader'
 import Message from '../components/ui/Message'
 
@@ -48,7 +49,9 @@ const ProfilePage = () => {
   }
 
   return (
-    <Container className='py-4'>
+    <>
+      <Helmet><title>پروفایل | AquaLotus</title></Helmet>
+      <Container className='py-4'>
       <Row>
         <Col md={3}>
           <Card className='auth-card mb-3'>
@@ -119,6 +122,7 @@ const ProfilePage = () => {
                 <tr>
                   <th>شناسه</th>
                   <th>تاریخ</th>
+                  <th>اقلام</th>
                   <th>مبلغ</th>
                   <th>پرداخت</th>
                   <th>ارسال</th>
@@ -131,6 +135,15 @@ const ProfilePage = () => {
                     <td>#{order._id.slice(-6)}</td>
                     <td>
                       {new Date(order.createdAt).toLocaleDateString('fa-IR')}
+                    </td>
+                    <td style={{ maxWidth: '220px' }}>
+                      <small
+                        className='text-muted'
+                        title={order.orderItems?.map((i) => `${i.name}${i.selectedSize ? ' (' + i.selectedSize + ')' : ''}`).join('، ')}
+                        style={{ display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                      >
+                        {order.orderItems?.map((i) => `${i.name}${i.selectedSize ? ` (${i.selectedSize})` : ''}`).join('، ')}
+                      </small>
                     </td>
                     <td>
                       {Math.round(order.totalPrice).toLocaleString('fa-IR')} تومان
@@ -166,6 +179,7 @@ const ProfilePage = () => {
         </Col>
       </Row>
     </Container>
+    </>
   )
 }
 

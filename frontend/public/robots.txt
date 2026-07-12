@@ -1,5 +1,8 @@
 User-agent: *
 Allow: /
+Allow: /product/
+Allow: /blog/
+Allow: /filter
 Disallow: /admin/
 Disallow: /profile
 Disallow: /cart
@@ -7,5 +10,13 @@ Disallow: /shipping
 Disallow: /payment
 Disallow: /placeorder
 Disallow: /order/
+Disallow: /login
+Disallow: /register
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
 
 Sitemap: https://aqualotus.ir/sitemap.xml

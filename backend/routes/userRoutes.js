@@ -1,6 +1,7 @@
 import express from 'express'
 import {
   authUser,
+  refreshToken,
   registerUser,
   logoutUser,
   getUserProfile,
@@ -9,6 +10,7 @@ import {
   deleteUser,
   getUserById,
   updateUser,
+  googleLogin,
 } from '../controllers/userController.js'
 import { protect, admin } from '../middleware/authMiddleware.js'
 
@@ -16,7 +18,9 @@ const router = express.Router()
 
 router.route('/').get(protect, admin, getUsers).post(registerUser)
 router.post('/login', authUser)
+router.post('/google', googleLogin)
 router.post('/logout', logoutUser)
+router.post('/refresh', refreshToken)
 router
   .route('/profile')
   .get(protect, getUserProfile)

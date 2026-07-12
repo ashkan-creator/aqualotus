@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Form, Button, Row, Col, Container, Card } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
-import { useLoginMutation } from '../slices/usersApiSlice'
+import { useLoginMutation, useGoogleLoginMutation } from '../slices/usersApiSlice'
 import { setCredentials } from '../slices/authSlice'
 import { toast } from 'react-toastify'
 import Loader from '../components/ui/Loader'
 import { FaLeaf } from 'react-icons/fa'
+import { Helmet } from 'react-helmet-async'
 
 const LoginPage = () => {
   const [email, setEmail] = useState('')
@@ -16,6 +17,7 @@ const LoginPage = () => {
   const navigate = useNavigate()
 
   const [login, { isLoading }] = useLoginMutation()
+  const [googleLogin] = useGoogleLoginMutation()
   const { userInfo } = useSelector((state) => state.auth)
 
   const { search } = useLocation()
@@ -37,8 +39,53 @@ const LoginPage = () => {
     }
   }
 
+  useEffect(() => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
+    if (!clientId) return
+
+    const handleGoogleResponse = async (response) => {
+      try {
+        const res = await googleLogin({ credential: response.credential }).unwrap()
+        dispatch(setCredentials({ ...res }))
+        navigate(redirect)
+      } catch (err) {
+        toast.error(err?.data?.message || 'خطا در ورود با گوگل')
+      }
+    }
+
+    let cancelled = false
+    const initGoogle = () => {
+      if (cancelled) return
+      if (window.google?.accounts?.id) {
+        window.google.accounts.id.initialize({
+          client_id: clientId,
+          callback: handleGoogleResponse,
+        })
+        const el = document.getElementById('google-signin-button')
+        if (el) {
+          window.google.accounts.id.renderButton(el, {
+            theme: 'outline',
+            size: 'large',
+            width: 320,
+            locale: 'fa',
+          })
+        }
+      } else {
+        setTimeout(initGoogle, 200)
+      }
+    }
+    initGoogle()
+
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
-    <Container className='py-5'>
+    <>
+      <Helmet><title>ورود | AquaLotus</title></Helmet>
+      <Container className='py-5'>
       <Row className='justify-content-center'>
         <Col xs={12} md={6} lg={5}>
           <Card className='auth-card'>
@@ -80,6 +127,16 @@ const LoginPage = () => {
 
               {isLoading && <Loader />}
 
+              <div className='d-flex align-items-center my-3'>
+                <hr className='flex-grow-1' />
+                <span className='mx-2 text-muted' style={{ fontSize: '0.85rem' }}>یا</span>
+                <hr className='flex-grow-1' />
+              </div>
+
+              <div className='d-flex justify-content-center'>
+                <div id='google-signin-button' />
+              </div>
+
               <Row className='mt-3'>
                 <Col className='text-center'>
                   <span>حساب ندارید؟ </span>
@@ -93,6 +150,7 @@ const LoginPage = () => {
         </Col>
       </Row>
     </Container>
+    </>
   )
 }
 

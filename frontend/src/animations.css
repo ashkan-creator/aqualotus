@@ -50,7 +50,7 @@ html {
     top: 0;
     left: 0;
     pointer-events: none;
-    z-index: 9999;
+    z-index: 999999;
     border-radius: 50%;
     transform: translate(-50%, -50%);
     will-change: transform;
@@ -264,4 +264,114 @@ html {
 
 .aq-page-transition {
   animation: aq-fade-in var(--dur-base) var(--ease-soft);
+}
+
+
+/* ===== Announcement Bar: RGB + Fade ===== */
+.aq-announcement-rgb {
+  background: linear-gradient(
+    90deg,
+    #ff0040, #ff8c00, #ffee00, #33ff00, #00fff7, #0066ff, #a600ff, #ff0040
+  );
+  background-size: 400% 400%;
+  animation: aqRgbFlow 6s linear infinite;
+}
+
+@keyframes aqRgbFlow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 400% 50%; }
+}
+
+.aq-announcement-text {
+  transition: opacity 0.3s ease;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.35);
+}
+
+
+/* ===== Announcement Bar: Text Animations ===== */
+@keyframes aqFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.aq-anim-fade {
+  animation: aqFadeIn 0.5s ease;
+}
+
+@keyframes aqSlideIn {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.aq-anim-slide {
+  display: inline-block;
+  animation: aqSlideIn 0.5s ease;
+}
+
+@keyframes aqBounceIn {
+  0% { opacity: 0; transform: scale(0.5); }
+  60% { opacity: 1; transform: scale(1.15); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.aq-anim-bounce {
+  display: inline-block;
+  animation: aqBounceIn 0.6s ease;
+}
+
+@keyframes aqGlowPulse {
+  0%, 100% { text-shadow: 0 0 4px rgba(255,255,255,0.4); }
+  50% { text-shadow: 0 0 14px rgba(255,255,255,0.95), 0 0 22px rgba(255,255,255,0.6); }
+}
+.aq-anim-glow {
+  display: inline-block;
+  animation: aqGlowPulse 2s ease-in-out infinite;
+}
+
+.aq-anim-typewriter {
+  display: inline-block;
+}
+.aq-typewriter-cursor {
+  display: inline-block;
+  margin-right: 2px;
+  animation: aqCursorBlink 0.8s steps(1) infinite;
+}
+@keyframes aqCursorBlink {
+  50% { opacity: 0; }
+}
+
+
+/* ===== ProductCard: Auto-slideshow slide transition ===== */
+@keyframes aqSlideshowSlide {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.aq-slideshow-slide {
+  animation: aqSlideshowSlide 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+/* ===== View Transitions: Product Image Morph ===== */
+::view-transition-group(*) {
+  animation-duration: 1.4s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 1.4s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* کراس‌فید ساده برای کل صفحه (root) — بدون اسکیل، فقط محو شدن */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.7s;
+  mix-blend-mode: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }

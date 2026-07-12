@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler'
 import Settings from '../models/settingsModel.js'
+import logActivity from '../utils/logActivity.js'
 
 // @desc    دریافت همه تنظیمات
 // @route   GET /api/settings
@@ -21,6 +22,8 @@ const updateSetting = asyncHandler(async (req, res) => {
     { value },
     { new: true, upsert: true }
   )
+  const shortValue = String(value || '').slice(0, 60)
+  await logActivity(req.user, 'ویرایش تنظیمات', 'Settings', req.params.key, shortValue)
   res.json(setting)
 })
 

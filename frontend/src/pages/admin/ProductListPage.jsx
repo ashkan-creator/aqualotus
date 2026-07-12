@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Table, Button, Container, Badge } from 'react-bootstrap'
+import { Table, Button, Container, Badge, Card, Row, Col } from 'react-bootstrap'
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa'
 import { toast } from 'react-toastify'
 import {
@@ -12,7 +12,6 @@ import Message from '../../components/ui/Message'
 
 const ProductListPage = () => {
   const navigate = useNavigate()
-  // admin=true پاس میدیم تا همه محصولات بیان بدون pagination
   const { data, isLoading, error, refetch } = useGetProductsQuery({ admin: true })
   const [createProduct, { isLoading: loadingCreate }] = useCreateProductMutation()
   const [deleteProduct, { isLoading: loadingDelete }] = useDeleteProductMutation()
@@ -43,8 +42,8 @@ const ProductListPage = () => {
 
   return (
     <Container className='py-4'>
-      <div className='d-flex justify-content-between align-items-center mb-4'>
-        <h2>مدیریت محصولات ({data?.products?.length || 0} محصول)</h2>
+      <div className='d-flex justify-content-between align-items-center mb-4' style={{ flexWrap: 'wrap', gap: '8px' }}>
+        <h2 style={{ fontSize: 'clamp(1.1rem, 4vw, 1.5rem)' }}>مدیریت محصولات ({data?.products?.length || 0})</h2>
         <Button className='btn-aqualotus' onClick={createProductHandler} disabled={loadingCreate}>
           <FaPlus className='ms-1' /> {loadingCreate ? 'در حال ساخت...' : 'محصول جدید'}
         </Button>
@@ -52,63 +51,97 @@ const ProductListPage = () => {
 
       {loadingDelete && <Loader />}
 
-      {isLoading ? (
-        <Loader />
-      ) : error ? (
+      {isLoading ? <Loader /> : error ? (
         <Message variant='danger'>{error?.data?.message}</Message>
       ) : (
-        <Table striped hover responsive className='admin-table'>
-          <thead>
-            <tr>
-              <th>شناسه</th>
-              <th>نام</th>
-              <th>قیمت</th>
-              <th>دسته‌بندی</th>
-              <th>موجودی</th>
-              <th>تخفیف</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {data?.products.map((product) => (
-              <tr key={product._id}>
-                <td>#{product._id.slice(-6)}</td>
-                <td>{product.name}</td>
-                <td>{product.price.toLocaleString('fa-IR')} تومان</td>
-                <td>{product.category}</td>
-                <td>
-                  {product.countInStock > 0 ? (
-                    <Badge bg='success'>{product.countInStock}</Badge>
-                  ) : (
-                    <Badge bg='danger'>ناموجود</Badge>
-                  )}
-                </td>
-                <td>
-                  {product.discount > 0 ? (
-                    <Badge bg='danger'>{product.discount}%</Badge>
-                  ) : '-'}
-                </td>
-                <td>
-                  <Button
-                    size='sm'
-                    variant='outline-primary'
-                    className='ms-1'
-                    onClick={() => navigate(`/admin/product/${product._id}/edit`)}
-                  >
-                    <FaEdit />
-                  </Button>
-                  <Button
-                    size='sm'
-                    variant='outline-danger'
-                    onClick={() => deleteProductHandler(product._id)}
-                  >
-                    <FaTrash />
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+        <>
+          {/* دسکتاپ */}
+          <div className='d-none d-md-block'>
+            <Table striped hover responsive className='admin-table'>
+              <thead>
+                <tr>
+                  <th>شناسه</th>
+                  <th>نام</th>
+                  <th>قیمت</th>
+                  <th>دسته‌بندی</th>
+                  <th>موجودی</th>
+                  <th>تخفیف</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {data?.products.map((product) => (
+                  <tr key={product._id}>
+                    <td>#{product._id.slice(-6)}</td>
+                    <td>{product.name}</td>
+                    <td>{product.price.toLocaleString('fa-IR')} تومان</td>
+                    <td>{product.category}</td>
+                    <td>
+                      {product.countInStock > 0
+                        ? <Badge bg='success'>{product.countInStock}</Badge>
+                        : <Badge bg='danger'>ناموجود</Badge>}
+                    </td>
+                    <td>{product.discount > 0 ? <Badge bg='danger'>{product.discount}%</Badge> : '-'}</td>
+                    <td>
+                      <Button size='sm' variant='outline-primary' className='ms-1'
+                        onClick={() => navigate(`/admin/product/${product._id}/edit`)}>
+                        <FaEdit />
+                      </Button>
+                      <Button size='sm' variant='outline-danger'
+                        onClick={() => deleteProductHandler(product._id)}>
+                        <FaTrash />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+
+          {/* موبایل */}
+          <div className='d-md-none'>
+            <Row className='g-3'>
+              {data?.products.map((product) => (
+                <Col xs={12} key={product._id}>
+                  <Card className='shadow-sm'>
+                    <Card.Body>
+                      <div className='d-flex align-items-center gap-3 mb-2'>
+                        <img src={product.image} alt={product.name}
+                          style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '8px' }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>{product.name}</div>
+                          <div style={{ fontSize: '0.8rem', color: '#666' }}>#{product._id.slice(-6)}</div>
+                        </div>
+                      </div>
+                      <div className='d-flex flex-wrap gap-2 mb-2'>
+                        <Badge bg='secondary'>{product.category}</Badge>
+                        {product.countInStock > 0
+                          ? <Badge bg='success'>موجود: {product.countInStock}</Badge>
+                          : <Badge bg='danger'>ناموجود</Badge>}
+                        {product.discount > 0 && <Badge bg='danger'>{product.discount}% تخفیف</Badge>}
+                      </div>
+                      <div className='d-flex justify-content-between align-items-center'>
+                        <span style={{ fontWeight: '600', color: '#2d6a4f' }}>
+                          {product.price.toLocaleString('fa-IR')} تومان
+                        </span>
+                        <div className='d-flex gap-2'>
+                          <Button size='sm' variant='outline-primary'
+                            onClick={() => navigate(`/admin/product/${product._id}/edit`)}>
+                            <FaEdit />
+                          </Button>
+                          <Button size='sm' variant='outline-danger'
+                            onClick={() => deleteProductHandler(product._id)}>
+                            <FaTrash />
+                          </Button>
+                        </div>
+                      </div>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          </div>
+        </>
       )}
     </Container>
   )

@@ -23,7 +23,9 @@ const getAllPosts = asyncHandler(async (req, res) => {
 // @route   GET /api/blog/:id
 // @access  Public
 const getPostById = asyncHandler(async (req, res) => {
-  const post = await Blog.findById(req.params.id).populate('user', 'name')
+  const post = await Blog.findById(req.params.id)
+    .populate('user', 'name')
+    .populate('relatedProducts')
   if (post) {
     res.json(post)
   } else {
@@ -36,7 +38,7 @@ const getPostById = asyncHandler(async (req, res) => {
 // @route   POST /api/blog
 // @access  Private/Admin
 const createPost = asyncHandler(async (req, res) => {
-  const { title, content, image, video, isPublished } = req.body
+  const { title, content, image, video, isPublished, relatedProducts } = req.body
   const post = await Blog.create({
     user: req.user._id,
     title,
@@ -44,6 +46,7 @@ const createPost = asyncHandler(async (req, res) => {
     image: image || '',
     video: video || '',
     isPublished: isPublished || false,
+    relatedProducts: relatedProducts || [],
   })
   res.status(201).json(post)
 })
@@ -59,6 +62,7 @@ const updatePost = asyncHandler(async (req, res) => {
     post.image = req.body.image ?? post.image
     post.video = req.body.video ?? post.video
     post.isPublished = req.body.isPublished ?? post.isPublished
+    post.relatedProducts = req.body.relatedProducts ?? post.relatedProducts
     const updated = await post.save()
     res.json(updated)
   } else {

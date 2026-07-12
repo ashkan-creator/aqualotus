@@ -4,6 +4,7 @@ const sliderSchema = new mongoose.Schema(
   {
     title: { type: String, default: '' },
     subtitle: { type: String, default: '' },
+    location: { type: String, enum: ['home', 'blog'], default: 'home' },
     image: { type: String, required: true },
     link: { type: String, default: '/' },
     isActive: { type: Boolean, default: true },

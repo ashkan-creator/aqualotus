@@ -1,6 +1,9 @@
+import logActivity from '../utils/logActivity.js'
 import asyncHandler from 'express-async-handler'
+import mongoose from 'mongoose'
 import Product from '../models/productModel.js'
 import Notification from '../models/notificationModel.js'
+import { generateUniqueSlug } from '../utils/slugify.js'
 
 const getProducts = asyncHandler(async (req, res) => {
   const pageSize = Number(process.env.PAGINATION_LIMIT) || 8
@@ -48,7 +51,13 @@ const getProducts = asyncHandler(async (req, res) => {
 })
 
 const getProductById = asyncHandler(async (req, res) => {
-  const product = await Product.findById(req.params.id)
+  const identifier = decodeURIComponent(req.params.id)
+  const isObjectId = mongoose.Types.ObjectId.isValid(identifier)
+
+  const product = isObjectId
+    ? await Product.findById(identifier)
+    : await Product.findOne({ slug: identifier })
+
   if (product) {
     res.json(product)
   } else {
@@ -58,8 +67,11 @@ const getProductById = asyncHandler(async (req, res) => {
 })
 
 const createProduct = asyncHandler(async (req, res) => {
+  const initialName = 'محصول نمونه'
+  const slug = await generateUniqueSlug(Product, initialName)
   const product = new Product({
-    name: 'محصول نمونه',
+    name: initialName,
+    slug,
     price: 100000,
     user: req.user._id,
     image: '/images/sample.jpg',
@@ -71,6 +83,7 @@ const createProduct = asyncHandler(async (req, res) => {
     description: 'توضیحات نمونه',
   })
   const createdProduct = await product.save()
+  await logActivity(req.user, 'ایجاد محصول', 'Product', createdProduct._id.toString(), createdProduct.name)
   res.status(201).json(createdProduct)
 })
 
@@ -94,7 +107,10 @@ const updateProduct = asyncHandler(async (req, res) => {
       prevVariantStocks[v.size] = v.countInStock
     })
 
-    product.name = name ?? product.name
+    if (name && name !== product.name) {
+      product.name = name
+      product.slug = await generateUniqueSlug(Product, name, product._id)
+    }
     product.price = price ?? product.price
     product.description = description ?? product.description
     product.image = image ?? product.image
@@ -150,6 +166,7 @@ const updateProduct = asyncHandler(async (req, res) => {
       }
     }
 
+    await logActivity(req.user, 'ویرایش محصول', 'Product', updatedProduct._id.toString(), updatedProduct.name)
     res.json(updatedProduct)
   } else {
     res.status(404)
@@ -161,6 +178,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id)
   if (product) {
     await Product.deleteOne({ _id: product._id })
+    await logActivity(req.user, 'حذف محصول', 'Product', product._id.toString(), product.name)
     res.json({ message: 'محصول حذف شد' })
   } else {
     res.status(404)

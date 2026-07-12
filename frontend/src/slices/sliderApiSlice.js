@@ -3,12 +3,12 @@ import { apiSlice } from './apiSlice'
 export const sliderApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getSliders: builder.query({
-      query: () => '/api/sliders',
+      query: (location) => ({ url: '/api/sliders', params: location ? { location } : {} }),
       providesTags: ['Slider'],
       keepUnusedDataFor: 30,
     }),
     getAllSliders: builder.query({
-      query: () => '/api/sliders/all',
+      query: (location) => ({ url: '/api/sliders/all', params: location ? { location } : {} }),
       providesTags: ['Slider'],
       keepUnusedDataFor: 5,
     }),

@@ -15,6 +15,51 @@ import {
 import Loader from '../components/ui/Loader'
 import Message from '../components/ui/Message'
 
+const OrderTracker = ({ order }) => {
+  const steps = [
+    { label: 'ثبت سفارش', done: true, icon: '📝' },
+    { label: 'آپلود رسید', done: !!order.paymentResult?.receiptImage, icon: '🧾' },
+    { label: 'تأیید پرداخت', done: order.isPaid, icon: '✅' },
+    { label: 'ارسال شده', done: order.isDelivered, icon: '📦' },
+  ]
+  const activeStep = steps.filter(s => s.done).length - 1
+
+  return (
+    <div style={{ margin: '0 0 28px', padding: '20px', background: '#f8fdf9', borderRadius: '12px', border: '1px solid #d8f0e4' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative' }}>
+        <div style={{
+          position: 'absolute', top: '20px', right: '10%', left: '10%', height: '3px',
+          background: '#e0e0e0', zIndex: 0,
+        }}>
+          <div style={{
+            height: '100%', background: '#2d6a4f',
+            width: `${(activeStep / (steps.length - 1)) * 100}%`,
+            transition: 'width 0.5s ease',
+          }} />
+        </div>
+        {steps.map((step, i) => (
+          <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, flex: 1 }}>
+            <div style={{
+              width: '40px', height: '40px', borderRadius: '50%',
+              background: step.done ? '#2d6a4f' : '#e0e0e0',
+              color: step.done ? 'white' : '#999',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '1.1rem', marginBottom: '8px',
+              transition: 'background 0.3s',
+              boxShadow: i === activeStep ? '0 0 0 3px rgba(45,106,79,0.25)' : 'none',
+            }}>
+              {step.icon}
+            </div>
+            <div style={{ fontSize: 'clamp(0.62rem, 2vw, 0.78rem)', color: step.done ? '#2d6a4f' : '#999', textAlign: 'center', fontWeight: step.done ? '600' : 'normal' }}>
+              {step.label}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 const OrderPage = () => {
   const { id: orderId } = useParams()
   const { userInfo } = useSelector((state) => state.auth)
@@ -83,6 +128,57 @@ const OrderPage = () => {
     }
   }
 
+  const printInvoice = () => {
+    const items = order.orderItems.map((item) =>
+      `<tr>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee">${item.name}${item.selectedSize ? ` (${item.selectedSize})` : ''}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:center">${item.qty}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:left">${item.price.toLocaleString('fa-IR')} ت</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:left">${(item.qty * item.price).toLocaleString('fa-IR')} ت</td>
+      </tr>`
+    ).join('')
+
+    const html = `<!DOCTYPE html>
+<html dir="rtl" lang="fa">
+<head>
+<meta charset="UTF-8"/>
+<title>فاکتور سفارش #${order._id.slice(-8)}</title>
+<style>
+  body { font-family: Tahoma, sans-serif; direction: rtl; margin: 30px; color: #222; }
+  h1 { color: #2d6a4f; font-size: 22px; }
+  .meta { color: #666; font-size: 13px; margin-bottom: 20px; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th { background: #2d6a4f; color: white; padding: 8px; text-align: right; }
+  .total { font-size: 16px; font-weight: bold; color: #2d6a4f; text-align: left; margin-top: 10px; }
+  .footer { margin-top: 40px; font-size: 12px; color: #999; text-align: center; border-top: 1px solid #eee; padding-top: 12px; }
+</style>
+</head>
+<body>
+  <h1>AquaLotus | فاکتور سفارش</h1>
+  <div class="meta">
+    شماره سفارش: #${order._id.slice(-8)} &nbsp;|&nbsp;
+    تاریخ: ${new Date(order.createdAt).toLocaleDateString('fa-IR')} ساعت ${new Date(order.createdAt).toLocaleTimeString('fa-IR', {hour:'2-digit',minute:'2-digit'})} &nbsp;|&nbsp;
+    مشتری: ${order.user.name}${order.user.phone ? ` | تلفن: ${order.user.phone}` : ''}
+  </div>
+  <div style="background:#f9f9f9;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px">
+    <strong>آدرس ارسال:</strong>
+    ${order.shippingAddress.address}، ${order.shippingAddress.city}${order.shippingAddress.province ? `، استان ${order.shippingAddress.province}` : ''}، کد پستی: ${order.shippingAddress.postalCode}
+  </div>
+  <table>
+    <thead><tr><th>محصول</th><th>تعداد</th><th>قیمت واحد</th><th>جمع</th></tr></thead>
+    <tbody>${items}</tbody>
+  </table>
+  <div class="total">جمع کل: ${Math.round(order.totalPrice).toLocaleString('fa-IR')} تومان</div>
+  <div class="footer">AquaLotus.ir | فروشگاه گیاهان آبزی</div>
+</body>
+</html>`
+
+    const w = window.open('', '_blank')
+    w.document.write(html)
+    w.document.close()
+    w.print()
+  }
+
   return (
     <Container className='py-4'>
       {isLoading ? (
@@ -91,7 +187,18 @@ const OrderPage = () => {
         <Message variant='danger'>{error?.data?.message}</Message>
       ) : (
         <>
-          <h2 className='mb-1'>سفارش #{order._id.slice(-8)}</h2>
+          <div className='d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1'>
+            <h2 className='mb-0'>سفارش #{order._id.slice(-8)}</h2>
+            <Button
+              variant='outline-secondary'
+              size='sm'
+              onClick={printInvoice}
+              style={{ whiteSpace: 'nowrap' }}
+            >
+              🖨️ چاپ / دانلود فاکتور
+            </Button>
+          </div>
+          <OrderTracker order={order} />
           <p className='text-muted mb-4'>
             {new Date(order.createdAt).toLocaleDateString('fa-IR')}
           </p>

@@ -1,89 +1,120 @@
-import { StrictMode } from 'react'
+import { StrictMode, lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import store from './store'
 import App from './App.jsx'
+import ErrorBoundary from './components/ui/ErrorBoundary'
+import Loader from './components/ui/Loader'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './index.css'
 import './animations.css'
+
+// صفحات پرترافیک (بدون lazy — برای سرعت)
 import HomePage from './pages/HomePage'
+import LinkPagePublicPage from './pages/LinkPagePublicPage'
+import NotFoundPage from './pages/NotFoundPage'
+import CustomPagePublicPage from './pages/CustomPagePublicPage'
 import ProductPage from './pages/ProductPage'
-import CartPage from './pages/CartPage'
 import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-import ShippingPage from './pages/ShippingPage'
-import PaymentPage from './pages/PaymentPage'
-import PlaceOrderPage from './pages/PlaceOrderPage'
-import OrderPage from './pages/OrderPage'
-import ProfilePage from './pages/ProfilePage'
-import ContactPage from './pages/ContactPage'
-import AboutPage from './pages/AboutPage'
-import BlogPage from './pages/BlogPage'
-import BlogPostPage from './pages/BlogPostPage'
-import AdminProductListPage from './pages/admin/ProductListPage'
-import AdminProductEditPage from './pages/admin/ProductEditPage'
-import AdminOrderListPage from './pages/admin/OrderListPage'
-import AdminUserListPage from './pages/admin/UserListPage'
-import AdminUserEditPage from './pages/admin/UserEditPage'
-import AdminFamilyListPage from './pages/admin/FamilyListPage'
-import AdminSettingsPage from './pages/admin/SettingsPage'
-import AdminDashboardPage from './pages/admin/DashboardPage'
-import AdminBlogListPage from './pages/admin/BlogListPage'
-import AdminSliderListPage from './pages/admin/SliderListPage'
-import AdminBlogEditPage from './pages/admin/BlogEditPage'
-import AdminReviewsPage from './pages/admin/AdminReviewsPage'
+
+// بقیه صفحات — lazy load
+const CartPage = lazy(() => import('./pages/CartPage'))
+const RegisterPage = lazy(() => import('./pages/RegisterPage'))
+const ShippingPage = lazy(() => import('./pages/ShippingPage'))
+const PaymentPage = lazy(() => import('./pages/PaymentPage'))
+const PlaceOrderPage = lazy(() => import('./pages/PlaceOrderPage'))
+const OrderPage = lazy(() => import('./pages/OrderPage'))
+const ProfilePage = lazy(() => import('./pages/ProfilePage'))
+const ContactPage = lazy(() => import('./pages/ContactPage'))
+const AboutPage = lazy(() => import('./pages/AboutPage'))
+const BlogPage = lazy(() => import('./pages/BlogPage'))
+const BlogPostPage = lazy(() => import('./pages/BlogPostPage'))
+
+const AdminProductListPage = lazy(() => import('./pages/admin/ProductListPage'))
+const AdminProductEditPage = lazy(() => import('./pages/admin/ProductEditPage'))
+const AdminOrderListPage = lazy(() => import('./pages/admin/OrderListPage'))
+const AdminUserListPage = lazy(() => import('./pages/admin/UserListPage'))
+const AdminUserEditPage = lazy(() => import('./pages/admin/UserEditPage'))
+const AdminFamilyListPage = lazy(() => import('./pages/admin/FamilyListPage'))
+const AdminSettingsPage = lazy(() => import('./pages/admin/SettingsPage'))
+const AdminDashboardPage = lazy(() => import('./pages/admin/DashboardPage'))
+const AdminBlogListPage = lazy(() => import('./pages/admin/BlogListPage'))
+const AdminSliderListPage = lazy(() => import('./pages/admin/SliderListPage'))
+const AdminBlogEditPage = lazy(() => import('./pages/admin/BlogEditPage'))
+const AdminReviewsPage = lazy(() => import('./pages/admin/AdminReviewsPage'))
+const AdminActivityLogPage = lazy(() => import('./pages/admin/ActivityLogPage'))
+const AdminLinkPageListPage = lazy(() => import('./pages/admin/LinkPageListPage'))
+const AdminLinkPageEditPage = lazy(() => import('./pages/admin/LinkPageEditPage'))
+const AdminCustomPageListPage = lazy(() => import('./pages/admin/CustomPageListPage'))
+const AdminCustomPageEditPage = lazy(() => import('./pages/admin/CustomPageEditPage'))
+
 import PrivateRoute from './components/PrivateRoute'
 import AdminRoute from './components/AdminRoute'
 
+// بستن هر lazy صفحه در Suspense
+const withSuspense = (Component) => (
+  <Suspense fallback={<Loader />}>
+    <Component />
+  </Suspense>
+)
+
 const router = createBrowserRouter([
+  { path: 'links/:slug', element: <LinkPagePublicPage /> },
   {
     path: '/',
     element: <App />,
     children: [
       { index: true, element: <HomePage /> },
       { path: 'product/:id', element: <ProductPage /> },
-      { path: 'cart', element: <CartPage /> },
+      { path: 'cart', element: withSuspense(CartPage) },
       { path: 'login', element: <LoginPage /> },
-      { path: 'register', element: <RegisterPage /> },
+      { path: 'register', element: withSuspense(RegisterPage) },
       { path: 'search/:keyword', element: <HomePage /> },
       { path: 'page/:pageNumber', element: <HomePage /> },
       { path: 'filter', element: <HomePage /> },
       { path: 'search/:keyword/page/:pageNumber', element: <HomePage /> },
-      { path: 'contact', element: <ContactPage /> },
-      { path: 'about', element: <AboutPage /> },
-      { path: 'blog', element: <BlogPage /> },
-      { path: 'blog/:id', element: <BlogPostPage /> },
+      { path: 'contact', element: withSuspense(ContactPage) },
+      { path: 'about', element: withSuspense(AboutPage) },
+      { path: 'blog', element: withSuspense(BlogPage) },
+      { path: 'blog/:id', element: withSuspense(BlogPostPage) },
+      { path: 'pages/:slug', element: <CustomPagePublicPage /> },
       {
         path: '',
         element: <PrivateRoute />,
         children: [
-          { path: 'shipping', element: <ShippingPage /> },
-          { path: 'payment', element: <PaymentPage /> },
-          { path: 'placeorder', element: <PlaceOrderPage /> },
-          { path: 'order/:id', element: <OrderPage /> },
-          { path: 'profile', element: <ProfilePage /> },
+          { path: 'shipping', element: withSuspense(ShippingPage) },
+          { path: 'payment', element: withSuspense(PaymentPage) },
+          { path: 'placeorder', element: withSuspense(PlaceOrderPage) },
+          { path: 'order/:id', element: withSuspense(OrderPage) },
+          { path: 'profile', element: withSuspense(ProfilePage) },
         ],
       },
       {
         path: 'admin',
         element: <AdminRoute />,
         children: [
-          { path: 'dashboard', element: <AdminDashboardPage /> },
-          { path: 'productlist', element: <AdminProductListPage /> },
-          { path: 'product/:id/edit', element: <AdminProductEditPage /> },
-          { path: 'orderlist', element: <AdminOrderListPage /> },
-          { path: 'userlist', element: <AdminUserListPage /> },
-          { path: 'user/:id/edit', element: <AdminUserEditPage /> },
-          { path: 'familylist', element: <AdminFamilyListPage /> },
-          { path: 'settings', element: <AdminSettingsPage /> },
-          { path: 'blog', element: <AdminBlogListPage /> },
-          { path: 'sliders', element: <AdminSliderListPage /> },
-          { path: 'blog/:id/edit', element: <AdminBlogEditPage /> },
-          { path: 'reviews', element: <AdminReviewsPage /> },
+          { path: 'dashboard', element: withSuspense(AdminDashboardPage) },
+          { path: 'productlist', element: withSuspense(AdminProductListPage) },
+          { path: 'product/:id/edit', element: withSuspense(AdminProductEditPage) },
+          { path: 'orderlist', element: withSuspense(AdminOrderListPage) },
+          { path: 'userlist', element: withSuspense(AdminUserListPage) },
+          { path: 'user/:id/edit', element: withSuspense(AdminUserEditPage) },
+          { path: 'familylist', element: withSuspense(AdminFamilyListPage) },
+          { path: 'settings', element: withSuspense(AdminSettingsPage) },
+          { path: 'blog', element: withSuspense(AdminBlogListPage) },
+          { path: 'sliders', element: withSuspense(AdminSliderListPage) },
+          { path: 'blog/:id/edit', element: withSuspense(AdminBlogEditPage) },
+          { path: 'reviews', element: withSuspense(AdminReviewsPage) },
+          { path: 'activity-log', element: withSuspense(AdminActivityLogPage) },
+          { path: 'linkpages', element: withSuspense(AdminLinkPageListPage) },
+          { path: 'linkpages/:id/edit', element: withSuspense(AdminLinkPageEditPage) },
+          { path: 'custompages', element: withSuspense(AdminCustomPageListPage) },
+          { path: 'custompages/:id/edit', element: withSuspense(AdminCustomPageEditPage) },
         ],
       },
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
 ])
@@ -92,7 +123,9 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <HelmetProvider>
       <Provider store={store}>
-        <RouterProvider router={router} />
+        <ErrorBoundary>
+          <RouterProvider router={router} />
+        </ErrorBoundary>
       </Provider>
     </HelmetProvider>
   </StrictMode>

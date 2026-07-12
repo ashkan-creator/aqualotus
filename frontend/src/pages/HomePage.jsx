@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react'
-import { Row, Col, Container, Button } from 'react-bootstrap'
+import { Row, Col, Container, Button, Offcanvas } from 'react-bootstrap'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { useGetProductsQuery } from '../slices/productsApiSlice'
 import ProductCard from '../components/ui/ProductCard'
 import HeroSlider from '../components/ui/HeroSlider'
+import BlogHighlightsSlider from '../components/ui/BlogHighlightsSlider'
 import FilterSidebar from '../components/ui/FilterSidebar'
 import Loader from '../components/ui/Loader'
 import Message from '../components/ui/Message'
 import Paginate from '../components/ui/Paginate'
+import WelcomePopup from '../components/ui/WelcomePopup'
 
 const HomePage = () => {
   const { keyword, pageNumber } = useParams()
@@ -63,21 +65,46 @@ const HomePage = () => {
 
   return (
     <>
+      <WelcomePopup />
       <Helmet>
-        <title>AquaLotus | فروشگاه آنلاین گیاهان آبزی و آکواریوم</title>
-        <meta
-          name='description'
-          content='خرید آنلاین گیاهان زنده آکواریوم، کود و مکمل، بستر و لوازم جانبی آکواریوم با ارسال به سراسر ایران'
-        />
+        <title>{keyword ? `نتایج جستجو: ${keyword} | AquaLotus` : 'AquaLotus | فروشگاه گیاهان آبزی و آکواریوم'}</title>
+        <meta name='description' content='خرید آنلاین گیاهان زنده آکواریوم، کود و مکمل، بستر و لوازم جانبی آکواریوم با ارسال به سراسر ایران' />
+        <meta name='keywords' content='گیاه آکواریوم، گیاه آبزی، خرید گیاه آکواریوم، کود آکواریوم، بستر آکواریوم، لوازم جانبی آکواریوم' />
+        <meta name='robots' content='index, follow' />
         <meta property='og:title' content='AquaLotus | فروشگاه گیاهان آبزی' />
-        <meta
-          property='og:description'
-          content='خرید آنلاین گیاهان زنده آکواریوم، کود و مکمل، بستر و لوازم جانبی آکواریوم'
-        />
+        <meta property='og:description' content='خرید آنلاین گیاهان زنده آکواریوم، کود و مکمل، بستر و لوازم جانبی آکواریوم' />
+        <meta property='og:image' content='https://aqualotus.ir/logo.png' />
+        <meta property='og:url' content='https://aqualotus.ir' />
         <meta property='og:type' content='website' />
+        <meta property='og:site_name' content='AquaLotus' />
+        <meta property='og:locale' content='fa_IR' />
+        <meta name='twitter:card' content='summary_large_image' />
+        <meta name='twitter:title' content='AquaLotus | فروشگاه گیاهان آبزی' />
+        <meta name='twitter:description' content='خرید آنلاین گیاهان زنده آکواریوم' />
+        <meta name='twitter:image' content='https://aqualotus.ir/logo.png' />
         <link rel='canonical' href='https://aqualotus.ir/' />
+        <script type='application/ld+json'>{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Store",
+          "name": "AquaLotus",
+          "description": "فروشگاه تخصصی گیاهان زنده آکواریوم و لوازم جانبی",
+          "url": "https://aqualotus.ir",
+          "logo": "https://aqualotus.ir/logo.png",
+          "image": "https://aqualotus.ir/logo.png",
+          "priceRange": "تومان",
+          "currenciesAccepted": "IRR",
+          "paymentAccepted": "کارت به کارت",
+          "areaServed": "ایران",
+          "address": { "@type": "PostalAddress", "addressCountry": "IR" },
+          "sameAs": []
+        })}</script>
       </Helmet>
-      {!keyword && !activeFilterCount && <HeroSlider />}
+      {!keyword && !activeFilterCount && (
+        <>
+          <HeroSlider />
+          <BlogHighlightsSlider />
+        </>
+      )}
       <Container className='py-4'>
 
         {keyword && (
@@ -101,12 +128,26 @@ const HomePage = () => {
         ) : (
           <Row>
             <Col xs={12} className='d-lg-none mb-3'>
-              <Button variant='outline-success' size='sm' onClick={() => setShowFilter(!showFilter)}>
+              <Button variant='outline-success' size='sm' onClick={() => setShowFilter(true)}>
                 🔍 فیلتر {activeFilterCount > 0 && `(${activeFilterCount})`}
               </Button>
             </Col>
 
-            <Col lg={2} className={`${showFilter ? 'd-block' : 'd-none'} d-lg-block mb-4`}>
+            <Offcanvas
+              show={showFilter}
+              onHide={() => setShowFilter(false)}
+              placement='end'
+              className='d-lg-none aq-filter-offcanvas'
+            >
+              <Offcanvas.Header closeButton>
+                <Offcanvas.Title>فیلتر محصولات</Offcanvas.Title>
+              </Offcanvas.Header>
+              <Offcanvas.Body>
+                <FilterSidebar filters={filters} setFilters={setFilters} />
+              </Offcanvas.Body>
+            </Offcanvas>
+
+            <Col lg={2} className='d-none d-lg-block mb-4'>
               <FilterSidebar filters={filters} setFilters={setFilters} />
             </Col>
 

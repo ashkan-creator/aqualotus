@@ -1,0 +1,60 @@
+
+/* pulse برای نشانگر موجودی */
+@keyframes aq-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(82,183,136,0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(82,183,136,0); }
+  100% { box-shadow: 0 0 0 0 rgba(82,183,136,0); }
+}
+
+/* --- popup animation --- */
+@keyframes aq-popup-in {
+  from { opacity: 0; transform: scale(0.85) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+
+/* ===== Surreal Navbar Elements (Nazar halo + Horizon strip) ===== */
+.aq-nazar-halo-img {
+  opacity: 0.22;
+  filter: brightness(0) invert(1); /* هاله سفید روی زمینه تیره نوار */
+  animation: aqNazarPulse 4s ease-in-out infinite;
+}
+
+@keyframes aqNazarPulse {
+  0%, 100% { transform: scale(1); opacity: 0.16; }
+  50% { transform: scale(1.12); opacity: 0.30; }
+}
+
+.aq-horizon-strip {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: bottom;
+  /* تصویر ورودی آبیه؛ با این فیلتر به طیف سبز پالت پروژه نزدیک می‌شه */
+  filter: hue-rotate(70deg) saturate(1.4) brightness(0.9);
+  opacity: 0.55;
+}
+
+
+/* ===== Announcement Bar: RGB + Fade ===== */
+.aq-announcement-rgb {
+  background: linear-gradient(
+    90deg,
+    #ff0040, #ff8c00, #ffee00, #33ff00, #00fff7, #0066ff, #a600ff, #ff0040
+  );
+  background-size: 400% 400%;
+  animation: aqRgbFlow 6s linear infinite;
+}
+
+@keyframes aqRgbFlow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 400% 50%; }
+}
+
+.aq-announcement-text {
+  transition: opacity 0.3s ease;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.35);
+}

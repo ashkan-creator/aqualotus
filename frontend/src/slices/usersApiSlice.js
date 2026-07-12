@@ -10,6 +10,13 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+    googleLogin: builder.mutation({
+      query: (data) => ({
+        url: `${USERS_URL}/google`,
+        method: 'POST',
+        body: data,
+      }),
+    }),
     logout: builder.mutation({
       query: () => ({
         url: `${USERS_URL}/logout`,
@@ -42,6 +49,7 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         url: `${USERS_URL}/${userId}`,
         method: 'DELETE',
       }),
+      invalidatesTags: ['User', 'ActivityLog'],
     }),
     getUserDetails: builder.query({
       query: (userId) => ({
@@ -55,13 +63,14 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: ['User'],
+      invalidatesTags: ['User', 'ActivityLog'],
     }),
   }),
 })
 
 export const {
   useLoginMutation,
+  useGoogleLoginMutation,
   useLogoutMutation,
   useRegisterMutation,
   useProfileMutation,

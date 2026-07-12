@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Container, Form, Button, Card } from 'react-bootstrap'
+import { Container, Form, Button, Card, Badge, ListGroup } from 'react-bootstrap'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { useGetPostByIdQuery, useUpdatePostMutation } from '../../slices/blogApiSlice'
-import { useUploadProductImageMutation } from '../../slices/productsApiSlice'
+import { useGetPostByIdQuery, useUpdatePostMutation, useCreatePostMutation } from '../../slices/blogApiSlice'
+import { useUploadProductImageMutation, useGetProductsQuery } from '../../slices/productsApiSlice'
 import { useUploadVideoMutation } from '../../slices/uploadApiSlice'
 import Loader from '../../components/ui/Loader'
 
@@ -14,12 +14,16 @@ const BlogEditPage = () => {
   const [updatePost, { isLoading: loadingUpdate }] = useUpdatePostMutation()
   const [uploadImage, { isLoading: loadingImage }] = useUploadProductImageMutation()
   const [uploadVideo, { isLoading: loadingVideo }] = useUploadVideoMutation()
+  const { data: allProductsData } = useGetProductsQuery({ admin: true })
+  const allProducts = allProductsData?.products || []
 
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [image, setImage] = useState('')
   const [video, setVideo] = useState('')
   const [isPublished, setIsPublished] = useState(false)
+  const [relatedProducts, setRelatedProducts] = useState([])
+  const [productSearch, setProductSearch] = useState('')
 
   useEffect(() => {
     if (post) {
@@ -28,8 +32,21 @@ const BlogEditPage = () => {
       setImage(post.image || '')
       setVideo(post.video || '')
       setIsPublished(post.isPublished)
+      setRelatedProducts((post.relatedProducts || []).map((p) => (typeof p === 'string' ? p : p._id)))
     }
   }, [post])
+
+  const selectedProducts = allProducts.filter((p) => relatedProducts.includes(p._id))
+
+  const toggleProduct = (productId) => {
+    setRelatedProducts((prev) =>
+      prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]
+    )
+  }
+
+  const filteredProducts = productSearch.trim()
+    ? allProducts.filter((p) => p.name.includes(productSearch.trim())).slice(0, 15)
+    : []
 
   const uploadImageHandler = async (e) => {
     const file = e.target.files[0]
@@ -62,7 +79,7 @@ const BlogEditPage = () => {
   const submitHandler = async (e) => {
     e.preventDefault()
     try {
-      await updatePost({ id, title, content, image, video, isPublished }).unwrap()
+      await updatePost({ id, title, content, image, video, isPublished, relatedProducts }).unwrap()
       toast.success('پست ذخیره شد')
       navigate('/admin/blog')
     } catch {
@@ -134,6 +151,47 @@ const BlogEditPage = () => {
               onChange={(e) => setContent(e.target.value)}
               required
             />
+          </Form.Group>
+
+          <Form.Group className='mb-4'>
+            <Form.Label>🛒 محصولات مرتبط (اختیاری)</Form.Label>
+            <p className='text-muted' style={{ fontSize: '0.82rem' }}>
+              محصولاتی که انتخاب کنی، ته این پست به‌صورت کارت محصول نمایش داده می‌شن.
+            </p>
+
+            {selectedProducts.length > 0 && (
+              <div className='d-flex flex-wrap gap-2 mb-2'>
+                {selectedProducts.map((p) => (
+                  <Badge key={p._id} bg='success' style={{ cursor: 'pointer' }} onClick={() => toggleProduct(p._id)}>
+                    {p.name} ✕
+                  </Badge>
+                ))}
+              </div>
+            )}
+
+            <Form.Control
+              placeholder='جستجوی نام محصول برای افزودن...'
+              value={productSearch}
+              onChange={(e) => setProductSearch(e.target.value)}
+            />
+            {filteredProducts.length > 0 && (
+              <ListGroup className='mt-1' style={{ maxHeight: '220px', overflowY: 'auto' }}>
+                {filteredProducts.map((p) => (
+                  <ListGroup.Item
+                    key={p._id}
+                    action
+                    type='button'
+                    active={relatedProducts.includes(p._id)}
+                    onClick={(e) => { e.preventDefault(); toggleProduct(p._id) }}
+                    className='d-flex align-items-center gap-2'
+                  >
+                    <img src={p.image} alt='' style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '4px' }} />
+                    <span>{p.name}</span>
+                    <small className='text-muted ms-auto'>{p.price?.toLocaleString('fa-IR')} تومان</small>
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
+            )}
           </Form.Group>
 
           <Form.Group className='mb-4'>

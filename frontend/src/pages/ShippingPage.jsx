@@ -7,6 +7,7 @@ import { iranProvinces } from '../data/iranProvinces'
 
 const ShippingPage = () => {
   const { shippingAddress } = useSelector((state) => state.cart)
+  const { userInfo } = useSelector((state) => state.auth)
 
   const [address, setAddress] = useState(shippingAddress?.address || '')
   const [province, setProvince] = useState(shippingAddress?.province || '')
@@ -24,6 +25,15 @@ const ShippingPage = () => {
     setCity('')
   }
 
+  const autofillHandler = () => {
+    if (userInfo?.address) setAddress(userInfo.address)
+    if (userInfo?.province) {
+      setProvince(userInfo.province)
+      setCity('')
+    }
+    if (userInfo?.postalCode) setPostalCode(userInfo.postalCode)
+  }
+
   const submitHandler = (e) => {
     e.preventDefault()
     dispatch(saveShippingAddress({ address, province, city, postalCode, country: 'ایران' }))
@@ -37,6 +47,18 @@ const ShippingPage = () => {
           <Card className='auth-card'>
             <Card.Body className='p-4'>
               <h2 className='mb-4 text-center'>آدرس ارسال</h2>
+              {userInfo?.address && (
+                <div className='text-center mb-3'>
+                  <Button
+                    variant='outline-success'
+                    size='sm'
+                    type='button'
+                    onClick={autofillHandler}
+                  >
+                    📍 پر کردن از پروفایل
+                  </Button>
+                </div>
+              )}
               <Form onSubmit={submitHandler}>
                 <Row>
                   <Col xs={12} md={6}>

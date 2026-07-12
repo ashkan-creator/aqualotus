@@ -525,6 +525,7 @@ body {
   font-size: 0.9rem;
   text-align: center;
   font-weight: 500;
+  padding: 1px 0;
 }
 
 .care-level-bar {
@@ -641,4 +642,115 @@ body {
   color: var(--primary-dark) !important;
   font-weight: 700;
   font-size: 0.75rem;
+}
+
+
+/* ===== FilterSidebar: dual-thumb price range slider ===== */
+.aq-price-range-slider input[type='range'].aq-range-thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 28px;
+  margin: 0;
+  background: transparent;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.aq-price-range-slider input[type='range'].aq-range-thumb::-webkit-slider-thumb {
+  pointer-events: auto;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #2d6a4f;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  cursor: pointer;
+  margin-top: 5px;
+}
+.aq-price-range-slider input[type='range'].aq-range-thumb::-moz-range-thumb {
+  pointer-events: auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #2d6a4f;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  cursor: pointer;
+}
+.aq-price-range-slider input[type='range'].aq-range-thumb::-webkit-slider-runnable-track {
+  background: transparent;
+}
+
+
+/* ===== Filter Sidebar Redesign (chips + accordion) ===== */
+.aq-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--primary, #2d6a4f);
+  color: #fff;
+  border-radius: 20px;
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.aq-filter-chip:hover {
+  opacity: 0.85;
+}
+.aq-filter-chip-x {
+  font-size: 0.7rem;
+  opacity: 0.85;
+}
+
+.aq-filter-pill {
+  border: 1px solid var(--primary-light, #52b788);
+  background: #fff;
+  color: var(--primary, #2d6a4f);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  font-family: inherit;
+}
+.aq-filter-pill:hover {
+  background: #f0f7f3;
+}
+.aq-filter-pill.active {
+  background: var(--primary, #2d6a4f);
+  color: #fff;
+  border-color: var(--primary, #2d6a4f);
+}
+
+.aq-filter-accordion-item .accordion-button {
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: #fff;
+  color: var(--primary-dark, #1b4332);
+  padding: 12px 14px;
+}
+.aq-filter-accordion-item .accordion-button:not(.collapsed) {
+  background: #f0f7f3;
+  color: var(--primary, #2d6a4f);
+  box-shadow: none;
+}
+.aq-filter-accordion-item .accordion-button:focus {
+  box-shadow: none;
+  border-color: var(--primary-light, #52b788);
+}
+.aq-filter-section-icon {
+  margin-left: 8px;
+  font-size: 1rem;
+}
+.aq-filter-count-badge {
+  font-size: 0.65rem;
+}
+
+.aq-filter-offcanvas {
+  width: min(85vw, 360px) !important;
+  direction: rtl;
 }

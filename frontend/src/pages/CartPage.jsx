@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { FaTrash } from 'react-icons/fa'
 import { addToCart, removeFromCart } from '../slices/cartSlice'
 import Message from '../components/ui/Message'
+import { Helmet } from 'react-helmet-async'
 import { calcDiscountedPrice } from '../utils/cartUtils'
 
 const CartPage = () => {
@@ -28,6 +29,7 @@ const CartPage = () => {
 
   return (
     <Container className='py-4'>
+      <Helmet><title>سبد خرید | AquaLotus</title></Helmet>
       <h2 className='mb-4'>سبد خرید</h2>
       {cartItems.length === 0 ? (
         <div className='aq-empty-state'>

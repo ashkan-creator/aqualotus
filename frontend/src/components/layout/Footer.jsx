@@ -4,7 +4,6 @@ import { LinkContainer } from 'react-router-bootstrap'
 
 const Footer = () => {
   const currentYear = new Date().getFullYear()
-
   return (
     <footer className='aqualotus-footer'>
       <Container>
@@ -18,18 +17,16 @@ const Footer = () => {
               فروشگاه تخصصی گیاهان زنده آکواریوم و لوازم جانبی
             </p>
             <div className='social-links'>
-              <a href='#' className='social-link'>
-                <FaInstagram />
-              </a>
-              <a href='#' className='social-link'>
-                <FaTelegram />
-              </a>
-              <a href='#' className='social-link'>
-                <FaWhatsapp />
+              <a href='#' className='social-link' title='اینستاگرام'><FaInstagram /></a>
+              <a href='#' className='social-link' title='تلگرام'><FaTelegram /></a>
+              <a href='#' className='social-link' title='واتساپ'><FaWhatsapp /></a>
+              <a href='#' className='social-link' title='روبیکا'
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1px' }}>
+                <img src='/rubika.png' alt='روبیکا' loading='lazy'
+                  style={{ width: '20px', height: '20px', objectFit: 'contain', borderRadius: '4px' }} />
               </a>
             </div>
           </Col>
-
           <Col md={4} className='mb-3'>
             <h6 className='footer-title'>دسته‌بندی‌ها</h6>
             <ul className='footer-links'>
@@ -39,7 +36,6 @@ const Footer = () => {
               <li><LinkContainer to='/search/لوازم جانبی'><a>لوازم جانبی</a></LinkContainer></li>
             </ul>
           </Col>
-
           <Col md={4} className='mb-3'>
             <h6 className='footer-title'>راهنما</h6>
             <ul className='footer-links'>
@@ -49,7 +45,6 @@ const Footer = () => {
             </ul>
           </Col>
         </Row>
-
         <Row>
           <Col className='text-center footer-bottom py-2'>
             <p>© {currentYear} AquaLotus - تمامی حقوق محفوظ است</p>

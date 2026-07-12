@@ -93,6 +93,7 @@ const AdminReviewsPage = () => {
                       <img
                         src={item.productImage}
                         alt={item.productName}
+                        loading='lazy'
                         style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '8px' }}
                       />
                     </Col>
@@ -143,6 +144,7 @@ const AdminReviewsPage = () => {
                       <img
                         src={item.productImage}
                         alt={item.productName}
+                        loading='lazy'
                         style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '8px' }}
                       />
                     </Col>

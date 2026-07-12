@@ -1,94 +1,198 @@
-import { Form, Card, Button, Badge } from 'react-bootstrap'
+import { Card, Button, Badge, Accordion } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
+
+const MAX_PRICE = 5000000
+
+const CHIP_GROUPS = [
+  {
+    key: 'category',
+    label: 'نوع جنس',
+    icon: '🪴',
+    options: [
+      { value: 'گیاه زنده', label: 'گیاه زنده' },
+      { value: 'کود و مکمل', label: 'کود و مکمل' },
+      { value: 'بستر', label: 'بستر' },
+      { value: 'لوازم جانبی', label: 'لوازم جانبی' },
+    ],
+  },
+  {
+    key: 'careLevel',
+    label: 'سختی نگهداری',
+    icon: '🌿',
+    options: [
+      { value: 'آسان', label: '🟢 آسان' },
+      { value: 'متوسط', label: '🟡 متوسط' },
+      { value: 'سخت', label: '🔴 سخت' },
+    ],
+  },
+  {
+    key: 'position',
+    label: 'محل کاشت',
+    icon: '📍',
+    options: [
+      { value: 'جلو', label: 'جلو آکواریوم' },
+      { value: 'میانه', label: 'میانه آکواریوم' },
+      { value: 'پشت', label: 'پشت آکواریوم' },
+      { value: 'شناور', label: 'شناور' },
+    ],
+  },
+  {
+    key: 'cultivationType',
+    label: 'نوع کشت',
+    icon: '💧',
+    options: [
+      { value: 'آبزی', label: 'آبزی' },
+      { value: 'هیدروپونیک', label: 'هیدروپونیک' },
+      { value: 'هر دو', label: 'هر دو' },
+    ],
+  },
+  {
+    key: 'needsSoil',
+    label: 'نیاز به بستر',
+    icon: '🪨',
+    options: [
+      { value: 'true', label: 'دارد' },
+      { value: 'false', label: 'ندارد' },
+    ],
+  },
+]
+
+const chipLabelFor = (key, value) => {
+  if (key === 'minPrice') return `از ${Number(value).toLocaleString('fa-IR')} ت`
+  if (key === 'maxPrice') return `تا ${Number(value).toLocaleString('fa-IR')} ت`
+  if (key === 'needsSoil') return `بستر: ${value === 'true' ? 'دارد' : 'ندارد'}`
+  const group = CHIP_GROUPS.find((g) => g.key === key)
+  const opt = group?.options.find((o) => o.value === value)
+  return opt?.label || value
+}
 
 const FilterSidebar = ({ filters, setFilters }) => {
   const navigate = useNavigate()
 
   const resetFilters = () => {
     setFilters({
-      careLevel: '',
-      position: '',
-      cultivationType: '',
-      needsSoil: '',
-      minPrice: '',
-      maxPrice: '',
+      careLevel: '', position: '', cultivationType: '',
+      needsSoil: '', minPrice: '', maxPrice: '', category: '',
     })
     navigate('/')
   }
 
-  const activeCount = Object.values(filters).filter(Boolean).length
+  const clearOne = (key) => setFilters({ ...filters, [key]: '' })
+
+  const toggleOption = (key, value) => {
+    setFilters({ ...filters, [key]: filters[key] === value ? '' : value })
+  }
+
+  const activeChips = Object.entries(filters)
+    .filter(([, v]) => Boolean(v))
+    .map(([key, value]) => ({ key, label: chipLabelFor(key, value) }))
 
   return (
-    <Card className='p-3'>
+    <Card className='p-3 aq-filter-card'>
       <div className='d-flex justify-content-between align-items-center mb-3'>
         <h6 className='mb-0'>
           🔍 فیلتر
-          {activeCount > 0 && <Badge bg='success' className='me-2'>{activeCount}</Badge>}
+          {activeChips.length > 0 && <Badge bg='success' className='me-2'>{activeChips.length}</Badge>}
         </h6>
-        {activeCount > 0 && (
+        {activeChips.length > 0 && (
           <Button variant='link' size='sm' className='text-danger p-0' onClick={resetFilters}>
-            پاک کردن
+            پاک کردن همه
           </Button>
         )}
       </div>
 
-      <Form.Group className='mb-3'>
-        <Form.Label>سختی نگهداری</Form.Label>
-        <Form.Select value={filters.careLevel} onChange={(e) => setFilters({ ...filters, careLevel: e.target.value })}>
-          <option value=''>همه</option>
-          <option value='آسان'>🟢 آسان</option>
-          <option value='متوسط'>🟡 متوسط</option>
-          <option value='سخت'>🔴 سخت</option>
-        </Form.Select>
-      </Form.Group>
-
-      <Form.Group className='mb-3'>
-        <Form.Label>محل کاشت</Form.Label>
-        <Form.Select value={filters.position} onChange={(e) => setFilters({ ...filters, position: e.target.value })}>
-          <option value=''>همه</option>
-          <option value='جلو'>جلو آکواریوم</option>
-          <option value='میانه'>میانه آکواریوم</option>
-          <option value='پشت'>پشت آکواریوم</option>
-          <option value='شناور'>شناور</option>
-        </Form.Select>
-      </Form.Group>
-
-      <Form.Group className='mb-3'>
-        <Form.Label>نوع کشت</Form.Label>
-        <Form.Select value={filters.cultivationType} onChange={(e) => setFilters({ ...filters, cultivationType: e.target.value })}>
-          <option value=''>همه</option>
-          <option value='آبزی'>آبزی</option>
-          <option value='هیدروپونیک'>هیدروپونیک</option>
-          <option value='هر دو'>هر دو</option>
-        </Form.Select>
-      </Form.Group>
-
-      <Form.Group className='mb-3'>
-        <Form.Label>نیاز به بستر</Form.Label>
-        <Form.Select value={filters.needsSoil} onChange={(e) => setFilters({ ...filters, needsSoil: e.target.value })}>
-          <option value=''>همه</option>
-          <option value='true'>دارد</option>
-          <option value='false'>ندارد</option>
-        </Form.Select>
-      </Form.Group>
-
-      <Form.Group className='mb-2'>
-        <Form.Label>قیمت (تومان)</Form.Label>
-        <div className='d-flex gap-2'>
-          <Form.Control
-            type='number'
-            placeholder='از'
-            value={filters.minPrice}
-            onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
-          />
-          <Form.Control
-            type='number'
-            placeholder='تا'
-            value={filters.maxPrice}
-            onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
-          />
+      {activeChips.length > 0 && (
+        <div className='d-flex flex-wrap gap-2 mb-3'>
+          {activeChips.map((chip) => (
+            <span
+              key={chip.key}
+              className='aq-filter-chip'
+              onClick={() => clearOne(chip.key)}
+              role='button'
+            >
+              {chip.label} <span className='aq-filter-chip-x'>✕</span>
+            </span>
+          ))}
         </div>
-      </Form.Group>
+      )}
+
+      <Accordion defaultActiveKey='0' alwaysOpen>
+        {CHIP_GROUPS.map((group, idx) => (
+          <Accordion.Item eventKey={String(idx)} key={group.key} className='aq-filter-accordion-item'>
+            <Accordion.Header>
+              <span className='aq-filter-section-icon'>{group.icon}</span>
+              <span>{group.label}</span>
+              {filters[group.key] && <Badge bg='success' className='ms-2 aq-filter-count-badge'>1</Badge>}
+            </Accordion.Header>
+            <Accordion.Body>
+              <div className='d-flex flex-wrap gap-2'>
+                {group.options.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type='button'
+                    className={`aq-filter-pill ${filters[group.key] === opt.value ? 'active' : ''}`}
+                    onClick={() => toggleOption(group.key, opt.value)}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </Accordion.Body>
+          </Accordion.Item>
+        ))}
+
+        <Accordion.Item eventKey='price' className='aq-filter-accordion-item'>
+          <Accordion.Header>
+            <span className='aq-filter-section-icon'>💰</span>
+            <span>قیمت (تومان)</span>
+            {(filters.minPrice || filters.maxPrice) && (
+              <Badge bg='success' className='ms-2 aq-filter-count-badge'>1</Badge>
+            )}
+          </Accordion.Header>
+          <Accordion.Body>
+            <div className='d-flex justify-content-between mb-1'>
+              <small className='text-muted'>{Number(filters.minPrice || 0).toLocaleString('fa-IR')}</small>
+              <small className='text-muted'>{Number(filters.maxPrice || MAX_PRICE).toLocaleString('fa-IR')}</small>
+            </div>
+            <div className='aq-price-range-slider' style={{ position: 'relative', height: '28px' }}>
+              <div style={{
+                position: 'absolute', top: '50%', left: 0, right: 0, height: '4px',
+                background: '#e0e0e0', borderRadius: '2px', transform: 'translateY(-50%)',
+              }} />
+              <div style={{
+                position: 'absolute', top: '50%', height: '4px',
+                background: '#2d6a4f', borderRadius: '2px', transform: 'translateY(-50%)',
+                right: `${100 - (Number(filters.maxPrice || MAX_PRICE) / MAX_PRICE) * 100}%`,
+                left: `${(Number(filters.minPrice || 0) / MAX_PRICE) * 100}%`,
+              }} />
+              <input
+                type='range'
+                min={0}
+                max={MAX_PRICE}
+                step={10000}
+                value={filters.minPrice || 0}
+                onChange={(e) => {
+                  const val = Math.min(Number(e.target.value), Number(filters.maxPrice || MAX_PRICE))
+                  setFilters({ ...filters, minPrice: val })
+                }}
+                className='aq-range-thumb'
+              />
+              <input
+                type='range'
+                min={0}
+                max={MAX_PRICE}
+                step={10000}
+                value={filters.maxPrice || MAX_PRICE}
+                onChange={(e) => {
+                  const val = Math.max(Number(e.target.value), Number(filters.minPrice || 0))
+                  setFilters({ ...filters, maxPrice: val })
+                }}
+                className='aq-range-thumb'
+              />
+            </div>
+          </Accordion.Body>
+        </Accordion.Item>
+      </Accordion>
     </Card>
   )
 }
