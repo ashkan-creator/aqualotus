@@ -10,7 +10,6 @@ import { useGetFamiliesQuery } from '../../slices/familiesApiSlice'
 import { logout } from '../../slices/authSlice'
 import SearchBox from '../ui/SearchBox'
 import NotificationBell from '../ui/NotificationBell'
-import AnnouncementBar from '../ui/AnnouncementBar'
 
 const Header = () => {
   const { cartItems } = useSelector((state) => state.cart)
@@ -146,8 +145,6 @@ const Header = () => {
                       <LinkContainer to='/admin/blog'><NavDropdown.Item>📝 وبلاگ</NavDropdown.Item></LinkContainer>
                       <LinkContainer to='/admin/settings'><NavDropdown.Item>⚙️ تنظیمات</NavDropdown.Item></LinkContainer>
                       <LinkContainer to='/admin/activity-log'><NavDropdown.Item>📋 لاگ فعالیت</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/linkpages'><NavDropdown.Item>🔗 لینک‌ساز</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/custompages'><NavDropdown.Item>🏗️ صفحه‌ساز</NavDropdown.Item></LinkContainer>
                     </>
                   )}
                   <NavDropdown.Divider />
@@ -168,9 +165,18 @@ const Header = () => {
         </Container>
       </Navbar>
 
-      <AnnouncementBar settings={settings} />
+      {settings?.announcement && (
+        <div className='announcement-bar'>
+          <Container className='d-flex justify-content-center py-2'>
+            <span>{settings.announcement}</span>
+          </Container>
+        </div>
+      )}
 
-      {/* 🌟 هماهنگی انیمیشن سایدبار کشویی در حالت راست‌چین (RTL) */}
+      {/* 🌟 هماهنگی انیمیش
+ 
+      ن سایدبار کشویی در حالت راست‌چین (RTL) */}
+
       <div
         style={{
           position: 'fixed', inset: 0, zIndex: 9999,
