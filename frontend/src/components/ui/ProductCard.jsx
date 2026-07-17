@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react'
 import { Card, Badge } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import { FaHeart, FaRegHeart } from 'react-icons/fa'
+import { toast } from 'react-toastify'
+import {
+  useGetMyWishlistQuery,
+  useAddToWishlistMutation,
+  useRemoveFromWishlistMutation,
+} from '../../slices/wishlistApiSlice'
 import { useViewTransitionNavigate } from '../../hooks/useViewTransitionNavigate'
 import { apiSlice } from '../../slices/apiSlice'
 import Rating from './Rating'
@@ -20,6 +28,11 @@ const ProductCard = ({ product }) => {
   const revealRef = useScrollReveal()
   const navigate = useViewTransitionNavigate()
   const prefetchProduct = apiSlice.usePrefetch('getProductDetails')
+  const { userInfo } = useSelector((state) => state.auth)
+  const { data: wishlistProducts } = useGetMyWishlistQuery(undefined, { skip: !userInfo })
+  const [addToWishlist] = useAddToWishlistMutation()
+  const [removeFromWishlist] = useRemoveFromWishlistMutation()
+  const isWishlisted = wishlistProducts?.some((p) => p._id === product._id)
 
   const productUrl = `/product/${product.slug || product._id}`
   const allImages = [product.image, ...(product.images || [])].filter(Boolean)
@@ -62,6 +75,26 @@ const ProductCard = ({ product }) => {
   }
 
   const imgFilterStyle = !inStock ? { filter: 'grayscale(100%) brightness(0.7)' } : {}
+
+  const handleWishlistClick = async (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    if (!userInfo) {
+      navigate('/login')
+      return
+    }
+    try {
+      if (isWishlisted) {
+        await removeFromWishlist(product._id).unwrap()
+        toast.success('از لیست علاقه‌مندی‌ها حذف شد')
+      } else {
+        await addToWishlist({ productId: product._id }).unwrap()
+        toast.success('به لیست علاقه‌مندی‌ها اضافه شد')
+      }
+    } catch (err) {
+      toast.error(err?.data?.message || 'خطا در به‌روزرسانی علاقه‌مندی‌ها')
+    }
+  }
 
   return (
     <div ref={revealRef} className='aq-scroll-init h-100'>
@@ -109,6 +142,27 @@ const ProductCard = ({ product }) => {
             backgroundColor: inStock ? '#52b788' : '#6c757d',
             animation: inStock ? 'aq-pulse 2s infinite' : 'none',
           }} />
+
+          {/* دکمه‌ی علاقه‌مندی */}
+          <button
+            onClick={handleWishlistClick}
+            aria-label='افزودن به علاقه‌مندی‌ها'
+            style={{
+              position: 'absolute', top: '10px', left: '10px', zIndex: 5,
+              background: 'rgba(255,255,255,0.85)', border: 'none', borderRadius: '50%',
+              width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+              transition: 'transform 0.2s',
+            }}
+            onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.1)')}
+            onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+          >
+            {isWishlisted ? (
+              <FaHeart style={{ color: '#e63946', fontSize: '1rem' }} />
+            ) : (
+              <FaRegHeart style={{ color: '#555', fontSize: '1rem' }} />
+            )}
+          </button>
 
           {/* داته‌های تصویر در پایین */}
           {allImages.length > 1 && (

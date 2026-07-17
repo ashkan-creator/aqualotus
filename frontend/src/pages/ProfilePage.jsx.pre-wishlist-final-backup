@@ -1,0 +1,326 @@
+import { useState, useEffect } from 'react'
+import { Row, Col, Form, Button, Container, Card, Table, Badge, Nav } from 'react-bootstrap'
+import { useSelector, useDispatch } from 'react-redux'
+import { toast } from 'react-toastify'
+import { useProfileMutation } from '../slices/usersApiSlice'
+import { useGetMyOrdersQuery } from '../slices/ordersApiSlice'
+import { setCredentials } from '../slices/authSlice'
+import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
+import Loader from '../components/ui/Loader'
+import Message from '../components/ui/Message'
+import './ProfilePage.css'
+
+const TABS = [
+  { key: 'dashboard', label: 'داشبورد', icon: 'fa-gauge-high' },
+  { key: 'orders', label: 'سفارش‌های من', icon: 'fa-box' },
+  { key: 'profile', label: 'پروفایل و امنیت', icon: 'fa-user-shield' },
+  { key: 'wishlist', label: 'علاقه‌مندی‌ها', icon: 'fa-heart' },
+  { key: 'addresses', label: 'آدرس‌های من', icon: 'fa-location-dot' },
+]
+
+const ComingSoon = ({ title, icon }) => (
+  <Card className='auth-card'>
+    <Card.Body className='p-5 text-center text-muted'>
+      <i className={`fa-solid ${icon} mb-3`} style={{ fontSize: '2.5rem', opacity: 0.4 }}></i>
+      <h5 className='mb-2'>{title}</h5>
+      <p className='mb-0' style={{ fontSize: '14px' }}>این بخش به‌زودی تکمیل می‌شود</p>
+    </Card.Body>
+  </Card>
+)
+
+const DashboardTab = ({ userInfo, orders, loadingOrders }) => {
+  const lastOrder = orders && orders.length > 0 ? orders[0] : null
+
+  return (
+    <Card className='auth-card'>
+      <Card.Body className='p-4'>
+        <h5 className='mb-3'>خوش آمدید، {userInfo?.name}</h5>
+        <p className='text-muted' style={{ fontSize: '14px' }}>
+          خلاصه‌ای از وضعیت حساب کاربری شما
+        </p>
+
+        <hr />
+
+        {loadingOrders ? (
+          <Loader />
+        ) : lastOrder ? (
+          <div className='d-flex justify-content-between align-items-center flex-wrap gap-2'>
+            <div>
+              <div className='text-muted mb-1' style={{ fontSize: '13px' }}>آخرین سفارش</div>
+              <strong>#{lastOrder._id.slice(-6)}</strong>
+              <span className='text-muted ms-2' style={{ fontSize: '13px' }}>
+                {new Date(lastOrder.createdAt).toLocaleDateString('fa-IR')}
+              </span>
+            </div>
+            <Link to={`/order/${lastOrder._id}`}>
+              <Button size='sm' className='btn-aqualotus'>مشاهده جزئیات</Button>
+            </Link>
+          </div>
+        ) : (
+          <Message>هنوز سفارشی ثبت نکرده‌اید</Message>
+        )}
+      </Card.Body>
+    </Card>
+  )
+}
+
+const OrdersTab = ({ orders, loadingOrders, error }) => {
+  const paymentBadge = (order) =>
+    order.isPaid ? (
+      <Badge bg='success'>تأیید شده</Badge>
+    ) : order.paymentResult?.receiptImage ? (
+      <Badge bg='info'>در انتظار تأیید</Badge>
+    ) : (
+      <Badge bg='danger'>پرداخت نشده</Badge>
+    )
+
+  const deliveryBadge = (order) =>
+    order.isDelivered ? (
+      <Badge bg='success'>ارسال شده</Badge>
+    ) : (
+      <Badge bg='warning'>در انتظار</Badge>
+    )
+
+  return (
+    <>
+      <h5 className='mb-3'>سفارش‌های من</h5>
+      {loadingOrders ? (
+        <Loader />
+      ) : error ? (
+        <Message variant='danger'>{error?.data?.message}</Message>
+      ) : orders?.length === 0 ? (
+        <Message>هنوز سفارشی ثبت نکرده‌اید</Message>
+      ) : (
+        <>
+          {/* نمای کارتی — فقط موبایل */}
+          <div className='d-md-none'>
+            {orders.map((order) => (
+              <Card key={order._id} className='mb-3 order-mobile-card'>
+                <Card.Body>
+                  <div className='d-flex justify-content-between align-items-center mb-2'>
+                    <strong>#{order._id.slice(-6)}</strong>
+                    <small className='text-muted'>
+                      {new Date(order.createdAt).toLocaleDateString('fa-IR')}
+                    </small>
+                  </div>
+                  <div className='text-muted mb-2' style={{ fontSize: '13px', lineHeight: '1.8' }}>
+                    {order.orderItems?.map((i) => `${i.name}${i.selectedSize ? ` (${i.selectedSize})` : ''}`).join('، ')}
+                  </div>
+                  <div className='d-flex justify-content-between align-items-center mb-2'>
+                    <span className='text-muted' style={{ fontSize: '13px' }}>مبلغ:</span>
+                    <strong>{Math.round(order.totalPrice).toLocaleString('fa-IR')} تومان</strong>
+                  </div>
+                  <div className='d-flex gap-2 mb-3'>
+                    {paymentBadge(order)}
+                    {deliveryBadge(order)}
+                  </div>
+                  <Link to={`/order/${order._id}`}>
+                    <Button size='sm' className='w-100 btn-aqualotus'>
+                      جزئیات
+                    </Button>
+                  </Link>
+                </Card.Body>
+              </Card>
+            ))}
+          </div>
+
+          {/* نمای جدولی — فقط دسکتاپ */}
+          <div className='d-none d-md-block'>
+            <Table striped hover responsive className='orders-table'>
+              <thead>
+                <tr>
+                  <th>شناسه</th>
+                  <th>تاریخ</th>
+                  <th>اقلام</th>
+                  <th>مبلغ</th>
+                  <th>پرداخت</th>
+                  <th>ارسال</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map((order) => (
+                  <tr key={order._id}>
+                    <td>#{order._id.slice(-6)}</td>
+                    <td>
+                      {new Date(order.createdAt).toLocaleDateString('fa-IR')}
+                    </td>
+                    <td style={{ maxWidth: '220px' }}>
+                      <small
+                        className='text-muted'
+                        title={order.orderItems?.map((i) => `${i.name}${i.selectedSize ? ' (' + i.selectedSize + ')' : ''}`).join('، ')}
+                        style={{ display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                      >
+                        {order.orderItems?.map((i) => `${i.name}${i.selectedSize ? ` (${i.selectedSize})` : ''}`).join('، ')}
+                      </small>
+                    </td>
+                    <td>
+                      {Math.round(order.totalPrice).toLocaleString('fa-IR')} تومان
+                    </td>
+                    <td>{paymentBadge(order)}</td>
+                    <td>{deliveryBadge(order)}</td>
+                    <td>
+                      <Link to={`/order/${order._id}`}>
+                        <Button size='sm' className='btn-aqualotus'>
+                          جزئیات
+                        </Button>
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+        </>
+      )}
+    </>
+  )
+}
+
+const ProfileFormTab = ({ userInfo }) => {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+
+  const dispatch = useDispatch()
+  const [updateProfile, { isLoading }] = useProfileMutation()
+
+  useEffect(() => {
+    if (userInfo) {
+      setName(userInfo.name)
+      setEmail(userInfo.email)
+    }
+  }, [userInfo])
+
+  const submitHandler = async (e) => {
+    e.preventDefault()
+    if (password !== confirmPassword) {
+      toast.error('رمز عبور و تکرار آن یکسان نیستند')
+      return
+    }
+    try {
+      const res = await updateProfile({
+        name,
+        email,
+        password,
+      }).unwrap()
+      dispatch(setCredentials(res))
+      toast.success('پروفایل با موفقیت آپدیت شد')
+    } catch (err) {
+      toast.error(err?.data?.message || 'خطا در آپدیت پروفایل')
+    }
+  }
+
+  return (
+    <Card className='auth-card'>
+      <Card.Body className='p-4'>
+        <h5 className='mb-4'>پروفایل و امنیت</h5>
+        <Form onSubmit={submitHandler}>
+          <Form.Group className='mb-3'>
+            <Form.Label>نام</Form.Label>
+            <Form.Control
+              type='text'
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </Form.Group>
+
+          <Form.Group className='mb-3'>
+            <Form.Label>ایمیل</Form.Label>
+            <Form.Control
+              type='email'
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </Form.Group>
+
+          <Form.Group className='mb-3'>
+            <Form.Label>رمز عبور جدید</Form.Label>
+            <Form.Control
+              type='password'
+              placeholder='خالی بگذارید اگر تغییر نمی‌دهید'
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </Form.Group>
+
+          <Form.Group className='mb-4'>
+            <Form.Label>تکرار رمز عبور</Form.Label>
+            <Form.Control
+              type='password'
+              placeholder='تکرار رمز عبور جدید'
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+          </Form.Group>
+
+          <Button
+            type='submit'
+            className='w-100 btn-aqualotus'
+            disabled={isLoading}
+          >
+            {isLoading ? 'در حال ذخیره...' : 'ذخیره تغییرات'}
+          </Button>
+        </Form>
+      </Card.Body>
+    </Card>
+  )
+}
+
+const ProfilePage = () => {
+  const [activeTab, setActiveTab] = useState('dashboard')
+  const { userInfo } = useSelector((state) => state.auth)
+  const { data: orders, isLoading: loadingOrders, error } = useGetMyOrdersQuery()
+
+  return (
+    <>
+      <Helmet><title>پنل کاربری | AquaLotus</title></Helmet>
+      <Container className='py-4'>
+        <h4 className='mb-4'>پنل کاربری</h4>
+        <Row>
+          <Col md={3} className='mb-3 mb-md-0'>
+            <Card className='auth-card'>
+              <Card.Body className='p-2'>
+                <Nav
+                  variant='pills'
+                  className='customer-panel-nav'
+                  activeKey={activeTab}
+                  onSelect={(k) => setActiveTab(k)}
+                >
+                  {TABS.map((tab) => (
+                    <Nav.Item key={tab.key}>
+                      <Nav.Link eventKey={tab.key}>
+                        <i className={`fa-solid ${tab.icon}`}></i>
+                        {tab.label}
+                      </Nav.Link>
+                    </Nav.Item>
+                  ))}
+                </Nav>
+              </Card.Body>
+            </Card>
+          </Col>
+
+          <Col md={9}>
+            {activeTab === 'dashboard' && (
+              <DashboardTab userInfo={userInfo} orders={orders} loadingOrders={loadingOrders} />
+            )}
+            {activeTab === 'orders' && (
+              <OrdersTab orders={orders} loadingOrders={loadingOrders} error={error} />
+            )}
+            {activeTab === 'profile' && <ProfileFormTab userInfo={userInfo} />}
+            {activeTab === 'wishlist' && (
+              <ComingSoon title='لیست علاقه‌مندی‌ها' icon='fa-heart' />
+            )}
+            {activeTab === 'addresses' && (
+              <ComingSoon title='آدرس‌های ذخیره‌شده' icon='fa-location-dot' />
+            )}
+          </Col>
+        </Row>
+      </Container>
+    </>
+  )
+}
+
+export default ProfilePage

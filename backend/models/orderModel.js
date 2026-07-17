@@ -27,6 +27,7 @@ const orderSchema = new mongoose.Schema(
       province: { type: String, default: '' },
       city: { type: String, required: true },
       postalCode: { type: String, required: true },
+      phone: { type: String, required: true },
       country: { type: String, required: true, default: 'ایران' },
     },
     paymentMethod: {

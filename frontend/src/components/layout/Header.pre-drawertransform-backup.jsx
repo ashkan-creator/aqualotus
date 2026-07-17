@@ -10,6 +10,7 @@ import { useGetFamiliesQuery } from '../../slices/familiesApiSlice'
 import { logout } from '../../slices/authSlice'
 import SearchBox from '../ui/SearchBox'
 import NotificationBell from '../ui/NotificationBell'
+import AnnouncementBar from '../ui/AnnouncementBar'
 
 const Header = () => {
   const { cartItems } = useSelector((state) => state.cart)
@@ -57,22 +58,50 @@ const Header = () => {
         <Container fluid='md'>
           <div className='d-flex align-items-center w-100' style={{ gap: '8px' }}>
 
-            {/* دکمه همبرگر — سمت راست در موبایل */}
-            <button
-              onClick={() => setDrawerOpen(true)}
-              style={{
-                background: 'rgba(255,255,255,0.15)', border: 'none',
-                borderRadius: '8px', padding: '7px 10px', color: 'white',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px',
-                fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0,
-                transition: 'background 0.2s'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
-              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-            >
-              <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>☰</span>
-              <span className='d-none d-sm-inline'>دسته‌بندی</span>
-            </button>
+            {/* آیکون کاربر و ورود */}
+            {userInfo ? (
+                <NavDropdown
+                  title={
+                    <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem' }}>
+                      <span className='d-none d-sm-inline'>{userInfo.name}</span>
+                      <FaUser className='d-sm-none' style={{ fontSize: '1.1rem' }} />
+                    </span>
+                  }
+                  id='user-menu'
+                  align='end'
+                >
+                  {!userInfo.isAdmin && (
+                    <LinkContainer to='/profile'>
+                      <NavDropdown.Item>پروفایل و سفارش‌هایم</NavDropdown.Item>
+                    </LinkContainer>
+                  )}
+                  {userInfo.isAdmin && (
+                    <>
+                      <LinkContainer to='/profile'><NavDropdown.Item>پروفایل</NavDropdown.Item></LinkContainer>
+                      <NavDropdown.Divider />
+                      <LinkContainer to='/admin/dashboard'><NavDropdown.Item>📊 داشبورد</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/productlist'><NavDropdown.Item>محصولات</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/orderlist'><NavDropdown.Item>سفارش‌ها</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/reviews'><NavDropdown.Item>💬 نظرات و پاسخ‌ها</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/userlist'><NavDropdown.Item>کاربران</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/familylist'><NavDropdown.Item>خانواده‌های گیاهی</NavDropdown.Item></LinkContainer>
+                      <NavDropdown.Divider />
+                      <LinkContainer to='/admin/sliders'><NavDropdown.Item>🖼️ اسلایدر</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/blog'><NavDropdown.Item>📝 وبلاگ</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/settings'><NavDropdown.Item>⚙️ تنظیمات</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/activity-log'><NavDropdown.Item>📋 لاگ فعالیت</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/linkpages'><NavDropdown.Item>🔗 لینک‌ساز</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/custompages'><NavDropdown.Item>🏗️ صفحه‌ساز</NavDropdown.Item></LinkContainer>
+                    </>
+                  )}
+                  <NavDropdown.Divider />
+                  <NavDropdown.Item onClick={logoutHandler}>خروج</NavDropdown.Item>
+                </NavDropdown>
+              ) : (
+                <div style={{ cursor: 'pointer', padding: '4px' }} onClick={() => navigate('/login')}>
+                  <FaUser style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.2rem' }} />
+                </div>
+              )}
 
             {/* لوگو */}
             <LinkContainer to='/'>
@@ -114,47 +143,23 @@ const Header = () => {
 
               {userInfo?.isAdmin && <NotificationBell />}
 
-              {userInfo ? (
-                <NavDropdown
-                  title={
-                    <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem' }}>
-                      <span className='d-none d-sm-inline'>{userInfo.name}</span>
-                      <FaUser className='d-sm-none' style={{ fontSize: '1.1rem' }} />
-                    </span>
-                  }
-                  id='user-menu'
-                  align='end'
-                >
-                  {!userInfo.isAdmin && (
-                    <LinkContainer to='/profile'>
-                      <NavDropdown.Item>پروفایل و سفارش‌هایم</NavDropdown.Item>
-                    </LinkContainer>
-                  )}
-                  {userInfo.isAdmin && (
-                    <>
-                      <LinkContainer to='/profile'><NavDropdown.Item>پروفایل</NavDropdown.Item></LinkContainer>
-                      <NavDropdown.Divider />
-                      <LinkContainer to='/admin/dashboard'><NavDropdown.Item>📊 داشبورد</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/productlist'><NavDropdown.Item>محصولات</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/orderlist'><NavDropdown.Item>سفارش‌ها</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/reviews'><NavDropdown.Item>💬 نظرات و پاسخ‌ها</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/userlist'><NavDropdown.Item>کاربران</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/familylist'><NavDropdown.Item>خانواده‌های گیاهی</NavDropdown.Item></LinkContainer>
-                      <NavDropdown.Divider />
-                      <LinkContainer to='/admin/sliders'><NavDropdown.Item>🖼️ اسلایدر</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/blog'><NavDropdown.Item>📝 وبلاگ</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/settings'><NavDropdown.Item>⚙️ تنظیمات</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/activity-log'><NavDropdown.Item>📋 لاگ فعالیت</NavDropdown.Item></LinkContainer>
-                    </>
-                  )}
-                  <NavDropdown.Divider />
-                  <NavDropdown.Item onClick={logoutHandler}>خروج</NavDropdown.Item>
-                </NavDropdown>
-              ) : (
-                <div style={{ cursor: 'pointer', padding: '4px' }} onClick={() => navigate('/login')}>
-                  <FaUser style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.2rem' }} />
-                </div>
-              )}
+              
+              {/* دکمه همبرگر */}
+              <button
+              onClick={() => setDrawerOpen(true)}
+              style={{
+                background: 'rgba(255,255,255,0.15)', border: 'none',
+                borderRadius: '8px', padding: '7px 10px', color: 'white',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px',
+                fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0,
+                transition: 'background 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
+              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+            >
+              <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>☰</span>
+              <span className='d-none d-sm-inline'>دسته‌بندی</span>
+            </button>
             </div>
           </div>
 
@@ -165,18 +170,9 @@ const Header = () => {
         </Container>
       </Navbar>
 
-      {settings?.announcement && (
-        <div className='announcement-bar'>
-          <Container className='d-flex justify-content-center py-2'>
-            <span>{settings.announcement}</span>
-          </Container>
-        </div>
-      )}
+      <AnnouncementBar settings={settings} />
 
-      {/* 🌟 هماهنگی انیمیش
- 
-      ن سایدبار کشویی در حالت راست‌چین (RTL) */}
-
+      {/* 🌟 هماهنگی انیمیشن سایدبار کشویی در حالت راست‌چین (RTL) */}
       <div
         style={{
           position: 'fixed', inset: 0, zIndex: 9999,

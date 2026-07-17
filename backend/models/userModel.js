@@ -9,6 +9,21 @@ const userSchema = new mongoose.Schema(
     googleId: { type: String, default: null },
     phone: { type: String, default: '' },
     address: { type: String, default: '' },
+    addresses: [
+      {
+        title: { type: String, default: '' },
+        province: { type: String, required: true },
+        city: { type: String, required: true },
+        address: { type: String, required: true },
+        postalCode: { type: String, required: true },
+        phone: { type: String, required: true },
+      },
+    ],
+    resetPasswordToken: { type: String, default: null },
+    resetPasswordExpire: { type: Date, default: null },
+    resetOtpCode: { type: String, default: null },
+    resetOtpExpire: { type: Date, default: null },
+    resetOtpAttempts: { type: Number, default: 0 },
     isAdmin: { type: Boolean, required: true, default: false },
   },
   { timestamps: true }

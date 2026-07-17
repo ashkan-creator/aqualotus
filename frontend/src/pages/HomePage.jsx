@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Row, Col, Container, Button, Offcanvas } from 'react-bootstrap'
+import { Row, Col, Container, Button, Offcanvas, Form } from 'react-bootstrap'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { useGetProductsQuery } from '../slices/productsApiSlice'
@@ -16,6 +16,7 @@ const HomePage = () => {
   const { keyword, pageNumber } = useParams()
   const [searchParams] = useSearchParams()
   const [showFilter, setShowFilter] = useState(false)
+  const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || 'newest')
 
   const [filters, setFilters] = useState({
     careLevel: '',
@@ -38,6 +39,7 @@ const HomePage = () => {
       maxPrice: searchParams.get('maxPrice') || '',
       category: searchParams.get('category') || '',
     })
+    setSortBy(searchParams.get('sortBy') || 'newest')
   }, [searchParams.toString()])
 
   const queryParams = {
@@ -50,6 +52,7 @@ const HomePage = () => {
     category: filters.category,
     minPrice: filters.minPrice,
     maxPrice: filters.maxPrice,
+    sortBy,
   }
 
   const { data, isLoading, error } = useGetProductsQuery(queryParams)
@@ -147,11 +150,27 @@ const HomePage = () => {
               </Offcanvas.Body>
             </Offcanvas>
 
-            <Col lg={2} className='d-none d-lg-block mb-4'>
+            <Col lg={3} className='d-none d-lg-block mb-4'>
               <FilterSidebar filters={filters} setFilters={setFilters} />
             </Col>
 
-            <Col lg={10}>
+            <Col lg={9}>
+              <div className='d-flex justify-content-start align-items-center gap-2 mb-3 aq-sort-toolbar'>
+          <label className='aq-sort-label'>مرتب‌سازی بر اساس:</label>
+          <Form.Select
+            size='sm'
+            className='aq-sort-select'
+            style={{ width: 'auto', minWidth: '180px' }}
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
+            <option value='newest'>جدیدترین</option>
+            <option value='oldest'>قدیمی‌ترین</option>
+            <option value='priceAsc'>ارزان‌ترین</option>
+            <option value='priceDesc'>گران‌ترین</option>
+            <option value='bestselling'>پرفروش‌ترین</option>
+          </Form.Select>
+        </div>
               {data?.products?.length === 0 ? (
                 <div className='aq-empty-state'>
                   <div className='aq-empty-icon'>🔍</div>

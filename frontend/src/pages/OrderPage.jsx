@@ -131,48 +131,63 @@ const OrderPage = () => {
   const printInvoice = () => {
     const items = order.orderItems.map((item) =>
       `<tr>
-        <td style="padding:6px 8px;border-bottom:1px solid #eee">${item.name}${item.selectedSize ? ` (${item.selectedSize})` : ''}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:center">${item.qty}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:left">${item.price.toLocaleString('fa-IR')} ت</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #eee;text-align:left">${(item.qty * item.price).toLocaleString('fa-IR')} ت</td>
+        <td>${item.name}${item.selectedSize ? ` (${item.selectedSize})` : ''}</td>
+        <td style="text-align:center">${item.qty}</td>
+        <td style="text-align:left">${item.price.toLocaleString('fa-IR')} ت</td>
+        <td style="text-align:left">${(item.qty * item.price).toLocaleString('fa-IR')} ت</td>
       </tr>`
     ).join('')
-
     const html = `<!DOCTYPE html>
 <html dir="rtl" lang="fa">
 <head>
 <meta charset="UTF-8"/>
 <title>فاکتور سفارش #${order._id.slice(-8)}</title>
 <style>
-  body { font-family: Tahoma, sans-serif; direction: rtl; margin: 30px; color: #222; }
-  h1 { color: #2d6a4f; font-size: 22px; }
-  .meta { color: #666; font-size: 13px; margin-bottom: 20px; }
-  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
-  th { background: #2d6a4f; color: white; padding: 8px; text-align: right; }
-  .total { font-size: 16px; font-weight: bold; color: #2d6a4f; text-align: left; margin-top: 10px; }
-  .footer { margin-top: 40px; font-size: 12px; color: #999; text-align: center; border-top: 1px solid #eee; padding-top: 12px; }
+  body { font-family: Tahoma, sans-serif; direction: rtl; margin: 0; padding: 24px; color: #222; background: #f4f4f4; }
+  .invoice-box { max-width: 720px; margin: 0 auto; background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 28px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+  .invoice-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #2d6a4f; padding-bottom: 14px; margin-bottom: 18px; }
+  h1 { color: #2d6a4f; font-size: 20px; margin: 0; }
+  .meta { color: #555; font-size: 13px; line-height: 2; margin-bottom: 16px; }
+  .info-box { background: #f9f9f9; border: 1px solid #eee; padding: 12px 14px; border-radius: 8px; margin-bottom: 18px; font-size: 13px; line-height: 1.9; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; border: 1px solid #ddd; }
+  th, td { border: 1px solid #ddd; padding: 8px 10px; }
+  th { background: #2d6a4f; color: white; text-align: right; font-size: 13px; }
+  tbody tr:nth-child(even) { background: #fafafa; }
+  .total-row { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; border-top: 2px solid #2d6a4f; padding-top: 12px; }
+  .total { font-size: 16px; font-weight: bold; color: #2d6a4f; }
+  .footer { margin-top: 30px; font-size: 12px; color: #999; text-align: center; border-top: 1px solid #eee; padding-top: 12px; }
+  @media print {
+    body { background: #fff; padding: 0; }
+    .invoice-box { border: none; box-shadow: none; border-radius: 0; max-width: 100%; }
+  }
 </style>
 </head>
 <body>
-  <h1>AquaLotus | فاکتور سفارش</h1>
-  <div class="meta">
-    شماره سفارش: #${order._id.slice(-8)} &nbsp;|&nbsp;
-    تاریخ: ${new Date(order.createdAt).toLocaleDateString('fa-IR')} ساعت ${new Date(order.createdAt).toLocaleTimeString('fa-IR', {hour:'2-digit',minute:'2-digit'})} &nbsp;|&nbsp;
-    مشتری: ${order.user.name}${order.user.phone ? ` | تلفن: ${order.user.phone}` : ''}
+  <div class="invoice-box">
+    <div class="invoice-header">
+      <h1>AquaLotus | فاکتور سفارش</h1>
+      <div style="font-size:12px;color:#999">#${order._id.slice(-8)}</div>
+    </div>
+    <div class="meta">
+      تاریخ: ${new Date(order.createdAt).toLocaleDateString('fa-IR')} ساعت ${new Date(order.createdAt).toLocaleTimeString('fa-IR', {hour:'2-digit',minute:'2-digit'})}<br/>
+      مشتری: ${order.user.name}${order.shippingAddress.phone ? ` | تلفن: ${order.shippingAddress.phone}` : (order.user.phone ? ` | تلفن: ${order.user.phone}` : '')}
+    </div>
+    <div class="info-box">
+      <strong>آدرس ارسال:</strong><br/>
+      ${order.shippingAddress.address}، ${order.shippingAddress.city}${order.shippingAddress.province ? `، استان ${order.shippingAddress.province}` : ''}، کد پستی: ${order.shippingAddress.postalCode}
+    </div>
+    <table>
+      <thead><tr><th>محصول</th><th>تعداد</th><th>قیمت واحد</th><th>جمع</th></tr></thead>
+      <tbody>${items}</tbody>
+    </table>
+    <div class="total-row">
+      <span style="font-size:13px;color:#666">جمع کل</span>
+      <span class="total">${Math.round(order.totalPrice).toLocaleString('fa-IR')} تومان</span>
+    </div>
+    <div class="footer">AquaLotus.ir | فروشگاه گیاهان آبزی</div>
   </div>
-  <div style="background:#f9f9f9;padding:12px;border-radius:8px;margin-bottom:16px;font-size:13px">
-    <strong>آدرس ارسال:</strong>
-    ${order.shippingAddress.address}، ${order.shippingAddress.city}${order.shippingAddress.province ? `، استان ${order.shippingAddress.province}` : ''}، کد پستی: ${order.shippingAddress.postalCode}
-  </div>
-  <table>
-    <thead><tr><th>محصول</th><th>تعداد</th><th>قیمت واحد</th><th>جمع</th></tr></thead>
-    <tbody>${items}</tbody>
-  </table>
-  <div class="total">جمع کل: ${Math.round(order.totalPrice).toLocaleString('fa-IR')} تومان</div>
-  <div class="footer">AquaLotus.ir | فروشگاه گیاهان آبزی</div>
 </body>
 </html>`
-
     const w = window.open('', '_blank')
     w.document.write(html)
     w.document.close()
@@ -209,7 +224,7 @@ const OrderPage = () => {
                 <ListGroup.Item>
                   <h4>آدرس ارسال</h4>
                   <p>
-                    <strong>{order.user.name}</strong> |{' '}
+                    <strong>{order.user.name}</strong>{order.shippingAddress.phone && ` | تلفن: ${order.shippingAddress.phone}`} |{' '}
                     {order.shippingAddress.address}،{' '}
                     {order.shippingAddress.city}
                     {order.shippingAddress.province && `، استان ${order.shippingAddress.province}`}،{' '}

@@ -1,0 +1,327 @@
+import { useState } from 'react'
+import { Container, Row, Col, Card, Table, Button, Form, Modal } from 'react-bootstrap'
+import { toast } from 'react-toastify'
+import {
+  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
+} from 'recharts'
+import {
+  useGetReportStatsQuery,
+  useGetCurrentPeriodQuery,
+  useClosePeriodMutation,
+  useGetClosedPeriodsQuery,
+  useGetTopProductsQuery,
+  useGetTopCustomersQuery,
+} from '../../slices/reportsApiSlice'
+import Loader from '../../components/ui/Loader'
+import { Helmet } from 'react-helmet-async'
+
+const toInputDate = (d) => new Date(d).toISOString().slice(0, 10)
+
+const ReportsPage = () => {
+  const today = toInputDate(new Date())
+  const monthAgo = toInputDate(new Date(Date.now() - 29 * 24 * 60 * 60 * 1000))
+
+  const [startDate, setStartDate] = useState(monthAgo)
+  const [endDate, setEndDate] = useState(today)
+  const [showCloseModal, setShowCloseModal] = useState(false)
+  const [closeNote, setCloseNote] = useState('')
+
+  const { data: stats, isLoading: statsLoading } = useGetReportStatsQuery({ startDate, endDate })
+  const { data: currentPeriod, isLoading: periodLoading, refetch: refetchPeriod } = useGetCurrentPeriodQuery()
+  const { data: closedPeriods, isLoading: closedLoading, refetch: refetchClosed } = useGetClosedPeriodsQuery()
+  const { data: topProducts, isLoading: topProductsLoading } = useGetTopProductsQuery({ startDate, endDate, limit: 5 })
+  const { data: topCustomers, isLoading: topCustomersLoading } = useGetTopCustomersQuery({ startDate, endDate, limit: 5 })
+  const [closePeriod, { isLoading: closing }] = useClosePeriodMutation()
+
+  const printHandler = () => window.print()
+
+  const closeHandler = async () => {
+    try {
+      await closePeriod({ note: closeNote }).unwrap()
+      toast.success('دوره با موفقیت بسته و آرشیو شد')
+      setShowCloseModal(false)
+      setCloseNote('')
+      refetchPeriod()
+      refetchClosed()
+    } catch (err) {
+      toast.error(err?.data?.message || 'خطا در بستن دوره')
+    }
+  }
+
+  const chartData =
+    stats?.daily?.map((d) => ({
+      ...d,
+      label: new Date(d.date).toLocaleDateString('fa-IR', { month: 'short', day: 'numeric' }),
+    })) || []
+
+  return (
+    <>
+      <Helmet><title>گزارش‌گیری | پنل ادمین</title></Helmet>
+      <Container className='py-4'>
+        <h2 className='mb-4' style={{ fontSize: 'clamp(1rem, 4vw, 1.5rem)' }}>📊 داشبورد آمار و گزارش‌گیری</h2>
+
+        {/* دوره فعلی */}
+        <Card className='p-3 mb-4'>
+          <Row className='align-items-center g-3'>
+            <Col xs={12} md={8}>
+              <h6 className='mb-1'>دوره فعلی</h6>
+              {periodLoading ? (
+                <Loader />
+              ) : (
+                <p className='mb-0 text-muted' style={{ fontSize: '0.9rem' }}>
+                  از تاریخ{' '}
+                  {currentPeriod?.startDate
+                    ? new Date(currentPeriod.startDate).toLocaleDateString('fa-IR')
+                    : '-'}{' '}
+                  تا امروز
+                </p>
+              )}
+            </Col>
+            <Col xs={12} md={4} className='text-md-end no-print'>
+              <Button variant='outline-secondary' className='me-2' onClick={printHandler}>
+                🖨️ چاپ گزارش (PDF)
+              </Button>
+              <Button variant='danger' onClick={() => setShowCloseModal(true)}>
+                🔒 بستن دوره فعلی
+              </Button>
+            </Col>
+          </Row>
+        </Card>
+
+        {/* بازه زمانی گزارش */}
+        <Card className='p-3 mb-4 no-print'>
+          <Row className='g-3 align-items-end'>
+            <Col xs={6} md={3}>
+              <Form.Group>
+                <Form.Label>از تاریخ</Form.Label>
+                <Form.Control type='date' value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+              </Form.Group>
+            </Col>
+            <Col xs={6} md={3}>
+              <Form.Group>
+                <Form.Label>تا تاریخ</Form.Label>
+                <Form.Control type='date' value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+              </Form.Group>
+            </Col>
+          </Row>
+        </Card>
+
+        {/* کارت‌های آمار بازه انتخابی */}
+        {statsLoading ? (
+          <Loader />
+        ) : (
+          stats && (
+            <>
+              <Row className='g-3 mb-4'>
+                <Col xs={6} lg={3}>
+                  <Card className='h-100 text-white' style={{ background: '#2d6a4f' }}>
+                    <Card.Body className='p-3'>
+                      <div style={{ fontSize: 'clamp(0.85rem, 2.6vw, 1.25rem)', fontWeight: 'bold' }}>
+                        {(stats.totalRevenue ?? 0).toLocaleString('fa-IR')} تومان
+                      </div>
+                      <div style={{ fontSize: '0.8rem', opacity: 0.9 }}>درآمد بازه</div>
+                    </Card.Body>
+                  </Card>
+                </Col>
+                <Col xs={6} lg={3}>
+                  <Card className='h-100 text-white' style={{ background: '#0d4f8b' }}>
+                    <Card.Body className='p-3'>
+                      <div style={{ fontSize: 'clamp(0.9rem, 3vw, 1.4rem)', fontWeight: 'bold' }}>
+                        {stats.totalOrders}
+                      </div>
+                      <div style={{ fontSize: '0.8rem', opacity: 0.9 }}>کل سفارش‌ها</div>
+                    </Card.Body>
+                  </Card>
+                </Col>
+                <Col xs={6} lg={3}>
+                  <Card className='h-100 text-white' style={{ background: '#52b788' }}>
+                    <Card.Body className='p-3'>
+                      <div style={{ fontSize: 'clamp(0.9rem, 3vw, 1.4rem)', fontWeight: 'bold' }}>
+                        {stats.paidOrders}
+                      </div>
+                      <div style={{ fontSize: '0.8rem', opacity: 0.9 }}>پرداخت‌شده</div>
+                    </Card.Body>
+                  </Card>
+                </Col>
+                <Col xs={6} lg={3}>
+                  <Card className='h-100 text-white' style={{ background: '#6a4c2d' }}>
+                    <Card.Body className='p-3'>
+                      <div style={{ fontSize: 'clamp(0.85rem, 2.6vw, 1.25rem)', fontWeight: 'bold' }}>
+                        {(stats.avgOrderValue ?? 0).toLocaleString('fa-IR')} تومان
+                      </div>
+                      <div style={{ fontSize: '0.8rem', opacity: 0.9 }}>میانگین سفارش</div>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+
+              {chartData.length > 0 && (
+                <Card className='p-3 mb-4'>
+                  <h6 className='mb-3'>روند درآمد بازه انتخابی</h6>
+                  <ResponsiveContainer width='100%' height={220}>
+                    <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                      <defs>
+                        <linearGradient id='colorRepRev' x1='0' y1='0' x2='0' y2='1'>
+                          <stop offset='5%' stopColor='#2d6a4f' stopOpacity={0.3} />
+                          <stop offset='95%' stopColor='#2d6a4f' stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray='3 3' stroke='#f0f0f0' />
+                      <XAxis dataKey='label' tick={{ fontSize: 11 }} />
+                      <YAxis tick={{ fontSize: 11 }} />
+                      <Tooltip />
+                      <Area type='monotone' dataKey='revenue' stroke='#2d6a4f' fill='url(#colorRepRev)' strokeWidth={2} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </Card>
+              )}
+            </>
+          )
+        )}
+
+        {/* پرفروش‌ترین محصولات و پرخریدترین مشتریان */}
+        <Row className='g-4 mb-4'>
+          <Col xs={12} lg={6}>
+            <Card className='p-3 h-100'>
+              <h6 className='mb-3'>🏆 پرفروش‌ترین محصولات (بازه انتخابی)</h6>
+              {topProductsLoading ? (
+                <Loader />
+              ) : !topProducts?.length ? (
+                <p className='text-muted mb-0'>داده‌ای برای این بازه یافت نشد</p>
+              ) : (
+                <div className='table-responsive'>
+                  <Table striped hover size='sm'>
+                    <thead>
+                      <tr>
+                        <th>محصول</th>
+                        <th>تعداد فروش</th>
+                        <th>درآمد</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {topProducts
+                        .filter((p) => p && p._id)
+                        .map((p) => (
+                          <tr key={p._id}>
+                            <td>{p.name || '-'}</td>
+                            <td>{(p.totalQty ?? 0).toLocaleString('fa-IR')}</td>
+                            <td>{(p.totalRevenue ?? 0).toLocaleString('fa-IR')} تومان</td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </Table>
+                </div>
+              )}
+            </Card>
+          </Col>
+          <Col xs={12} lg={6}>
+            <Card className='p-3 h-100'>
+              <h6 className='mb-3'>👑 پرخریدترین مشتریان (بازه انتخابی)</h6>
+              {topCustomersLoading ? (
+                <Loader />
+              ) : !topCustomers?.length ? (
+                <p className='text-muted mb-0'>داده‌ای برای این بازه یافت نشد</p>
+              ) : (
+                <div className='table-responsive'>
+                  <Table striped hover size='sm'>
+                    <thead>
+                      <tr>
+                        <th>مشتری</th>
+                        <th>تعداد سفارش</th>
+                        <th>مجموع خرید</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {topCustomers
+                        .filter((c) => c && c._id)
+                        .map((c) => (
+                          <tr key={c._id}>
+                            <td>{c.name || '-'}</td>
+                            <td>{(c.totalOrders ?? 0).toLocaleString('fa-IR')}</td>
+                            <td>{(c.totalSpent ?? 0).toLocaleString('fa-IR')} تومان</td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </Table>
+                </div>
+              )}
+            </Card>
+          </Col>
+        </Row>
+
+        {/* آرشیو دوره‌های بسته‌شده */}
+        <Card className='p-3'>
+          <h5 className='mb-3'>📁 آرشیو دوره‌های بسته‌شده</h5>
+          {closedLoading ? (
+            <Loader />
+          ) : !closedPeriods?.length ? (
+            <p className='text-muted mb-0'>هنوز هیچ دوره‌ای بسته نشده است</p>
+          ) : (
+            <div className='table-responsive'>
+              <Table striped hover>
+                <thead>
+                  <tr>
+                    <th>از تاریخ</th>
+                    <th>تا تاریخ</th>
+                    <th>سفارش‌ها</th>
+                    <th>پرداخت‌شده</th>
+                    <th>درآمد</th>
+                    <th>بسته‌شده توسط</th>
+                    <th>یادداشت</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {closedPeriods.map((p) => (
+                    <tr key={p._id}>
+                      <td>{new Date(p.startDate).toLocaleDateString('fa-IR')}</td>
+                      <td>{new Date(p.endDate).toLocaleDateString('fa-IR')}</td>
+                      <td>{p.totalOrders}</td>
+                      <td>{p.paidOrders}</td>
+                      <td>{p.totalRevenue.toLocaleString('fa-IR')} تومان</td>
+                      <td>{p.closedBy}</td>
+                      <td>{p.note || '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          )}
+        </Card>
+      </Container>
+
+      {/* مودال تایید بستن دوره */}
+      <Modal show={showCloseModal} onHide={() => setShowCloseModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>بستن دوره فعلی</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            با بستن دوره، آمار از تاریخ{' '}
+            {currentPeriod?.startDate ? new Date(currentPeriod.startDate).toLocaleDateString('fa-IR') : '-'}{' '}
+            تا الان آرشیو می‌شود و شمارنده «دوره فعلی» از همین لحظه صفر شده و از نو شروع می‌شود. این کار قابل بازگشت نیست.
+          </p>
+          <Form.Group>
+            <Form.Label>یادداشت (اختیاری)</Form.Label>
+            <Form.Control
+              as='textarea'
+              rows={2}
+              value={closeNote}
+              onChange={(e) => setCloseNote(e.target.value)}
+              placeholder='مثلاً: پایان فصل بهار'
+            />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant='secondary' onClick={() => setShowCloseModal(false)}>
+            انصراف
+          </Button>
+          <Button variant='danger' onClick={closeHandler} disabled={closing}>
+            {closing ? 'در حال بستن...' : 'تایید و بستن دوره'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
+  )
+}
+
+export default ReportsPage

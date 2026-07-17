@@ -42,8 +42,17 @@ const getProducts = asyncHandler(async (req, res) => {
     if (req.query.maxPrice) filter.price.$lte = Number(req.query.maxPrice)
   }
 
+  const sortOptions = {
+    priceAsc: { price: 1 },
+    priceDesc: { price: -1 },
+    oldest: { createdAt: 1 },
+    newest: { createdAt: -1 },
+    bestselling: { soldCount: -1 },
+  }
+  const sortBy = sortOptions[req.query.sortBy] || sortOptions.newest
+
   const count = await Product.countDocuments(filter)
-  const products = await Product.find(filter).sort({ createdAt: -1 })
+  const products = await Product.find(filter).sort(sortBy)
     .limit(pageSize)
     .skip(pageSize * (page - 1))
 

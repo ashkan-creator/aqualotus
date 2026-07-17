@@ -20,6 +20,8 @@ import blogRoutes from './routes/blogRoutes.js'
 import notificationRoutes from './routes/notificationRoutes.js'
 import linkPageRoutes from './routes/linkPageRoutes.js'
 import customPageRoutes from './routes/customPageRoutes.js'
+import wishlistRoutes from './routes/wishlistRoutes.js'
+import reportRoutes from './routes/reportRoutes.js'
 import { redirectShortLink } from './controllers/linkPageController.js'
 import { generateSitemap } from './controllers/sitemapController.js'
 
@@ -72,6 +74,8 @@ app.use('/api/blog', blogRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/api/linkpages', linkPageRoutes)
 app.use('/api/custompages', customPageRoutes)
+app.use('/api/wishlist', wishlistRoutes)
+app.use('/api/reports', reportRoutes)
 app.get('/go/:shortCode', redirectShortLink)
 app.get('/sitemap.xml', generateSitemap)
 

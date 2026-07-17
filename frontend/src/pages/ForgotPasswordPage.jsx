@@ -1,0 +1,115 @@
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Form, Button, Row, Col, Container, Card, Nav } from 'react-bootstrap'
+import { useForgotPasswordMutation } from '../slices/usersApiSlice'
+import { toast } from 'react-toastify'
+import Loader from '../components/ui/Loader'
+import { FaLeaf } from 'react-icons/fa'
+import { Helmet } from 'react-helmet-async'
+
+const ForgotPasswordPage = () => {
+  const [tab, setTab] = useState('email')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [sent, setSent] = useState(false)
+
+  const navigate = useNavigate()
+  const [forgotPassword, { isLoading }] = useForgotPasswordMutation()
+
+  const submitHandler = async (e) => {
+    e.preventDefault()
+    try {
+      if (tab === 'email') {
+        await forgotPassword({ method: 'email', email }).unwrap()
+        setSent(true)
+      } else {
+        await forgotPassword({ method: 'sms', phone }).unwrap()
+        navigate('/verify-otp', { state: { phone } })
+      }
+    } catch (err) {
+      toast.error(err?.data?.message || 'خطا در ارسال درخواست')
+    }
+  }
+
+  return (
+    <>
+      <Helmet><title>بازیابی رمز عبور | AquaLotus</title></Helmet>
+      <Container className='py-5'>
+        <Row className='justify-content-center'>
+          <Col xs={12} md={6} lg={5}>
+            <Card className='auth-card'>
+              <Card.Body className='p-4'>
+                <div className='text-center mb-4'>
+                  <FaLeaf className='auth-icon' />
+                  <h2 className='auth-title'>بازیابی رمز عبور</h2>
+                </div>
+
+                <Nav variant='pills' className='auth-tabs justify-content-center mb-4'>
+                  <Nav.Item>
+                    <Nav.Link active={tab === 'email'} onClick={() => setTab('email')}>
+                      با ایمیل
+                    </Nav.Link>
+                  </Nav.Item>
+                  <Nav.Item>
+                    <Nav.Link active={tab === 'sms'} onClick={() => setTab('sms')}>
+                      با پیامک
+                    </Nav.Link>
+                  </Nav.Item>
+                </Nav>
+
+                {sent ? (
+                  <div className='text-center'>
+                    <p>لینک بازیابی رمز عبور به ایمیل شما ارسال شد. صندوق ورودی (و پوشه اسپم) را بررسی کنید.</p>
+                    <Link to='/login' className='btn-auth-secondary'>بازگشت به صفحه ورود</Link>
+                  </div>
+                ) : (
+                  <Form onSubmit={submitHandler}>
+                    {tab === 'email' ? (
+                      <Form.Group className='mb-4'>
+                        <Form.Label>ایمیل</Form.Label>
+                        <Form.Control
+                          type='email'
+                          placeholder='ایمیل خود را وارد کنید'
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                        />
+                      </Form.Group>
+                    ) : (
+                      <Form.Group className='mb-4'>
+                        <Form.Label>شماره موبایل</Form.Label>
+                        <Form.Control
+                          type='tel'
+                          dir='rtl'
+                          style={{ textAlign: 'right' }}
+                          placeholder='شماره موبایل خود را وارد کنید'
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          required
+                        />
+                      </Form.Group>
+                    )}
+
+                    <Button type='submit' className='w-100 btn-aqualotus' disabled={isLoading}>
+                      {isLoading ? 'در حال ارسال...' : 'ارسال'}
+                    </Button>
+                  </Form>
+                )}
+
+                {isLoading && <Loader />}
+
+                <Row className='mt-3'>
+                  <Col className='text-center'>
+                    <Link to='/login' className='btn-auth-secondary'>بازگشت به ورود</Link>
+                  </Col>
+                </Row>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+    </>
+  )
+}
+
+export default ForgotPasswordPage

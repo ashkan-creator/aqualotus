@@ -1,0 +1,205 @@
+import asyncHandler from 'express-async-handler'
+import Order from '../models/orderModel.js'
+import Settings from '../models/settingsModel.js'
+import ReportPeriod from '../models/reportPeriodModel.js'
+import logActivity from '../utils/logActivity.js'
+
+const PERIOD_KEY = 'currentPeriodStart'
+
+const computeStats = (orders) => {
+  const totalOrders = orders.length
+  const paidOrders = orders.filter((o) => o.isPaid).length
+  const deliveredOrders = orders.filter((o) => o.isDelivered).length
+  const totalRevenue = orders
+    .filter((o) => o.isPaid)
+    .reduce((acc, o) => acc + o.totalPrice, 0)
+  return { totalOrders, paidOrders, deliveredOrders, totalRevenue }
+}
+
+// @desc    آمار بازه زمانی دلخواه
+// @route   GET /api/reports/stats?startDate=&endDate=
+// @access  Private/Admin
+const getReportStats = asyncHandler(async (req, res) => {
+  const { startDate, endDate } = req.query
+  if (!startDate || !endDate) {
+    res.status(400)
+    throw new Error('بازه زمانی الزامی است')
+  }
+  const start = new Date(startDate)
+  const end = new Date(endDate)
+  end.setHours(23, 59, 59, 999)
+
+  const orders = await Order.find({
+    createdAt: { $gte: start, $lte: end },
+  }).select('totalPrice isPaid isDelivered createdAt')
+
+  const { totalOrders, paidOrders, deliveredOrders, totalRevenue } = computeStats(orders)
+  const avgOrderValue = paidOrders > 0 ? Math.round(totalRevenue / paidOrders) : 0
+
+  const dailyMap = {}
+  orders.forEach((o) => {
+    const day = o.createdAt.toISOString().slice(0, 10)
+    if (!dailyMap[day]) dailyMap[day] = { date: day, orders: 0, revenue: 0 }
+    dailyMap[day].orders += 1
+    if (o.isPaid) dailyMap[day].revenue += o.totalPrice
+  })
+  const daily = Object.values(dailyMap).sort((a, b) => a.date.localeCompare(b.date))
+
+  res.json({
+    startDate: start,
+    endDate: end,
+    totalOrders,
+    paidOrders,
+    deliveredOrders,
+    totalRevenue,
+    avgOrderValue,
+    daily,
+  })
+})
+
+// @desc    دریافت تاریخ شروع دوره فعلی
+// @route   GET /api/reports/current-period
+// @access  Private/Admin
+const getCurrentPeriod = asyncHandler(async (req, res) => {
+  let setting = await Settings.findOne({ key: PERIOD_KEY })
+  if (!setting) {
+    setting = await Settings.create({ key: PERIOD_KEY, value: new Date().toISOString() })
+  }
+  res.json({ startDate: setting.value })
+})
+
+// @desc    بستن دوره فعلی، آرشیو کردن آمار، و شروع دوره جدید از صفر
+// @route   POST /api/reports/close-period
+// @access  Private/Admin
+const closePeriod = asyncHandler(async (req, res) => {
+  const { note } = req.body
+
+  let setting = await Settings.findOne({ key: PERIOD_KEY })
+  const startDate = setting ? new Date(setting.value) : new Date(0)
+  const endDate = new Date()
+
+  const orders = await Order.find({
+    createdAt: { $gte: startDate, $lte: endDate },
+  }).select('totalPrice isPaid isDelivered')
+
+  const { totalOrders, paidOrders, deliveredOrders, totalRevenue } = computeStats(orders)
+
+  const archived = await ReportPeriod.create({
+    startDate,
+    endDate,
+    totalOrders,
+    paidOrders,
+    deliveredOrders,
+    totalRevenue,
+    closedBy: req.user.name,
+    note: note || '',
+  })
+
+  await Settings.findOneAndUpdate(
+    { key: PERIOD_KEY },
+    { value: endDate.toISOString() },
+    { new: true, upsert: true }
+  )
+
+  await logActivity(
+    req.user,
+    'بستن دوره گزارش‌گیری',
+    'ReportPeriod',
+    archived._id.toString(),
+    `${totalOrders} سفارش`
+  )
+
+  res.status(201).json(archived)
+})
+
+// @desc    لیست دوره‌های بسته‌شده (آرشیو)
+// @route   GET /api/reports/periods
+// @access  Private/Admin
+const getClosedPeriods = asyncHandler(async (req, res) => {
+  const periods = await ReportPeriod.find({}).sort({ endDate: -1 })
+  res.json(periods)
+})
+
+// @desc    پرفروش‌ترین محصولات در بازه زمانی
+// @route   GET /api/reports/top-products?startDate=&endDate=&limit=
+// @access  Private/Admin
+const getTopProducts = asyncHandler(async (req, res) => {
+  const { startDate, endDate, limit } = req.query
+  if (!startDate || !endDate) {
+    res.status(400)
+    throw new Error('بازه زمانی الزامی است')
+  }
+  const start = new Date(startDate)
+  const end = new Date(endDate)
+  end.setHours(23, 59, 59, 999)
+  const topLimit = Number(limit) || 5
+
+  const result = await Order.aggregate([
+    { $match: { createdAt: { $gte: start, $lte: end }, isPaid: true } },
+    { $unwind: '$orderItems' },
+    {
+      $group: {
+        _id: '$orderItems.product',
+        name: { $first: '$orderItems.name' },
+        image: { $first: '$orderItems.image' },
+        totalQty: { $sum: '$orderItems.qty' },
+        totalRevenue: { $sum: { $multiply: ['$orderItems.qty', '$orderItems.price'] } },
+      },
+    },
+    { $sort: { totalQty: -1 } },
+    { $limit: topLimit },
+  ])
+
+  res.json(result)
+})
+
+// @desc    پرخریدترین مشتریان در بازه زمانی
+// @route   GET /api/reports/top-customers?startDate=&endDate=&limit=
+// @access  Private/Admin
+const getTopCustomers = asyncHandler(async (req, res) => {
+  const { startDate, endDate, limit } = req.query
+  if (!startDate || !endDate) {
+    res.status(400)
+    throw new Error('بازه زمانی الزامی است')
+  }
+  const start = new Date(startDate)
+  const end = new Date(endDate)
+  end.setHours(23, 59, 59, 999)
+  const topLimit = Number(limit) || 5
+
+  const result = await Order.aggregate([
+    { $match: { createdAt: { $gte: start, $lte: end }, isPaid: true } },
+    {
+      $group: {
+        _id: '$user',
+        totalOrders: { $sum: 1 },
+        totalSpent: { $sum: '$totalPrice' },
+      },
+    },
+    { $sort: { totalSpent: -1 } },
+    { $limit: topLimit },
+    {
+      $lookup: {
+        from: 'users',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'userInfo',
+      },
+    },
+    { $unwind: '$userInfo' },
+    {
+      $project: {
+        _id: 1,
+        totalOrders: 1,
+        totalSpent: 1,
+        name: '$userInfo.name',
+        email: '$userInfo.email',
+        phone: '$userInfo.phone',
+      },
+    },
+  ])
+
+  res.json(result)
+})
+
+export { getReportStats, getCurrentPeriod, closePeriod, getClosedPeriods, getTopProducts, getTopCustomers }

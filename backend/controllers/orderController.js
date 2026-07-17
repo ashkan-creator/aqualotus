@@ -1,6 +1,7 @@
 import asyncHandler from 'express-async-handler'
 import Order from '../models/orderModel.js'
 import Notification from '../models/notificationModel.js'
+import Product from '../models/productModel.js'
 
 // @desc    ساخت سفارش جدید
 // @route   POST /api/orders
@@ -96,6 +97,17 @@ const confirmOrderPayment = asyncHandler(async (req, res) => {
     order.paymentResult.confirmedAt = Date.now()
     order.paymentResult.confirmedBy = req.user.name
     const updatedOrder = await order.save()
+    for (const item of order.orderItems) {
+      await Product.updateOne({ _id: item.product }, { $inc: { soldCount: item.qty } })
+    }
+    await Notification.create({
+      type: 'order_confirmed',
+      title: 'پرداخت شما تأیید شد',
+      message: `پرداخت سفارش #${order._id.toString().slice(-6)} تأیید شد و سفارش شما در حال آماده‌سازی است`,
+      link: `/order/${order._id}`,
+      relatedId: order._id,
+      user: order.user,
+    })
     res.json(updatedOrder)
   } else {
     res.status(404)
@@ -113,6 +125,14 @@ const updateOrderToDelivered = asyncHandler(async (req, res) => {
     order.isDelivered = true
     order.deliveredAt = Date.now()
     const updatedOrder = await order.save()
+    await Notification.create({
+      type: 'order_delivered',
+      title: 'سفارش شما ارسال شد',
+      message: `سفارش #${order._id.toString().slice(-6)} ارسال شد`,
+      link: `/order/${order._id}`,
+      relatedId: order._id,
+      user: order.user,
+    })
     res.json(updatedOrder)
   } else {
     res.status(404)

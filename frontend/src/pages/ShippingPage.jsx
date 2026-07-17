@@ -4,6 +4,7 @@ import { Form, Button, Container, Card, Row, Col } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import { saveShippingAddress } from '../slices/cartSlice'
 import { iranProvinces } from '../data/iranProvinces'
+import { useGetMyAddressesQuery } from '../slices/addressesApiSlice'
 
 const ShippingPage = () => {
   const { shippingAddress } = useSelector((state) => state.cart)
@@ -13,9 +14,11 @@ const ShippingPage = () => {
   const [province, setProvince] = useState(shippingAddress?.province || '')
   const [city, setCity] = useState(shippingAddress?.city || '')
   const [postalCode, setPostalCode] = useState(shippingAddress?.postalCode || '')
+  const [phone, setPhone] = useState(shippingAddress?.phone || userInfo?.phone || '')
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const { data: savedAddresses } = useGetMyAddressesQuery(undefined, { skip: !userInfo })
 
   const selectedProvinceData = iranProvinces.find((p) => p.province === province)
   const availableCities = selectedProvinceData ? selectedProvinceData.cities : []
@@ -32,11 +35,22 @@ const ShippingPage = () => {
       setCity('')
     }
     if (userInfo?.postalCode) setPostalCode(userInfo.postalCode)
+    if (userInfo?.phone) setPhone(userInfo.phone)
+  }
+
+  const savedAddressSelectHandler = (e) => {
+    const addr = savedAddresses?.find((a) => a._id === e.target.value)
+    if (!addr) return
+    setProvince(addr.province)
+    setCity(addr.city)
+    setAddress(addr.address)
+    setPostalCode(addr.postalCode)
+    setPhone(addr.phone)
   }
 
   const submitHandler = (e) => {
     e.preventDefault()
-    dispatch(saveShippingAddress({ address, province, city, postalCode, country: 'ایران' }))
+    dispatch(saveShippingAddress({ address, province, city, postalCode, phone, country: 'ایران' }))
     navigate('/placeorder')
   }
 
@@ -58,6 +72,19 @@ const ShippingPage = () => {
                     📍 پر کردن از پروفایل
                   </Button>
                 </div>
+              )}
+              {savedAddresses && savedAddresses.length > 0 && (
+                <Form.Group className='mb-4'>
+                  <Form.Label>یکی از آدرس‌های ذخیره‌شده را انتخاب کنید</Form.Label>
+                  <Form.Select defaultValue='' onChange={savedAddressSelectHandler}>
+                    <option value=''>— انتخاب آدرس ذخیره‌شده —</option>
+                    {savedAddresses.map((addr) => (
+                      <option key={addr._id} value={addr._id}>
+                        {addr.title ? addr.title : `${addr.province}، ${addr.city}`}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
               )}
               <Form onSubmit={submitHandler}>
                 <Row>
@@ -116,6 +143,18 @@ const ShippingPage = () => {
                     pattern='[0-9]{10}'
                     title='کد پستی باید ۱۰ رقم باشد'
                     onChange={(e) => setPostalCode(e.target.value)}
+                  />
+                </Form.Group>
+                <Form.Group className='mb-4'>
+                  <Form.Label>شماره تلفن همراه</Form.Label>
+                  <Form.Control
+                    type='tel'
+                    placeholder='09xxxxxxxxx'
+                    value={phone}
+                    required
+                    pattern='09[0-9]{9}'
+                    title='شماره موبایل باید با 09 شروع شود و 11 رقم باشد'
+                    onChange={(e) => setPhone(e.target.value)}
                   />
                 </Form.Group>
                 <div className='shipping-notice mb-4'>

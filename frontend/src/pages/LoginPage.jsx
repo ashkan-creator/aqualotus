@@ -116,6 +116,12 @@ const LoginPage = () => {
                   />
                 </Form.Group>
 
+                <div className='text-center mb-3'>
+                  <Link to='/forgot-password' className='auth-link' style={{ fontSize: '0.9rem' }}>
+                    رمز عبور را فراموش کرده‌اید؟
+                  </Link>
+                </div>
+
                 <Button
                   type='submit'
                   className='w-100 btn-aqualotus'

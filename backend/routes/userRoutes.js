@@ -11,6 +11,13 @@ import {
   getUserById,
   updateUser,
   googleLogin,
+  getMyAddresses,
+  addAddress,
+  updateAddress,
+  deleteAddress,
+  forgotPassword,
+  resetPassword,
+  verifyOtpAndReset,
 } from '../controllers/userController.js'
 import { protect, admin } from '../middleware/authMiddleware.js'
 
@@ -21,10 +28,21 @@ router.post('/login', authUser)
 router.post('/google', googleLogin)
 router.post('/logout', logoutUser)
 router.post('/refresh', refreshToken)
+router.post('/forgot-password', forgotPassword)
+router.post('/reset-password', resetPassword)
+router.post('/verify-otp', verifyOtpAndReset)
 router
   .route('/profile')
   .get(protect, getUserProfile)
   .put(protect, updateUserProfile)
+router
+  .route('/addresses')
+  .get(protect, getMyAddresses)
+  .post(protect, addAddress)
+router
+  .route('/addresses/:addressId')
+  .put(protect, updateAddress)
+  .delete(protect, deleteAddress)
 router
   .route('/:id')
   .get(protect, admin, getUserById)

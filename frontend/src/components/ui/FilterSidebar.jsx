@@ -13,6 +13,8 @@ const CHIP_GROUPS = [
       { value: 'کود و مکمل', label: 'کود و مکمل' },
       { value: 'بستر', label: 'بستر' },
       { value: 'لوازم جانبی', label: 'لوازم جانبی' },
+      { value: 'سنگ', label: 'سنگ' },
+      { value: 'چوب', label: 'چوب' },
     ],
   },
   {
@@ -87,15 +89,19 @@ const FilterSidebar = ({ filters, setFilters }) => {
     .filter(([, v]) => Boolean(v))
     .map(([key, value]) => ({ key, label: chipLabelFor(key, value) }))
 
+  const minPct = (Number(filters.minPrice || 0) / MAX_PRICE) * 100
+  const maxPct = (Number(filters.maxPrice || MAX_PRICE) / MAX_PRICE) * 100
+
   return (
     <Card className='p-3 aq-filter-card'>
-      <div className='d-flex justify-content-between align-items-center mb-3'>
-        <h6 className='mb-0'>
-          🔍 فیلتر
-          {activeChips.length > 0 && <Badge bg='success' className='me-2'>{activeChips.length}</Badge>}
+      <div className='d-flex justify-content-between align-items-center mb-3 aq-filter-header'>
+        <h6 className='mb-0 d-flex align-items-center'>
+          <span className='aq-filter-title-badge'>🔍</span>
+          فیلتر
+          {activeChips.length > 0 && <Badge bg='success' className='me-2 aq-filter-count-total'>{activeChips.length}</Badge>}
         </h6>
         {activeChips.length > 0 && (
-          <Button variant='link' size='sm' className='text-danger p-0' onClick={resetFilters}>
+          <Button variant='link' size='sm' className='text-danger p-0 aq-filter-clear-all' onClick={resetFilters}>
             پاک کردن همه
           </Button>
         )}
@@ -150,45 +156,57 @@ const FilterSidebar = ({ filters, setFilters }) => {
             )}
           </Accordion.Header>
           <Accordion.Body>
-            <div className='d-flex justify-content-between mb-1'>
-              <small className='text-muted'>{Number(filters.minPrice || 0).toLocaleString('fa-IR')}</small>
-              <small className='text-muted'>{Number(filters.maxPrice || MAX_PRICE).toLocaleString('fa-IR')}</small>
-            </div>
-            <div className='aq-price-range-slider' style={{ position: 'relative', height: '28px' }}>
-              <div style={{
-                position: 'absolute', top: '50%', left: 0, right: 0, height: '4px',
-                background: '#e0e0e0', borderRadius: '2px', transform: 'translateY(-50%)',
-              }} />
-              <div style={{
-                position: 'absolute', top: '50%', height: '4px',
-                background: '#2d6a4f', borderRadius: '2px', transform: 'translateY(-50%)',
-                right: `${100 - (Number(filters.maxPrice || MAX_PRICE) / MAX_PRICE) * 100}%`,
-                left: `${(Number(filters.minPrice || 0) / MAX_PRICE) * 100}%`,
-              }} />
-              <input
-                type='range'
-                min={0}
-                max={MAX_PRICE}
-                step={10000}
-                value={filters.minPrice || 0}
-                onChange={(e) => {
-                  const val = Math.min(Number(e.target.value), Number(filters.maxPrice || MAX_PRICE))
-                  setFilters({ ...filters, minPrice: val })
-                }}
-                className='aq-range-thumb'
-              />
-              <input
-                type='range'
-                min={0}
-                max={MAX_PRICE}
-                step={10000}
-                value={filters.maxPrice || MAX_PRICE}
-                onChange={(e) => {
-                  const val = Math.max(Number(e.target.value), Number(filters.minPrice || 0))
-                  setFilters({ ...filters, maxPrice: val })
-                }}
-                className='aq-range-thumb'
-              />
+            <div className='aq-price-box'>
+              <div className='d-flex justify-content-between mb-1'>
+                <small className='text-muted'>{Number(filters.minPrice || 0).toLocaleString('fa-IR')}</small>
+                <small className='text-muted'>{Number(filters.maxPrice || MAX_PRICE).toLocaleString('fa-IR')}</small>
+              </div>
+              <div className='aq-price-range-slider' style={{ position: 'relative', height: '44px' }}>
+                <span
+                  className='aq-price-bubble'
+                  style={{ left: `${minPct}%` }}
+                >
+                  {Number(filters.minPrice || 0).toLocaleString('fa-IR')}
+                </span>
+                <span
+                  className='aq-price-bubble'
+                  style={{ left: `${maxPct}%` }}
+                >
+                  {Number(filters.maxPrice || MAX_PRICE).toLocaleString('fa-IR')}
+                </span>
+                <div className='aq-price-track' />
+                <div
+                  className='aq-price-track-fill'
+                  style={{
+                    right: `${100 - maxPct}%`,
+                    left: `${minPct}%`,
+                  }}
+                />
+                <input
+                  type='range'
+                  min={0}
+                  max={MAX_PRICE}
+                  step={10000}
+                  value={filters.minPrice || 0}
+                  onChange={(e) => {
+                    const val = Math.min(Number(e.target.value), Number(filters.maxPrice || MAX_PRICE))
+                    setFilters({ ...filters, minPrice: val })
+                  }}
+                  className='aq-range-thumb'
+                />
+                <input
+                  type='range'
+                  min={0}
+                  max={MAX_PRICE}
+                  step={10000}
+                  value={filters.maxPrice || MAX_PRICE}
+                  onChange={(e) => {
+                    const val = Math.max(Number(e.target.value), Number(filters.minPrice || 0))
+                    setFilters({ ...filters, maxPrice: val })
+                  }}
+                  className='aq-range-thumb'
+                />
+              </div>
             </div>
           </Accordion.Body>
         </Accordion.Item>

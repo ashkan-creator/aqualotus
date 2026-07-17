@@ -175,6 +175,8 @@ const ProductEditPage = () => {
                     <option value='کود و مکمل'>کود و مکمل</option>
                     <option value='بستر'>بستر</option>
                     <option value='لوازم جانبی'>لوازم جانبی</option>
+                    <option value='سنگ'>سنگ</option>
+                    <option value='چوب'>چوب</option>
                   </Form.Select>
                 </Form.Group>
                 <Form.Group className='mb-3'>

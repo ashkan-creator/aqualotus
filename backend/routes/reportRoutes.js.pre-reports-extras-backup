@@ -1,0 +1,17 @@
+import express from 'express'
+import {
+  getReportStats,
+  getCurrentPeriod,
+  closePeriod,
+  getClosedPeriods,
+} from '../controllers/reportController.js'
+import { protect, admin } from '../middleware/authMiddleware.js'
+
+const router = express.Router()
+
+router.get('/stats', protect, admin, getReportStats)
+router.get('/current-period', protect, admin, getCurrentPeriod)
+router.post('/close-period', protect, admin, closePeriod)
+router.get('/periods', protect, admin, getClosedPeriods)
+
+export default router

@@ -47,7 +47,7 @@ const productSchema = new mongoose.Schema(
     category: {
       type: String,
       required: true,
-      enum: ['گیاه زنده', 'کود و مکمل', 'بستر', 'لوازم جانبی'],
+      enum: ['گیاه زنده', 'کود و مکمل', 'بستر', 'لوازم جانبی', 'سنگ', 'چوب'],
     },
     description: { type: String, required: true },
     reviews: [reviewSchema],
@@ -55,6 +55,7 @@ const productSchema = new mongoose.Schema(
     numReviews: { type: Number, required: true, default: 0 },
     price: { type: Number, required: true, default: 0 },
     countInStock: { type: Number, required: true, default: 0 },
+    soldCount: { type: Number, default: 0 },
     discount: { type: Number, default: 0 },
     discountMinQty: { type: Number, default: 0 },
     discountQtyPercent: { type: Number, default: 0 },

@@ -22,6 +22,24 @@ export const notificationsApiSlice = apiSlice.injectEndpoints({
       query: () => ({ url: `${NOTIFICATIONS_URL}/read-all`, method: 'PUT' }),
       invalidatesTags: ['Notifications'],
     }),
+    getMyNotifications: builder.query({
+      query: () => ({ url: `${NOTIFICATIONS_URL}/mine` }),
+      providesTags: ['Notifications'],
+      keepUnusedDataFor: 5,
+    }),
+    getMyUnreadCount: builder.query({
+      query: () => ({ url: `${NOTIFICATIONS_URL}/mine/unread-count` }),
+      providesTags: ['Notifications'],
+      keepUnusedDataFor: 5,
+    }),
+    markMyNotificationRead: builder.mutation({
+      query: (id) => ({ url: `${NOTIFICATIONS_URL}/mine/${id}/read`, method: 'PUT' }),
+      invalidatesTags: ['Notifications'],
+    }),
+    markAllMyNotificationsRead: builder.mutation({
+      query: () => ({ url: `${NOTIFICATIONS_URL}/mine/read-all`, method: 'PUT' }),
+      invalidatesTags: ['Notifications'],
+    }),
   }),
 })
 
@@ -30,4 +48,8 @@ export const {
   useGetUnreadCountQuery,
   useMarkNotificationReadMutation,
   useMarkAllNotificationsReadMutation,
+  useGetMyNotificationsQuery,
+  useGetMyUnreadCountQuery,
+  useMarkMyNotificationReadMutation,
+  useMarkAllMyNotificationsReadMutation,
 } = notificationsApiSlice

@@ -10,6 +10,7 @@ import { useGetFamiliesQuery } from '../../slices/familiesApiSlice'
 import { logout } from '../../slices/authSlice'
 import SearchBox from '../ui/SearchBox'
 import NotificationBell from '../ui/NotificationBell'
+import AnnouncementBar from '../ui/AnnouncementBar'
 
 const Header = () => {
   const { cartItems } = useSelector((state) => state.cart)
@@ -145,6 +146,8 @@ const Header = () => {
                       <LinkContainer to='/admin/blog'><NavDropdown.Item>📝 وبلاگ</NavDropdown.Item></LinkContainer>
                       <LinkContainer to='/admin/settings'><NavDropdown.Item>⚙️ تنظیمات</NavDropdown.Item></LinkContainer>
                       <LinkContainer to='/admin/activity-log'><NavDropdown.Item>📋 لاگ فعالیت</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/linkpages'><NavDropdown.Item>🔗 لینک‌ساز</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/custompages'><NavDropdown.Item>🏗️ صفحه‌ساز</NavDropdown.Item></LinkContainer>
                     </>
                   )}
                   <NavDropdown.Divider />
@@ -165,18 +168,9 @@ const Header = () => {
         </Container>
       </Navbar>
 
-      {settings?.announcement && (
-        <div className='announcement-bar'>
-          <Container className='d-flex justify-content-center py-2'>
-            <span>{settings.announcement}</span>
-          </Container>
-        </div>
-      )}
+      <AnnouncementBar settings={settings} />
 
-      {/* 🌟 هماهنگی انیمیش
- 
-      ن سایدبار کشویی در حالت راست‌چین (RTL) */}
-
+      {/* 🌟 هماهنگی انیمیشن سایدبار کشویی در حالت راست‌چین (RTL) */}
       <div
         style={{
           position: 'fixed', inset: 0, zIndex: 9999,
@@ -209,7 +203,7 @@ const Header = () => {
           direction: 'rtl',
           boxShadow: drawerOpen ? '-5px 0 25px rgba(0,0,0,0.15)' : 'none',
           /* انیمیشن ورودی از سمت راست با شتاب‌دهنده نیوتنی */
-          transform: drawerOpen ? 'translateX(0)' : 'translateX(-100%)',
+          transform: drawerOpen ? 'translateX(0)' : 'translateX(100%)',
           transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s',
         }}>
           <div style={{

@@ -10,6 +10,7 @@ import { useGetFamiliesQuery } from '../../slices/familiesApiSlice'
 import { logout } from '../../slices/authSlice'
 import SearchBox from '../ui/SearchBox'
 import NotificationBell from '../ui/NotificationBell'
+import CustomerNotificationBell from '../ui/CustomerNotificationBell'
 import AnnouncementBar from '../ui/AnnouncementBar'
 
 const Header = () => {
@@ -53,69 +54,13 @@ const Header = () => {
   const totalCartItems = cartItems.reduce((a, c) => a + c.qty, 0)
 
   return (
-    <header>
+    <header className='aq-sticky-header'>
       <Navbar className='aqualotus-navbar' style={{ padding: '10px 0' }}>
         <Container fluid='md'>
           <div className='d-flex align-items-center w-100' style={{ gap: '8px' }}>
 
-            {/* دکمه همبرگر — سمت راست در موبایل */}
-            <button
-              onClick={() => setDrawerOpen(true)}
-              style={{
-                background: 'rgba(255,255,255,0.15)', border: 'none',
-                borderRadius: '8px', padding: '7px 10px', color: 'white',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px',
-                fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0,
-                transition: 'background 0.2s'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
-              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-            >
-              <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>☰</span>
-              <span className='d-none d-sm-inline'>دسته‌بندی</span>
-            </button>
-
-            {/* لوگو */}
-            <LinkContainer to='/'>
-              <Navbar.Brand className='brand-logo d-flex align-items-center me-0' style={{ gap: '6px', flexShrink: 0 }}>
-                <img
-                  src='/logo.png'
-                  alt='AquaLotus'
-                  style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
-                />
-                <span className='d-none d-sm-inline' style={{ fontWeight: '600', fontSize: '1rem' }}>AquaLotus</span>
-              </Navbar.Brand>
-            </LinkContainer>
-
-            {/* سرچ — وسط، فقط دسکتاپ */}
-            <div className='d-none d-md-flex flex-grow-1 mx-2'>
-              <SearchBox />
-            </div>
-
-            {/* آیکون‌ها — سمت چپ */}
-            <div className='d-flex align-items-center ms-auto' style={{ gap: '8px' }}>
-              {(!userInfo || !userInfo.isAdmin) && (
-                <div
-                  id='cart-icon-target'
-                  style={{ position: 'relative', cursor: 'pointer', padding: '4px' }}
-                  onClick={() => navigate('/cart')}
-                >
-                  <FaShoppingCart style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.25rem' }} />
-                  {totalCartItems > 0 && (
-                    <Badge pill bg='danger' style={{
-                      position: 'absolute', top: '-6px', left: '-6px',
-                      fontSize: '0.6rem', minWidth: '17px', height: '17px',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      {totalCartItems}
-                    </Badge>
-                  )}
-                </div>
-              )}
-
-              {userInfo?.isAdmin && <NotificationBell />}
-
-              {userInfo ? (
+            {/* آیکون کاربر و ورود */}
+            {userInfo ? (
                 <NavDropdown
                   title={
                     <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem' }}>
@@ -128,14 +73,15 @@ const Header = () => {
                 >
                   {!userInfo.isAdmin && (
                     <LinkContainer to='/profile'>
-                      <NavDropdown.Item>پروفایل و سفارش‌هایم</NavDropdown.Item>
+                      <NavDropdown.Item>پنل کاربری</NavDropdown.Item>
                     </LinkContainer>
                   )}
                   {userInfo.isAdmin && (
                     <>
-                      <LinkContainer to='/profile'><NavDropdown.Item>پروفایل</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/profile'><NavDropdown.Item>پنل کاربری</NavDropdown.Item></LinkContainer>
                       <NavDropdown.Divider />
                       <LinkContainer to='/admin/dashboard'><NavDropdown.Item>📊 داشبورد</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/reports'><NavDropdown.Item>📈 گزارش‌گیری</NavDropdown.Item></LinkContainer>
                       <LinkContainer to='/admin/productlist'><NavDropdown.Item>محصولات</NavDropdown.Item></LinkContainer>
                       <LinkContainer to='/admin/orderlist'><NavDropdown.Item>سفارش‌ها</NavDropdown.Item></LinkContainer>
                       <LinkContainer to='/admin/reviews'><NavDropdown.Item>💬 نظرات و پاسخ‌ها</NavDropdown.Item></LinkContainer>
@@ -158,6 +104,66 @@ const Header = () => {
                   <FaUser style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.2rem' }} />
                 </div>
               )}
+
+            {/* لوگو */}
+            <LinkContainer to='/'>
+              <Navbar.Brand className='brand-logo d-flex align-items-center me-0' style={{ gap: '6px', flexShrink: 0 }}>
+                <img
+                  src='/logo.png'
+                  alt='AquaLotus'
+                  style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+                />
+                <span className='d-none d-sm-inline' style={{ fontWeight: '600', fontSize: '1rem' }}>AquaLotus</span>
+              </Navbar.Brand>
+            </LinkContainer>
+
+            {/* سرچ — وسط، فقط دسکتاپ */}
+            <div className='d-none d-md-flex flex-grow-1 mx-2'>
+              <SearchBox />
+            </div>
+
+            {/* آیکون‌ها — سمت چپ */}
+            <div className='d-flex align-items-center ms-auto' style={{ gap: '8px' }}>
+              {userInfo && !userInfo.isAdmin && <CustomerNotificationBell />}
+
+              {(!userInfo || !userInfo.isAdmin) && (
+                <div
+                  id='cart-icon-target'
+                  style={{ position: 'relative', cursor: 'pointer', padding: '4px' }}
+                  onClick={() => navigate('/cart')}
+                >
+                  <FaShoppingCart style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.25rem' }} />
+                  {totalCartItems > 0 && (
+                    <Badge pill bg='danger' style={{
+                      position: 'absolute', top: '-6px', left: '-6px',
+                      fontSize: '0.6rem', minWidth: '17px', height: '17px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      {totalCartItems}
+                    </Badge>
+                  )}
+                </div>
+              )}
+
+              {userInfo?.isAdmin && <NotificationBell />}
+
+              
+              {/* دکمه همبرگر */}
+              <button
+              onClick={() => setDrawerOpen(true)}
+              style={{
+                background: 'rgba(255,255,255,0.15)', border: 'none',
+                borderRadius: '8px', padding: '7px 10px', color: 'white',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px',
+                fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0,
+                transition: 'background 0.2s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
+              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+            >
+              <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>☰</span>
+              <span className='d-none d-sm-inline'>دسته‌بندی</span>
+            </button>
             </div>
           </div>
 
@@ -203,7 +209,7 @@ const Header = () => {
           direction: 'rtl',
           boxShadow: drawerOpen ? '-5px 0 25px rgba(0,0,0,0.15)' : 'none',
           /* انیمیشن ورودی از سمت راست با شتاب‌دهنده نیوتنی */
-          transform: drawerOpen ? 'translateX(0)' : 'translateX(100%)',
+          transform: drawerOpen ? 'translateX(0)' : 'translateX(-100%)',
           transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s',
         }}>
           <div style={{
@@ -329,3 +335,4 @@ const SubItem = ({ label, onClick }) => (
 )
 
 export default Header
+

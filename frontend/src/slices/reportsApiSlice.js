@@ -1,0 +1,56 @@
+import { apiSlice } from './apiSlice'
+import { REPORTS_URL } from '../constants'
+
+export const reportsApiSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    getReportStats: builder.query({
+      query: ({ startDate, endDate }) => ({
+        url: `${REPORTS_URL}/stats`,
+        params: { startDate, endDate },
+      }),
+      keepUnusedDataFor: 5,
+    }),
+    getCurrentPeriod: builder.query({
+      query: () => ({
+        url: `${REPORTS_URL}/current-period`,
+      }),
+      keepUnusedDataFor: 5,
+    }),
+    closePeriod: builder.mutation({
+      query: (data) => ({
+        url: `${REPORTS_URL}/close-period`,
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    getClosedPeriods: builder.query({
+      query: () => ({
+        url: `${REPORTS_URL}/periods`,
+      }),
+      keepUnusedDataFor: 5,
+    }),
+    getReportTopProducts: builder.query({
+      query: ({ startDate, endDate, limit }) => ({
+        url: `${REPORTS_URL}/top-products`,
+        params: { startDate, endDate, limit },
+      }),
+      keepUnusedDataFor: 5,
+    }),
+    getReportTopCustomers: builder.query({
+      query: ({ startDate, endDate, limit }) => ({
+        url: `${REPORTS_URL}/top-customers`,
+        params: { startDate, endDate, limit },
+      }),
+      keepUnusedDataFor: 5,
+    }),
+  }),
+})
+
+export const {
+  useGetReportStatsQuery,
+  useGetCurrentPeriodQuery,
+  useClosePeriodMutation,
+  useGetClosedPeriodsQuery,
+  useGetReportTopProductsQuery,
+  useGetReportTopCustomersQuery,
+} = reportsApiSlice

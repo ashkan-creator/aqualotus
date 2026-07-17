@@ -3,6 +3,9 @@ import asyncHandler from 'express-async-handler'
 import { OAuth2Client } from 'google-auth-library'
 import User from '../models/userModel.js'
 import setTokenCookies, { generateAccessToken } from '../utils/generateToken.js'
+import crypto from 'crypto'
+import sendEmail from '../utils/sendEmail.js'
+import sendSms from '../utils/sendSms.js'
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
@@ -36,7 +39,7 @@ const googleLogin = asyncHandler(async (req, res) => {
     await user.save()
   }
 
-  setTokenCookies(res, user._id)
+  setTokenCookies(res, user._id, user.isAdmin)
   res.json({
     _id: user._id,
     name: user.name,
@@ -52,7 +55,7 @@ const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body
   const user = await User.findOne({ email })
   if (user && (await user.matchPassword(password))) {
-    setTokenCookies(res, user._id)
+    setTokenCookies(res, user._id, user.isAdmin)
     res.json({
       _id: user._id,
       name: user.name,
@@ -76,7 +79,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
   const user = await User.create({ name, email, password, phone, address })
   if (user) {
-    setTokenCookies(res, user._id)
+    setTokenCookies(res, user._id, user.isAdmin)
     res.status(201).json({
       _id: user._id,
       name: user.name,
@@ -224,6 +227,172 @@ const updateUser = asyncHandler(async (req, res) => {
   }
 })
 
+const getMyAddresses = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id)
+  res.json(user.addresses)
+})
+
+const addAddress = asyncHandler(async (req, res) => {
+  const { title, province, city, address, postalCode, phone } = req.body
+  const user = await User.findById(req.user._id)
+  user.addresses.push({ title, province, city, address, postalCode, phone })
+  await user.save()
+  res.status(201).json(user.addresses)
+})
+
+const updateAddress = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id)
+  const addr = user.addresses.id(req.params.addressId)
+  if (!addr) {
+    res.status(404)
+    throw new Error('آدرس پیدا نشد')
+  }
+  addr.title = req.body.title ?? addr.title
+  addr.province = req.body.province ?? addr.province
+  addr.city = req.body.city ?? addr.city
+  addr.address = req.body.address ?? addr.address
+  addr.postalCode = req.body.postalCode ?? addr.postalCode
+  addr.phone = req.body.phone ?? addr.phone
+  await user.save()
+  res.json(user.addresses)
+})
+
+const deleteAddress = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id)
+  user.addresses.pull({ _id: req.params.addressId })
+  await user.save()
+  res.json(user.addresses)
+})
+
+const forgotPassword = asyncHandler(async (req, res) => {
+  const { method, email, phone } = req.body
+
+  if (method === 'email') {
+    if (!email) {
+      res.status(400)
+      throw new Error('ایمیل الزامی است')
+    }
+    const user = await User.findOne({ email })
+    if (!user) {
+      return res.status(200).json({ message: 'اگر این ایمیل ثبت شده باشد، لینک بازیابی ارسال خواهد شد' })
+    }
+    const resetToken = crypto.randomBytes(32).toString('hex')
+    user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex')
+    user.resetPasswordExpire = Date.now() + 60 * 60 * 1000
+    await user.save()
+
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: 'بازیابی رمز عبور - AquaLotus',
+        html: `<p>برای بازیابی رمز عبور خود روی لینک زیر کلیک کنید (اعتبار: ۱ ساعت):</p><p><a href="${resetUrl}">${resetUrl}</a></p><p>اگر این درخواست را نداده‌اید، این ایمیل را نادیده بگیرید.</p>`,
+      })
+      res.status(200).json({ message: 'لینک بازیابی به ایمیل شما ارسال شد' })
+    } catch (err) {
+      user.resetPasswordToken = null
+      user.resetPasswordExpire = null
+      await user.save()
+      console.error('خطای ارسال ایمیل:', err.message)
+      res.status(500)
+      throw new Error('خطا در ارسال ایمیل. لطفاً دوباره تلاش کنید')
+    }
+  } else if (method === 'sms') {
+    if (!phone) {
+      res.status(400)
+      throw new Error('شماره موبایل الزامی است')
+    }
+    const user = await User.findOne({ phone })
+    if (!user) {
+      return res.status(200).json({ message: 'اگر این شماره ثبت شده باشد، کد تایید ارسال خواهد شد' })
+    }
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString()
+    user.resetOtpCode = otpCode
+    user.resetOtpExpire = Date.now() + 10 * 60 * 1000
+    user.resetOtpAttempts = 0
+    await user.save()
+
+    try {
+      await sendSms({
+        to: user.phone,
+        message: `کد بازیابی رمز عبور شما در آکوالوتوس: ${otpCode}\nاین کد تا ۱۰ دقیقه معتبر است.`,
+      })
+      res.status(200).json({ message: 'کد تایید به شماره شما پیامک شد' })
+    } catch (err) {
+      user.resetOtpCode = null
+      user.resetOtpExpire = null
+      await user.save()
+      console.error('خطای ارسال پیامک:', err.message)
+      res.status(500)
+      throw new Error('خطا در ارسال پیامک. لطفاً دوباره تلاش کنید')
+    }
+  } else {
+    res.status(400)
+    throw new Error('روش بازیابی نامعتبر است')
+  }
+})
+
+const resetPassword = asyncHandler(async (req, res) => {
+  const { token, password } = req.body
+  if (!token || !password) {
+    res.status(400)
+    throw new Error('توکن و رمز عبور جدید الزامی است')
+  }
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex')
+  const user = await User.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordExpire: { $gt: Date.now() },
+  })
+  if (!user) {
+    res.status(400)
+    throw new Error('لینک بازیابی نامعتبر یا منقضی شده است')
+  }
+  user.password = password
+  user.resetPasswordToken = null
+  user.resetPasswordExpire = null
+  await user.save()
+  res.status(200).json({ message: 'رمز عبور با موفقیت تغییر کرد' })
+})
+
+const verifyOtpAndReset = asyncHandler(async (req, res) => {
+  const { phone, otp, password } = req.body
+  if (!phone || !otp || !password) {
+    res.status(400)
+    throw new Error('شماره موبایل، کد تایید و رمز عبور جدید الزامی است')
+  }
+  const user = await User.findOne({ phone })
+  if (!user || !user.resetOtpCode || !user.resetOtpExpire) {
+    res.status(400)
+    throw new Error('درخواست بازیابی معتبری یافت نشد')
+  }
+  if (user.resetOtpExpire < Date.now()) {
+    user.resetOtpCode = null
+    user.resetOtpExpire = null
+    await user.save()
+    res.status(400)
+    throw new Error('کد تایید منقضی شده است')
+  }
+  if (user.resetOtpAttempts >= 5) {
+    user.resetOtpCode = null
+    user.resetOtpExpire = null
+    await user.save()
+    res.status(400)
+    throw new Error('تعداد تلاش‌های مجاز به پایان رسید. دوباره درخواست کد دهید')
+  }
+  if (user.resetOtpCode !== otp) {
+    user.resetOtpAttempts += 1
+    await user.save()
+    res.status(400)
+    throw new Error('کد تایید اشتباه است')
+  }
+  user.password = password
+  user.resetOtpCode = null
+  user.resetOtpExpire = null
+  user.resetOtpAttempts = 0
+  await user.save()
+  res.status(200).json({ message: 'رمز عبور با موفقیت تغییر کرد' })
+})
+
 export {
   authUser,
   registerUser,
@@ -236,4 +405,11 @@ export {
   deleteUser,
   getUserById,
   updateUser,
+  getMyAddresses,
+  addAddress,
+  updateAddress,
+  deleteAddress,
+  forgotPassword,
+  resetPassword,
+  verifyOtpAndReset,
 }

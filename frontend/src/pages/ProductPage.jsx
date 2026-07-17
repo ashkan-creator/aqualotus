@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
+import { FaHeart, FaRegHeart } from 'react-icons/fa'
 import {
   Row, Col, Image, ListGroup, Card, Button,
   Form, Container, Badge,
@@ -8,6 +9,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import { Helmet } from 'react-helmet-async'
 import { useGetProductDetailsQuery, useCreateReviewMutation } from '../slices/productsApiSlice'
+import {
+  useGetMyWishlistQuery,
+  useAddToWishlistMutation,
+  useRemoveFromWishlistMutation,
+} from '../slices/wishlistApiSlice'
 import { useFlyToCart } from '../hooks/useFlyToCart'
 import { addToCart } from '../slices/cartSlice'
 import Rating from '../components/ui/Rating'
@@ -148,6 +154,7 @@ const Lightbox = ({ images, currentIndex, onClose, onPrev, onNext }) => {
 const ProductPage = () => {
   const { id: productId } = useParams()
   const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const [qty, setQty] = useState(1)
   const [rating, setRating] = useState(0)
@@ -164,6 +171,10 @@ const ProductPage = () => {
   const [createReview, { isLoading: loadingReview }] = useCreateReviewMutation()
   const flyToCart = useFlyToCart()
   const productImageRef = useRef(null)
+  const { data: wishlistProducts } = useGetMyWishlistQuery(undefined, { skip: !userInfo })
+  const [addToWishlist] = useAddToWishlistMutation()
+  const [removeFromWishlist] = useRemoveFromWishlistMutation()
+  const isWishlisted = wishlistProducts?.some((p) => p._id === product?._id)
 
   const hasVariants = product?.variants && product.variants.length > 0
   const displayPrice = selectedVariant ? selectedVariant.price : product?.price
@@ -211,6 +222,24 @@ const ProductPage = () => {
     }))
     flyToCart(productImageRef.current, product.image)
     toast.success('محصول به سبد خرید اضافه شد 🛒')
+  }
+
+  const wishlistHandler = async () => {
+    if (!userInfo) {
+      navigate('/login')
+      return
+    }
+    try {
+      if (isWishlisted) {
+        await removeFromWishlist(product._id).unwrap()
+        toast.success('از لیست علاقه‌مندی‌ها حذف شد')
+      } else {
+        await addToWishlist({ productId: product._id }).unwrap()
+        toast.success('به لیست علاقه‌مندی‌ها اضافه شد')
+      }
+    } catch (err) {
+      toast.error(err?.data?.message || 'خطا در به‌روزرسانی علاقه‌مندی‌ها')
+    }
   }
 
   const submitReviewHandler = async (e) => {
@@ -482,6 +511,21 @@ const ProductPage = () => {
                         : 'افزودن به سبد خرید'}
                     </Button>
                   </ListGroup.Item>
+                  {!isAdmin && (
+                    <ListGroup.Item>
+                      <Button
+                        className='w-100'
+                        variant={isWishlisted ? 'danger' : 'outline-danger'}
+                        onClick={wishlistHandler}
+                      >
+                        {isWishlisted ? (
+                          <><FaHeart className='me-2' />حذف از علاقه‌مندی‌ها</>
+                        ) : (
+                          <><FaRegHeart className='me-2' />افزودن به علاقه‌مندی‌ها</>
+                        )}
+                      </Button>
+                    </ListGroup.Item>
+                  )}
                 </ListGroup>
               </Card>
             </Col>

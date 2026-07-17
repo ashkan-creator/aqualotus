@@ -22,6 +22,9 @@ import LoginPage from './pages/LoginPage'
 // بقیه صفحات — lazy load
 const CartPage = lazy(() => import('./pages/CartPage'))
 const RegisterPage = lazy(() => import('./pages/RegisterPage'))
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'))
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'))
+const VerifyOtpPage = lazy(() => import('./pages/VerifyOtpPage'))
 const ShippingPage = lazy(() => import('./pages/ShippingPage'))
 const PaymentPage = lazy(() => import('./pages/PaymentPage'))
 const PlaceOrderPage = lazy(() => import('./pages/PlaceOrderPage'))
@@ -40,6 +43,7 @@ const AdminUserEditPage = lazy(() => import('./pages/admin/UserEditPage'))
 const AdminFamilyListPage = lazy(() => import('./pages/admin/FamilyListPage'))
 const AdminSettingsPage = lazy(() => import('./pages/admin/SettingsPage'))
 const AdminDashboardPage = lazy(() => import('./pages/admin/DashboardPage'))
+const AdminReportsPage = lazy(() => import('./pages/admin/ReportsPage'))
 const AdminBlogListPage = lazy(() => import('./pages/admin/BlogListPage'))
 const AdminSliderListPage = lazy(() => import('./pages/admin/SliderListPage'))
 const AdminBlogEditPage = lazy(() => import('./pages/admin/BlogEditPage'))
@@ -71,6 +75,9 @@ const router = createBrowserRouter([
       { path: 'cart', element: withSuspense(CartPage) },
       { path: 'login', element: <LoginPage /> },
       { path: 'register', element: withSuspense(RegisterPage) },
+      { path: 'forgot-password', element: withSuspense(ForgotPasswordPage) },
+      { path: 'reset-password/:token', element: withSuspense(ResetPasswordPage) },
+      { path: 'verify-otp', element: withSuspense(VerifyOtpPage) },
       { path: 'search/:keyword', element: <HomePage /> },
       { path: 'page/:pageNumber', element: <HomePage /> },
       { path: 'filter', element: <HomePage /> },
@@ -96,6 +103,7 @@ const router = createBrowserRouter([
         element: <AdminRoute />,
         children: [
           { path: 'dashboard', element: withSuspense(AdminDashboardPage) },
+          { path: 'reports', element: withSuspense(AdminReportsPage) },
           { path: 'productlist', element: withSuspense(AdminProductListPage) },
           { path: 'product/:id/edit', element: withSuspense(AdminProductEditPage) },
           { path: 'orderlist', element: withSuspense(AdminOrderListPage) },

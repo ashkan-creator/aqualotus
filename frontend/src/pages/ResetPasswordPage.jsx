@@ -1,0 +1,90 @@
+import { useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Form, Button, Row, Col, Container, Card } from 'react-bootstrap'
+import { useResetPasswordMutation } from '../slices/usersApiSlice'
+import { toast } from 'react-toastify'
+import Loader from '../components/ui/Loader'
+import { FaLeaf } from 'react-icons/fa'
+import { Helmet } from 'react-helmet-async'
+
+const ResetPasswordPage = () => {
+  const { token } = useParams()
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+
+  const navigate = useNavigate()
+  const [resetPassword, { isLoading }] = useResetPasswordMutation()
+
+  const submitHandler = async (e) => {
+    e.preventDefault()
+    if (password !== confirmPassword) {
+      toast.error('رمز عبور و تکرار آن یکسان نیستند')
+      return
+    }
+    try {
+      await resetPassword({ token, password }).unwrap()
+      toast.success('رمز عبور با موفقیت تغییر کرد')
+      navigate('/login')
+    } catch (err) {
+      toast.error(err?.data?.message || 'خطا در تغییر رمز عبور')
+    }
+  }
+
+  return (
+    <>
+      <Helmet><title>تغییر رمز عبور | AquaLotus</title></Helmet>
+      <Container className='py-5'>
+        <Row className='justify-content-center'>
+          <Col xs={12} md={6} lg={5}>
+            <Card className='auth-card'>
+              <Card.Body className='p-4'>
+                <div className='text-center mb-4'>
+                  <FaLeaf className='auth-icon' />
+                  <h2 className='auth-title'>تعیین رمز عبور جدید</h2>
+                </div>
+
+                <Form onSubmit={submitHandler}>
+                  <Form.Group className='mb-3'>
+                    <Form.Label>رمز عبور جدید</Form.Label>
+                    <Form.Control
+                      type='password'
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      minLength={6}
+                    />
+                  </Form.Group>
+
+                  <Form.Group className='mb-4'>
+                    <Form.Label>تکرار رمز عبور جدید</Form.Label>
+                    <Form.Control
+                      type='password'
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      minLength={6}
+                    />
+                  </Form.Group>
+
+                  <Button type='submit' className='w-100 btn-aqualotus' disabled={isLoading}>
+                    {isLoading ? 'در حال ثبت...' : 'ثبت رمز عبور جدید'}
+                  </Button>
+                </Form>
+
+                {isLoading && <Loader />}
+
+                <Row className='mt-3'>
+                  <Col className='text-center'>
+                    <Link to='/login' className='btn-auth-secondary'>بازگشت به ورود</Link>
+                  </Col>
+                </Row>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+    </>
+  )
+}
+
+export default ResetPasswordPage
