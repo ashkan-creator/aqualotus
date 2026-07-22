@@ -224,8 +224,8 @@ const ReportsPage = () => {
                       <thead>
                         <tr>
                           <th>محصول</th>
-                          <th>تعداد فروش</th>
-                          <th>درآمد</th>
+                          <th className='text-center'>تعداد فروش</th>
+                          <th className='text-center'>درآمد</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -234,8 +234,8 @@ const ReportsPage = () => {
                           .map((p) => (
                             <tr key={p._id}>
                               <td>{p.name || '-'}</td>
-                              <td>{(p.totalQty ?? 0).toLocaleString('fa-IR')}</td>
-                              <td>{(p.totalRevenue ?? 0).toLocaleString('fa-IR')} تومان</td>
+                              <td className='text-center'>{(p.totalQty ?? 0).toLocaleString('fa-IR')}</td>
+                              <td className='text-center'>{(p.totalRevenue ?? 0).toLocaleString('fa-IR')} تومان</td>
                             </tr>
                           ))}
                       </tbody>
@@ -282,8 +282,8 @@ const ReportsPage = () => {
                       <thead>
                         <tr>
                           <th>مشتری</th>
-                          <th>تعداد سفارش</th>
-                          <th>مجموع خرید</th>
+                          <th className='text-center'>تعداد سفارش</th>
+                          <th className='text-center'>مجموع خرید</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -292,8 +292,8 @@ const ReportsPage = () => {
                           .map((c) => (
                             <tr key={c._id}>
                               <td>{c.name || '-'}</td>
-                              <td>{(c.totalOrders ?? 0).toLocaleString('fa-IR')}</td>
-                              <td>{(c.totalSpent ?? 0).toLocaleString('fa-IR')} تومان</td>
+                              <td className='text-center'>{(c.totalOrders ?? 0).toLocaleString('fa-IR')}</td>
+                              <td className='text-center'>{(c.totalSpent ?? 0).toLocaleString('fa-IR')} تومان</td>
                             </tr>
                           ))}
                       </tbody>

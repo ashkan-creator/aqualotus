@@ -11,6 +11,16 @@ const getPosts = asyncHandler(async (req, res) => {
   res.json(posts)
 })
 
+// @desc    دریافت پست‌های فعال‌شده برای اسلایدر وبلاگ
+// @route   GET /api/blog/featured
+// @access  Public
+const getFeaturedPosts = asyncHandler(async (req, res) => {
+  const posts = await Blog.find({ isPublished: true, featuredInSlider: true })
+    .sort({ createdAt: -1 })
+    .populate('user', 'name')
+  res.json(posts)
+})
+
 // @desc    دریافت همه پست‌ها برای ادمین
 // @route   GET /api/blog/all
 // @access  Private/Admin
@@ -62,6 +72,7 @@ const updatePost = asyncHandler(async (req, res) => {
     post.image = req.body.image ?? post.image
     post.video = req.body.video ?? post.video
     post.isPublished = req.body.isPublished ?? post.isPublished
+    post.featuredInSlider = req.body.featuredInSlider ?? post.featuredInSlider
     post.relatedProducts = req.body.relatedProducts ?? post.relatedProducts
     const updated = await post.save()
     res.json(updated)
@@ -85,4 +96,4 @@ const deletePost = asyncHandler(async (req, res) => {
   }
 })
 
-export { getPosts, getAllPosts, getPostById, createPost, updatePost, deletePost }
+export { getPosts, getFeaturedPosts, getAllPosts, getPostById, createPost, updatePost, deletePost }

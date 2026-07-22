@@ -1,0 +1,30 @@
+.admin-panel-card-link {
+  text-decoration: none;
+  display: block;
+}
+
+.admin-panel-card {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  height: 100%;
+}
+
+.admin-panel-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  border-color: rgba(27, 67, 50, 0.3);
+}
+
+.admin-panel-card-icon {
+  font-size: 1.6rem;
+  color: #1b4332;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.admin-panel-card-label {
+  font-size: 0.85rem;
+  color: #333;
+  font-weight: 500;
+}

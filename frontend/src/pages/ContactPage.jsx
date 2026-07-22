@@ -6,10 +6,10 @@ const ContactPage = () => {
   const { data: settings } = useGetSettingsQuery()
   return (
     <Container className='py-5'>
-      <h2 className='mb-4 text-center'>تماس با ما</h2>
+      <h2 className='mb-4 text-center aq-page-title'>تماس با ما</h2>
       <Row className='justify-content-center'>
         <Col md={8}>
-          <Card className='p-4'>
+          <Card className='p-4 aq-contact-card'>
             <div className='d-flex flex-column gap-3'>
               <div className='d-flex align-items-center gap-3'>
                 <FaPhone size={24} color='#2d6a4f' />

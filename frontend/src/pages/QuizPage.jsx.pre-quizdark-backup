@@ -1,0 +1,168 @@
+import { useState } from 'react'
+import { Container, Row, Col, Button, ProgressBar, Card } from 'react-bootstrap'
+import { Helmet } from 'react-helmet-async'
+import { Link } from 'react-router-dom'
+import { useGetQuizResultsMutation } from '../slices/quizApiSlice'
+import ProductCard from '../components/ui/ProductCard'
+import Loader from '../components/ui/Loader'
+import Message from '../components/ui/Message'
+
+const QUESTIONS = [
+  {
+    key: 'careLevel',
+    title: 'تجربه‌ت تو نگهداری گیاه آکواریوم چقدره؟',
+    options: [
+      { label: 'تازه‌کارم 🌱', value: 'آسان' },
+      { label: 'یه‌کم تجربه دارم', value: 'متوسط' },
+      { label: 'حرفه‌ای‌ام 🌳', value: 'سخت' },
+    ],
+  },
+  {
+    key: 'lightNeeds',
+    title: 'نورت معمولی/شرکتیه یا تخصصی و طیف‌داره؟',
+    options: [
+      { label: 'معمولی/شرکتی', value: 'متوسط' },
+      { label: 'تخصصی/طیف‌دار', value: 'زیاد' },
+      { label: 'نمی‌دونم 🤷', value: '' },
+    ],
+  },
+  {
+    key: 'co2Needs',
+    title: 'برای CO2 چیکار می‌کنی؟',
+    options: [
+      { label: 'اصلاً ندارم', value: 'بدون CO2' },
+      { label: 'گاهی وصل می‌کنم', value: 'اختیاری' },
+      { label: 'همیشه دارم', value: 'ضروری' },
+    ],
+  },
+  {
+    key: 'position',
+    title: 'کجای تانک می‌خوای بشونیش؟',
+    options: [
+      { label: 'جلو', value: 'جلو' },
+      { label: 'میانه', value: 'میانه' },
+      { label: 'پشت', value: 'پشت' },
+      { label: 'شناور', value: 'شناور' },
+    ],
+  },
+  {
+    key: 'growthRate',
+    title: 'چقدر عجول تشریف داری؟ 😄',
+    options: [
+      { label: 'آروم آروم خوبه', value: 'کند' },
+      { label: 'یه سرعت معمولی', value: 'متوسط' },
+      { label: 'زود می‌خوامش پرپشت!', value: 'سریع' },
+    ],
+  },
+  {
+    key: 'needsSoil',
+    title: 'بستر آکواریومت خاک مخصوصه یا فقط شن/سنگریزه؟',
+    options: [
+      { label: 'خاک مخصوص دارم', value: true },
+      { label: 'فقط شن/سنگریزه', value: false },
+    ],
+  },
+  {
+    key: 'vibe',
+    title: 'چه حسی از آکواریومت می‌خوای؟ 🌿',
+    options: [
+      { label: 'آرامش و سادگی 🧘', value: 'calm' },
+      { label: 'رنگارنگی و چشم‌نوازی 🎨', value: 'colorful' },
+      { label: 'جنگل انبوه و پرپشت 🌳', value: 'jungle' },
+    ],
+  },
+]
+
+const QuizPage = () => {
+  const [step, setStep] = useState(0)
+  const [answers, setAnswers] = useState({})
+  const [submitted, setSubmitted] = useState(false)
+  const [getQuizResults, { data, isLoading, error }] = useGetQuizResultsMutation()
+
+  const question = QUESTIONS[step]
+  const progress = Math.round((step / QUESTIONS.length) * 100)
+
+  const handleAnswer = (value) => {
+    const nextAnswers = { ...answers, [question.key]: value }
+    setAnswers(nextAnswers)
+
+    if (step + 1 < QUESTIONS.length) {
+      setStep(step + 1)
+    } else {
+      // vibe فقط تزئینیه و تو امتیازدهی سرور استفاده نمی‌شه
+      const { vibe, ...scoringAnswers } = nextAnswers
+      getQuizResults(scoringAnswers)
+      setSubmitted(true)
+    }
+  }
+
+  const restart = () => {
+    setStep(0)
+    setAnswers({})
+    setSubmitted(false)
+  }
+
+  return (
+    <Container className='py-4'>
+      <Helmet>
+        <title>کوییز پیدا کردن گیاه مناسب | AquaLotus</title>
+      </Helmet>
+
+      {!submitted ? (
+        <Row className='justify-content-center'>
+          <Col xs={12} md={8} lg={6}>
+            <ProgressBar now={progress} className='mb-4' style={{ height: '8px' }} />
+            <Card className='text-center p-4 border-0 shadow-sm rounded-4'>
+              <Card.Body>
+                <Card.Title as='h4' className='mb-4'>
+                  {question.title}
+                </Card.Title>
+                <div className='d-flex flex-column gap-2'>
+                  {question.options.map((opt, i) => (
+                    <Button key={i} className='btn-aqualotus py-2' onClick={() => handleAnswer(opt.value)}>
+                      {opt.label}
+                    </Button>
+                  ))}
+                </div>
+              </Card.Body>
+            </Card>
+            <p className='text-center text-muted mt-3'>
+              سوال {step + 1} از {QUESTIONS.length}
+            </p>
+          </Col>
+        </Row>
+      ) : (
+        <>
+          <h3 className='text-center mb-4'>گیاه‌های پیشنهادی برات 🌿</h3>
+          {isLoading ? (
+            <Loader />
+          ) : error ? (
+            <Message variant='danger'>{error?.data?.message || error.error}</Message>
+          ) : data?.results?.length === 0 ? (
+            <div className='text-center'>
+              <p className='text-muted'>چیزی دقیقاً مچ نشد، ولی می‌تونی همه محصولات رو ببینی.</p>
+              <Link to='/' className='btn btn-aqualotus px-4'>
+                🌿 همه محصولات
+              </Link>
+            </div>
+          ) : (
+            <Row className='g-3 justify-content-center'>
+              {data?.results?.map((product) => (
+                <Col key={product._id} sm={12} md={6} lg={4} xl={3}>
+                  <ProductCard product={product} />
+                </Col>
+              ))}
+            </Row>
+          )}
+          <div className='text-center mt-4'>
+            <Button variant='outline-secondary' onClick={restart}>
+              دوباره از اول
+            </Button>
+          </div>
+        </>
+      )}
+    </Container>
+  )
+}
+
+export default QuizPage

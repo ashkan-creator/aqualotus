@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Navbar, Nav, Container, NavDropdown, Badge } from 'react-bootstrap'
 import { FaShoppingCart, FaUser } from 'react-icons/fa'
+import { FiMenu, FiSearch } from 'react-icons/fi'
 import { LinkContainer } from 'react-router-bootstrap'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -12,6 +13,7 @@ import SearchBox from '../ui/SearchBox'
 import NotificationBell from '../ui/NotificationBell'
 import CustomerNotificationBell from '../ui/CustomerNotificationBell'
 import AnnouncementBar from '../ui/AnnouncementBar'
+import AuroraGridBackground from '../ui/AuroraGridBackground'
 
 const Header = () => {
   const { cartItems } = useSelector((state) => state.cart)
@@ -23,6 +25,7 @@ const Header = () => {
   const { data: families } = useGetFamiliesQuery()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [openSection, setOpenSection] = useState(null)
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
 
   const logoutHandler = async () => {
     try {
@@ -54,183 +57,153 @@ const Header = () => {
   const totalCartItems = cartItems.reduce((a, c) => a + c.qty, 0)
 
   return (
-    <header className='aq-sticky-header'>
-      <Navbar className='aqualotus-navbar' style={{ padding: '10px 0' }}>
-        <Container fluid='md'>
-          <div className='d-flex align-items-center w-100' style={{ gap: '8px' }}>
+    <header className='aq-sticky-header' style={{ zIndex: 1050, position: 'relative' }}>
+      <Navbar className='aqualotus-navbar py-1' style={{ direction: 'rtl', minHeight: '65px', position: 'relative', zIndex: 1 }}>
+        <div className='aq-header-aurora-wrapper' aria-hidden='true'>
+          <AuroraGridBackground beamCount={20} />
+        </div>
+        <Container fluid='md' style={{ position: 'relative', zIndex: 1 }}>
+          <div className='d-flex align-items-center justify-content-between w-100' style={{ gap: '6px' }}>
 
-            {/* آیکون کاربر و ورود */}
-            {userInfo ? (
-                <NavDropdown
-                  title={
-                    <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem' }}>
-                      <span className='d-none d-sm-inline'>{userInfo.name}</span>
-                      <FaUser className='d-sm-none' style={{ fontSize: '1.1rem' }} />
-                    </span>
-                  }
-                  id='user-menu'
-                  align='end'
-                >
-                  {!userInfo.isAdmin && (
-                    <LinkContainer to='/profile'>
-                      <NavDropdown.Item>پنل کاربری</NavDropdown.Item>
-                    </LinkContainer>
-                  )}
-                  {userInfo.isAdmin && (
-                    <>
-                      <LinkContainer to='/profile'><NavDropdown.Item>پنل کاربری</NavDropdown.Item></LinkContainer>
-                      <NavDropdown.Divider />
-                      <LinkContainer to='/admin/dashboard'><NavDropdown.Item>📊 داشبورد</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/reports'><NavDropdown.Item>📈 گزارش‌گیری</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/productlist'><NavDropdown.Item>محصولات</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/orderlist'><NavDropdown.Item>سفارش‌ها</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/reviews'><NavDropdown.Item>💬 نظرات و پاسخ‌ها</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/userlist'><NavDropdown.Item>کاربران</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/familylist'><NavDropdown.Item>خانواده‌های گیاهی</NavDropdown.Item></LinkContainer>
-                      <NavDropdown.Divider />
-                      <LinkContainer to='/admin/sliders'><NavDropdown.Item>🖼️ اسلایدر</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/blog'><NavDropdown.Item>📝 وبلاگ</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/settings'><NavDropdown.Item>⚙️ تنظیمات</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/activity-log'><NavDropdown.Item>📋 لاگ فعالیت</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/linkpages'><NavDropdown.Item>🔗 لینک‌ساز</NavDropdown.Item></LinkContainer>
-                      <LinkContainer to='/admin/custompages'><NavDropdown.Item>🏗️ صفحه‌ساز</NavDropdown.Item></LinkContainer>
-                    </>
-                  )}
-                  <NavDropdown.Divider />
-                  <NavDropdown.Item onClick={logoutHandler}>خروج</NavDropdown.Item>
-                </NavDropdown>
-              ) : (
-                <div style={{ cursor: 'pointer', padding: '4px' }} onClick={() => navigate('/login')}>
-                  <FaUser style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.2rem' }} />
-                </div>
-              )}
+            {/* بخش راست: لوگو */}
+            <div className='d-flex align-items-center' style={{ gap: '10px', flexShrink: 0 }}>
+              <LinkContainer to='/'>
+                <Navbar.Brand className='brand-logo d-flex align-items-center m-0'>
+                  <img 
+                    src='/logo.png' 
+                    alt='AquaLotus' 
+                    style={{ height: '70px', width: '70px', objectFit: 'contain' }} 
+                  />
+                </Navbar.Brand>
+              </LinkContainer>
 
-            {/* لوگو */}
-            <LinkContainer to='/'>
-              <Navbar.Brand className='brand-logo d-flex align-items-center me-0' style={{ gap: '6px', flexShrink: 0 }}>
-                <img
-                  src='/logo.png'
-                  alt='AquaLotus'
-                  style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
-                />
-                <span className='d-none d-sm-inline' style={{ fontWeight: '600', fontSize: '1rem' }}>AquaLotus</span>
-              </Navbar.Brand>
-            </LinkContainer>
-
-            {/* سرچ — وسط، فقط دسکتاپ */}
-            <div className='d-none d-md-flex flex-grow-1 mx-2'>
-              <SearchBox />
+              <Nav className='d-none d-lg-flex gap-3 aq-navbar-center-nav'>
+                <LinkContainer to='/'><Nav.Link className='text-nowrap'>محصولات</Nav.Link></LinkContainer>
+                <LinkContainer to='/blog'><Nav.Link className='text-nowrap'>مجله آکواریوم و گیاهان</Nav.Link></LinkContainer>
+                <LinkContainer to='/about'><Nav.Link className='text-nowrap'>درباره ما</Nav.Link></LinkContainer>
+                <LinkContainer to='/contact'><Nav.Link className='text-nowrap'>تماس با ما</Nav.Link></LinkContainer>
+              </Nav>
             </div>
 
-            {/* آیکون‌ها — سمت چپ */}
-            <div className='d-flex align-items-center ms-auto' style={{ gap: '8px' }}>
-              {userInfo && !userInfo.isAdmin && <CustomerNotificationBell />}
+            {/* بخش چپ: کنترلها */}
+            <div className='d-flex align-items-center justify-content-end' style={{ gap: '10px' }}>
+              
+              <div className='d-none d-md-flex' style={{ maxWidth: '200px' }}>
+                <SearchBox />
+              </div>
 
-              {(!userInfo || !userInfo.isAdmin) && (
-                <div
-                  id='cart-icon-target'
-                  style={{ position: 'relative', cursor: 'pointer', padding: '4px' }}
-                  onClick={() => navigate('/cart')}
-                >
-                  <FaShoppingCart style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.25rem' }} />
-                  {totalCartItems > 0 && (
-                    <Badge pill bg='danger' style={{
-                      position: 'absolute', top: '-6px', left: '-6px',
-                      fontSize: '0.6rem', minWidth: '17px', height: '17px',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+              {/* دراپ‌داون کاربر / ادمین اصلاح‌شده */}
+              <div className='aq-user-dropdown-container'>
+                {userInfo ? (
+                  <NavDropdown
+                    title={<span style={{ color: 'rgba(255,255,255,0.92)' }} className='d-flex align-items-center p-1'><FaUser style={{ fontSize: '1.1rem' }} /></span>}
+                    id='user-menu'
+                    align='end'
+                  >
+                    <div style={{ 
+                      maxHeight: window.innerWidth < 768 ? '260px' : 'none', 
+                      overflowY: window.innerWidth < 768 ? 'auto' : 'visible',
+                      minWidth: '200px'
                     }}>
+                      {!userInfo.isAdmin && (
+                        <LinkContainer to='/profile'><NavDropdown.Item>پنل کاربری</NavDropdown.Item></LinkContainer>
+                      )}
+                      
+                      {userInfo.isAdmin && (
+                        <>
+                          <NavDropdown.Divider />
+                          <LinkContainer to='/admin/panel'><NavDropdown.Item>🛠️ پنل مدیریت</NavDropdown.Item></LinkContainer>
+                        </>
+                      )}
+                      
+                      <NavDropdown.Divider />
+                      <NavDropdown.Item onClick={logoutHandler}>خروج</NavDropdown.Item>
+                    </div>
+                  </NavDropdown>
+                ) : (
+                  <div className='p-1' onClick={() => navigate('/login')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                    <FaUser style={{ color: 'rgba(255,255,255,0.92)', fontSize: '1.05rem' }} />
+                  </div>
+                )}
+              </div>
+
+              {/* اعلان‌ها */}
+              <button
+                className='d-md-none'
+                onClick={() => setMobileSearchOpen(true)}
+                style={{ background: 'rgba(255,255,255,0.12)', border: 'none', cursor: 'pointer', borderRadius: '6px', padding: '7px 9px', display: 'flex', alignItems: 'center' }}
+              >
+                <FiSearch style={{ fontSize: '1.2rem', color: 'white' }} />
+              </button>
+
+              {userInfo && !userInfo.isAdmin && <CustomerNotificationBell />}
+              {userInfo?.isAdmin && <NotificationBell />}
+
+              {/* سبد خرید */}
+              {(!userInfo || !userInfo.isAdmin) && (
+                <div className='p-1' style={{ position: 'relative', cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => navigate('/cart')}>
+                  <FaShoppingCart style={{ color: 'rgba(255,255,255,0.92)', fontSize: '1.1rem' }} />
+                  {totalCartItems > 0 && (
+                    <Badge pill bg='danger' style={{ position: 'absolute', top: '-6px', left: '-6px', fontSize: '0.6rem', minWidth: '17px', height: '17px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       {totalCartItems}
                     </Badge>
                   )}
                 </div>
               )}
 
-              {userInfo?.isAdmin && <NotificationBell />}
-
-              
-              {/* دکمه همبرگر */}
+              {/* منوی همبرگر */}
               <button
-              onClick={() => setDrawerOpen(true)}
-              style={{
-                background: 'rgba(255,255,255,0.15)', border: 'none',
-                borderRadius: '8px', padding: '7px 10px', color: 'white',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px',
-                fontSize: '0.85rem', whiteSpace: 'nowrap', flexShrink: 0,
-                transition: 'background 0.2s'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
-              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-            >
-              <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>☰</span>
-              <span className='d-none d-sm-inline'>دسته‌بندی</span>
-            </button>
-            </div>
-          </div>
+                onClick={() => setDrawerOpen(true)}
+                style={{ background: 'rgba(255,255,255,0.12)', border: 'none', cursor: 'pointer', borderRadius: '6px', padding: '7px 9px', display: 'flex', alignItems: 'center' }}
+              >
+                <FiMenu style={{ fontSize: '1.2rem', color: 'white' }} />
+              </button>
 
-          {/* سرچ — موبایل */}
-          <div className='d-md-none' style={{ padding: '8px 4px 4px', width: '100%' }}>
-            <SearchBox />
+            </div>
           </div>
         </Container>
       </Navbar>
 
-      <AnnouncementBar settings={settings} />
-
-      {/* 🌟 هماهنگی انیمیشن سایدبار کشویی در حالت راست‌چین (RTL) */}
-      <div
+      {/* سرچ‌بار تمام‌صفحه متحرک برای موبایل */}
+      <div 
         style={{
-          position: 'fixed', inset: 0, zIndex: 9999,
-          display: 'flex', 
-          pointerEvents: drawerOpen ? 'all' : 'none',
-          visibility: drawerOpen ? 'visible' : 'hidden',
-          transition: 'visibility 0.3s'
+          position: 'absolute', top: '0', left: '0', width: '100%', backgroundColor: '#1b4332', padding: '14px 16px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)', zIndex: 1100, display: 'flex', alignItems: 'center', gap: '10px',
+          transition: 'transform 0.3s cubic-bezier(0.1, 0.76, 0.55, 0.94), opacity 0.2s',
+          transform: mobileSearchOpen ? 'translateY(0)' : 'translateY(-100%)',
+          opacity: mobileSearchOpen ? 1 : 0, pointerEvents: mobileSearchOpen ? 'all' : 'none', direction: 'rtl'
         }}
       >
-        {/* backdrop (پس‌زمینه تیره که نرم تاریک و روشن می‌شود) */}
-        <div
-          onClick={() => setDrawerOpen(false)}
-          style={{
-            flex: 1,
-            background: drawerOpen ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0)',
-            transition: 'background 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            pointerEvents: drawerOpen ? 'all' : 'none',
-          }}
-        />
+        <div style={{ flex: 1 }}><SearchBox /></div>
+        <button onClick={() => setMobileSearchOpen(false)} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: 'white', fontSize: '1rem', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer' }}>✕</button>
+      </div>
 
-        {/* drawer panel (پنل اصلی منو که با افکت اسلاید بسیار شیک باز می‌شود) */}
+      <AnnouncementBar settings={settings} />
+
+      {/* سایدبار کشویی (دراور موبایل) */}
+      <div
+        style={{
+          position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', 
+          pointerEvents: drawerOpen ? 'all' : 'none', visibility: drawerOpen ? 'visible' : 'hidden', transition: 'visibility 0.3s'
+        }}
+      >
+        <div onClick={() => setDrawerOpen(false)} style={{ flex: 1, background: drawerOpen ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0)', transition: 'background 0.3s' }} />
         <div style={{
-          width: '290px',
-          background: '#fff',
-          height: '100%',
-          overflowY: 'auto',
-          borderLeft: '1px solid #e0e0e0',
-          display: 'flex',
-          flexDirection: 'column',
-          direction: 'rtl',
-          boxShadow: drawerOpen ? '-5px 0 25px rgba(0,0,0,0.15)' : 'none',
-          /* انیمیشن ورودی از سمت راست با شتاب‌دهنده نیوتنی */
+          width: '290px', background: '#fff', height: '100%', overflowY: 'auto',
+          display: 'flex', flexDirection: 'column', direction: 'rtl',
           transform: drawerOpen ? 'translateX(0)' : 'translateX(-100%)',
-          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s',
+          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         }}>
-          <div style={{
-            background: '#1b4332', padding: '14px 18px',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0,
-          }}>
+          <div style={{ background: '#1b4332', padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <img src='/logo.png' alt='logo' style={{ width: '36px', height: '36px', borderRadius: '50%' }} />
-              <span style={{ color: 'white', fontSize: '15px', fontWeight: '500' }}>دسته‌بندی محصولات</span>
+              <span style={{ color: 'white', fontSize: '14px', fontWeight: '500' }}>دسته‌بندی محصولات</span>
             </div>
-            <button
-              onClick={() => setDrawerOpen(false)}
-              style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.3rem', cursor: 'pointer', transition: 'transform 0.2s' }}
-              onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.15)'}
-              onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-            >✕</button>
+            <button onClick={() => setDrawerOpen(false)} style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.3rem', cursor: 'pointer' }}>✕</button>
           </div>
-
           <div style={{ padding: '8px 0' }}>
             <SectionLabel>🌿 گیاهان زنده</SectionLabel>
-            <DrawerItem icon='🌱' label='همه گیاهان' onClick={() => goToFilter({ category: 'گیاه زنده' })} />
+            <DrawerItem icon='🌱' label='همه گیاهان' onClick={() => goToFilter({ category: 'گیاهزنده' })} />
 
             <DrawerSection icon='📍' label='محل کاشت' color='#0d4f8b' isOpen={openSection === 'pos'} onToggle={() => toggleSection('pos')}>
               <SubItem label='جلو آکواریوم' onClick={() => goToFilter({ position: 'جلو' })} />
@@ -248,11 +221,11 @@ const Header = () => {
             <DrawerSection icon='💧' label='نوع کشت' color='#006064' isOpen={openSection === 'cult'} onToggle={() => toggleSection('cult')}>
               <SubItem label='💧 کشت آبزی' onClick={() => goToFilter({ cultivationType: 'آبزی' })} />
               <SubItem label='🌱 کشت هیدروپونیک' onClick={() => goToFilter({ cultivationType: 'هیدروپونیک' })} />
-              <SubItem label='✅ هر دو نوع کشت' onClick={() => goToFilter({ cultivationType: 'هر دو' })} />
+              <SubItem label='✅ هر دو نوع کشت' onClick={() => goToFilter({ cultivationType: 'هردو' })} />
             </DrawerSection>
 
-            <DrawerSection icon='🪨' label='نیاز به بستر' color='#4e342e' isOpen={openSection === 'soil'} onToggle={() => toggleSection('soil')}>
-              <SubItem label='🪨 نیاز به بستر دارد' onClick={() => goToFilter({ needsSoil: 'true' })} />
+            <DrawerSection icon='🪨' label='نیاز به بستر' color='#4e342e' isOpen={openSection ==='soil'} onToggle={() => toggleSection('soil')}>
+              <SubItem label='🪨 نیاز به بستر دارد' onClick={() => goToFilter({ needsSoil: 'true'})} />
               <SubItem label='🚫 بدون نیاز به بستر' onClick={() => goToFilter({ needsSoil: 'false' })} />
             </DrawerSection>
 
@@ -273,66 +246,26 @@ const Header = () => {
   )
 }
 
-const SectionLabel = ({ children }) => (
-  <div style={{ padding: '5px 18px 3px' }}>
-    <span style={{ fontSize: '11px', color: '#888' }}>{children}</span>
-  </div>
-)
-
-const Divider = () => <div style={{ height: '1px', background: '#e0e0e0', margin: '10px 18px' }} />
-
+const SectionLabel = ({ children }) => <div style={{ padding: '5px 18px 3px' }}><span style={{ fontSize: '11px', color: '#888' }}>{children}</span></div>
+const Divider = () => <div style={{ height: '1px', background: '#e0e0e0', margin: '10px 18px' }}/>
 const DrawerItem = ({ icon, label, onClick }) => (
-  <div
-    onClick={onClick}
-    className='aq-drawer-item'
-    style={{ padding: '10px 18px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', transition: 'background 0.15s, transform 0.15s' }}
-    onMouseOver={(e) => { e.currentTarget.style.background = '#f0f7f3'; e.currentTarget.style.transform = 'translateX(-4px)' }}
-    onMouseOut={(e) => { e.currentTarget.style.background = ''; e.currentTarget.style.transform = '' }}
-    onTouchStart={(e) => { e.currentTarget.style.background = '#f0f7f3' }}
-    onTouchEnd={(e) => { e.currentTarget.style.background = '' }}
-  >
-    <span style={{ fontSize: '16px' }}>{icon}</span>
-    <span style={{ fontSize: '14px', color: '#333' }}>{label}</span>
-    <span style={{ marginRight: 'auto', color: '#aaa', fontSize: '12px' }}>‹</span>
+  <div onClick={onClick} style={{ padding: '10px 18px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+    <span style={{ fontSize: '15px' }}>{icon}</span>
+    <span style={{ fontSize: '13.5px', color: '#333' }}>{label}</span>
   </div>
 )
-
 const DrawerSection = ({ icon, label, color, isOpen, onToggle, children }) => (
   <>
-    <div
-      onClick={onToggle}
-      style={{ padding: '10px 18px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', transition: 'background 0.15s, transform 0.15s' }}
-      onMouseOver={(e) => { e.currentTarget.style.background = '#f0f7f3'; e.currentTarget.style.transform = 'translateX(-4px)' }}
-      onMouseOut={(e) => { e.currentTarget.style.background = ''; e.currentTarget.style.transform = '' }}
-    >
-      <span style={{ fontSize: '16px' }}>{icon}</span>
-      <span style={{ fontSize: '14px', color: '#333' }}>{label}</span>
-      <span style={{ marginRight: 'auto', color: '#aaa', fontSize: '12px', transition: 'transform 0.2s', display: 'inline-block', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
+    <div onClick={onToggle} style={{ padding: '10px 18px', display: 'flex', alignItems: 'center', gap: '10px', cursor:'pointer' }}>
+      <span style={{ fontSize: '15px' }}>{icon}</span>
+      <span style={{ fontSize: '13.5px', color: '#333' }}>{label}</span>
+      <span style={{ marginRight: 'auto', color: '#aaa', fontSize: '11px', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
     </div>
-    <div style={{
-      overflow: 'hidden',
-      maxHeight: isOpen ? '400px' : '0',
-      transition: 'max-height 0.3s ease',
-    }}>
-      <div style={{ padding: '2px 18px 6px 18px' }}>
-        <div style={{ borderRight: `2px solid ${color}`, paddingRight: '12px' }}>
-          {children}
-        </div>
-      </div>
+    <div style={{ overflow: 'hidden', maxHeight: isOpen ? '200px' : '0', transition: 'max-height 0.3s' }}>
+      <div style={{ padding: '2px 18px 6px 18px' }}><div style={{ borderRight: `2px solid ${color}`, paddingRight: '12px' }}>{children}</div></div>
     </div>
   </>
 )
-
-const SubItem = ({ label, onClick }) => (
-  <div
-    onClick={onClick}
-    style={{ padding: '7px 0', fontSize: '13px', color: '#666', cursor: 'pointer', transition: 'color 0.15s, padding-right 0.15s' }}
-    onMouseOver={(e) => { e.currentTarget.style.color = '#1b4332'; e.currentTarget.style.paddingRight = '6px' }}
-    onMouseOut={(e) => { e.currentTarget.style.color = '#666'; e.currentTarget.style.paddingRight = '0' }}
-  >
-    {label}
-  </div>
-)
+const SubItem = ({ label, onClick }) => <div onClick={onClick} style={{ padding: '7px 0', fontSize: '12.5px', color: '#666', cursor: 'pointer' }}>{label}</div>
 
 export default Header
-

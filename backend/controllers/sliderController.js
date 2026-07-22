@@ -26,8 +26,8 @@ const getAllSliders = asyncHandler(async (req, res) => {
 // @route   POST /api/sliders
 // @access  Private/Admin
 const createSlider = asyncHandler(async (req, res) => {
-  const { title, image, link, order } = req.body
-  const slider = await Slider.create({ title, image, link, order })
+  const { title, subtitle, image, link, order, location } = req.body
+  const slider = await Slider.create({ title, subtitle, image, link, order, location })
   await logActivity(req.user, 'ساخت اسلاید', 'Slider', slider._id.toString(), slider.title)
   res.status(201).json(slider)
 })
@@ -39,10 +39,12 @@ const updateSlider = asyncHandler(async (req, res) => {
   const slider = await Slider.findById(req.params.id)
   if (slider) {
     slider.title = req.body.title ?? slider.title
+    slider.subtitle = req.body.subtitle ?? slider.subtitle
     slider.image = req.body.image ?? slider.image
     slider.link = req.body.link ?? slider.link
     slider.isActive = req.body.isActive ?? slider.isActive
     slider.order = req.body.order ?? slider.order
+    slider.location = req.body.location ?? slider.location
     const updated = await slider.save()
     await logActivity(req.user, 'ویرایش اسلایدر', 'Slider', updated._id.toString(), updated.title)
     res.json(updated)

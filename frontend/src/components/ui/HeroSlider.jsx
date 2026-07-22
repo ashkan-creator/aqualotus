@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useGetSlidersQuery } from '../../slices/sliderApiSlice'
+import { useGetFeaturedPostsQuery } from '../../slices/blogApiSlice'
 
 const staticSlides = [
   {
@@ -32,10 +33,22 @@ const staticSlides = [
 // BLOG_HERO_MARK
 const HeroSlider = ({ location = 'home' }) => {
   const [current, setCurrent] = useState(0)
-  const { data: dbSliders } = useGetSlidersQuery(location)
+  const { data: dbSliders } = useGetSlidersQuery(location, { skip: location === 'blog' })
+  const { data: featuredPosts } = useGetFeaturedPostsQuery(undefined, { skip: location !== 'blog' })
 
-  // اگه ادمین اسلاید تو دیتابیس داشت از اونا استفاده کن وگرنه static
-  const slides = dbSliders && dbSliders.length > 0 ? dbSliders : staticSlides
+  const blogSlides = (featuredPosts || []).map((post) => ({
+    _id: post._id,
+    title: post.title,
+    image: post.image,
+    link: `/blog/${post._id}`,
+    buttonText: 'مطالعه مطلب',
+  }))
+
+  // اگه ادمین اسلاید تو دیتابیس داشت از اونا استفاده کن وگرنه static (یا پست‌های فعال‌شده برای وبلاگ)
+  const slides =
+    location === 'blog'
+      ? (blogSlides.length > 0 ? blogSlides : staticSlides)
+      : (dbSliders && dbSliders.length > 0 ? dbSliders : staticSlides)
 
   useEffect(() => {
     const timer = setInterval(() => {

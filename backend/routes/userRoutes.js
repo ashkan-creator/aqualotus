@@ -18,6 +18,8 @@ import {
   forgotPassword,
   resetPassword,
   verifyOtpAndReset,
+  requestLoginOtp,
+  verifyLoginOtp,
 } from '../controllers/userController.js'
 import { protect, admin } from '../middleware/authMiddleware.js'
 
@@ -31,6 +33,8 @@ router.post('/refresh', refreshToken)
 router.post('/forgot-password', forgotPassword)
 router.post('/reset-password', resetPassword)
 router.post('/verify-otp', verifyOtpAndReset)
+router.post('/login-otp/request', requestLoginOtp)
+router.post('/login-otp/verify', verifyLoginOtp)
 router
   .route('/profile')
   .get(protect, getUserProfile)

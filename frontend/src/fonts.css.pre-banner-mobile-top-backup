@@ -1,0 +1,118 @@
+@font-face {
+  font-family: 'MJGhalam';
+  src: url('/fonts/Mj_Ghalam-1.TTF') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'MJGhalam';
+  src: url('/fonts/Mj_Ghalam-2.TTF') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+.aq-quiz-banner-title,
+.aq-quiz-banner-title * {
+  font-family: 'MJGhalam', 'Vazirmatn', sans-serif !important;
+}
+
+.aq-quiz-banner-text,
+.aq-quiz-banner-text * {
+  font-family: 'MJGhalam', 'Vazirmatn', sans-serif !important;
+}
+
+.aq-quiz-banner-logo-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  margin-bottom: 8px;
+}
+
+.aq-quiz-banner-title {
+  font-size: clamp(1.15rem, 4.5vw, 2.1rem) !important;
+  line-height: 1.35;
+}
+
+.aq-quiz-banner-text {
+  font-size: clamp(0.85rem, 3vw, 1.3rem) !important;
+  line-height: 1.4;
+}
+
+.aq-quiz-banner-img {
+  min-height: 220px;
+}
+
+@media (max-width: 576px) {
+  .aq-quiz-banner-img {
+    min-height: 260px;
+  }
+}
+
+/* --- quiz banner --- */
+.aq-quiz-banner-img {
+  position: relative;
+  min-height: 220px;
+}
+
+.aq-quiz-banner-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0) 70%);
+  pointer-events: none;
+}
+
+.aq-quiz-banner-content {
+  position: absolute;
+  left: 50%;
+  bottom: 30%;
+  transform: translateX(-50%);
+  max-width: 92%;
+}
+
+.aq-quiz-banner-title,
+.aq-quiz-banner-title * {
+  font-family: 'MJGhalam', 'Vazirmatn', sans-serif !important;
+  font-size: clamp(1.4rem, 4.5vw, 2.1rem) !important;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.aq-quiz-banner-text,
+.aq-quiz-banner-text * {
+  font-family: 'MJGhalam', 'Vazirmatn', sans-serif !important;
+  font-size: clamp(1rem, 3.2vw, 1.3rem) !important;
+  line-height: 1.4;
+}
+
+@media (max-width: 576px) {
+  .aq-quiz-banner-img {
+    min-height: 420px;
+    background-image: url('/images/quiz-banner-mobile.jpg?v=2') !important;
+    background-size: 100% !important;
+    background-position: center !important;
+  }
+
+  .aq-quiz-banner-content {
+    bottom: 30%;
+    max-width: 98%;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  .aq-quiz-banner-title,
+  .aq-quiz-banner-title * {
+    font-size: 1.7rem !important;
+    white-space: nowrap;
+  }
+
+  .aq-quiz-banner-text,
+  .aq-quiz-banner-text * {
+    font-size: 1.15rem !important;
+    white-space: nowrap;
+  }
+}

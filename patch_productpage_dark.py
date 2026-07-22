@@ -1,0 +1,613 @@
+import os
+import shutil
+from datetime import datetime
+
+file_path = os.path.expanduser('~/aqualotus/frontend/src/pages/ProductPage.jsx')
+backup_path = f"{file_path}.pre-dark-backup-{datetime.now().strftime('%H%M%S')}"
+
+jsx_code = """import React, { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Card, Button, Badge, Spinner, Alert, Form, Modal } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
+import { 
+  FaCartPlus, 
+  FaHeart, 
+  FaRegHeart, 
+  FaTruckFast, 
+  FaShieldHalved, 
+  FaAward, 
+  FaShareNodes,
+  FaMinus,
+  FaPlus,
+  FaStar,
+  FaChevronLeft,
+  FaChevronRight,
+  FaLeaf,
+  FaDroplet,
+  FaSun,
+  FaRuler,
+  FaUser,
+  FaExpand
+} from 'react-icons/fa6';
+import { toast } from 'react-toastify';
+
+const ProductPage = () => {
+  const { id: productId } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [qty, setQty] = useState(1);
+  const [selectedVariant, setSelectedVariant] = useState(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [fade, setFade] = useState(false);
+  
+  // استیت مودال بزرگنمایی عکس
+  const [showModal, setShowModal] = useState(false);
+
+  // استیت‌های فرم نظر
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState('');
+
+  // استایل باکس‌های مشکی مات نیمه شفاف
+  const darkBoxStyle = {
+    backgroundColor: 'rgba(20, 20, 20, 0.75)',
+    backdropFilter: 'blur(12px)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    color: '#fff'
+  };
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/products/${productId}`);
+        if (!res.ok) throw new Error('محصول مورد نظر یافت نشد.');
+        const data = await res.json();
+        setProduct(data);
+        if (data.variants && data.variants.length > 0) {
+          setSelectedVariant(data.variants[0]);
+        }
+        setLoading(false);
+      } catch (err) {
+        setError(err.message || 'خطا در ارتباط با سرور');
+        setLoading(false);
+      }
+    };
+
+    if (productId) fetchProduct();
+  }, [productId]);
+
+  // متغیرهای محاسبه‌شده بر اساس سایز انتخابی
+  const activePrice = selectedVariant ? selectedVariant.price : product?.price;
+  const activeStock = selectedVariant ? selectedVariant.countInStock : product?.countInStock;
+  const isOutOfStock = activeStock === 0;
+
+  const handleQtyChange = (delta) => {
+    const newQty = qty + delta;
+    if (newQty >= 1 && newQty <= (activeStock || 1)) {
+      setQty(newQty);
+    }
+  };
+
+  const handleVariantChange = (e) => {
+    const variantId = e.target.value;
+    const variant = product.variants.find(v => v._id === variantId);
+    setSelectedVariant(variant);
+    setQty(1); // ریست کردن تعداد با تغییر سایز
+  };
+
+  const handleAddToCart = () => {
+    toast.success(`${qty} عدد به سبد خرید افزوده شد`, { position: "bottom-right", theme: "dark" });
+  };
+
+  const submitReviewHandler = (e) => {
+    e.preventDefault();
+    toast.success('نظر شما با موفقیت ثبت شد و پس از تایید نمایش داده می‌شود.', { theme: "dark" });
+    setComment('');
+  };
+
+  // کنترل اسلایدر عکس با انیمیشن
+  const images = product?.images?.length > 0 ? product.images : [product?.image || '/placeholder.webp'];
+  
+  const handleNextImage = () => {
+    setFade(true);
+    setTimeout(() => {
+      setSelectedImageIndex((prev) => (prev + 1) % images.length);
+      setFade(false);
+    }, 200);
+  };
+
+  const handlePrevImage = () => {
+    setFade(true);
+    setTimeout(() => {
+      setSelectedImageIndex((prev) => (prev - 1 + images.length) % images.length);
+      setFade(false);
+    }, 200);
+  };
+
+  if (loading) {
+    return (
+      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '70vh' }}>
+        <Spinner animation="grow" variant="success" />
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container className="py-5">
+        <Alert variant="danger" className="text-center rounded-4 shadow-sm border-0" style={darkBoxStyle}>
+          <h5 className="fw-bold mb-3 text-white">مشکلی پیش آمد!</h5>
+          <p className="text-white-50">{error}</p>
+          <Button variant="danger" className="px-4 rounded-pill mt-3" onClick={() => navigate('/products')}>
+            بازگشت به محصولات
+          </Button>
+        </Alert>
+      </Container>
+    );
+  }
+
+  return (
+    <Container className="py-4 py-lg-5 text-end text-white" style={{ direction: 'rtl' }}>
+      
+      {/* Breadcrumb */}
+      <nav aria-label="breadcrumb" className="mb-4 overflow-x-auto pb-2">
+        <div className="d-flex align-items-center gap-2 small text-nowrap">
+          <Link to="/" className="text-decoration-none text-white-50 hover-text-white">خانه</Link>
+          <FaChevronLeft className="text-white-50" style={{ fontSize: '0.65rem' }} />
+          <Link to="/products" className="text-decoration-none text-white-50 hover-text-white">محصولات</Link>
+          <FaChevronLeft className="text-white-50" style={{ fontSize: '0.65rem' }} />
+          <span className="text-white fw-bold text-truncate" style={{ maxWidth: '200px' }}>
+            {product?.name}
+          </span>
+        </div>
+      </nav>
+
+      <Row className="g-4 g-lg-5 mb-5">
+        
+        {/* بخش تصاویر (سمت راست) - بدون باکس زمینه با قابلیت کلیک برای بزرگنمایی */}
+        <Col xs={12} lg={6}>
+          <div 
+            className="position-relative rounded-4 overflow-hidden mb-3 d-flex align-items-center justify-content-center" 
+            style={{ aspectRatio: '1 / 1', maxHeight: '500px', cursor: 'zoom-in' }}
+            onClick={() => setShowModal(true)}
+          >
+            <img
+              src={images[selectedImageIndex]}
+              alt={product?.name}
+              className="w-100 h-100 object-fit-contain p-2 p-md-4"
+              style={{ 
+                opacity: fade ? 0 : 1, 
+                transform: fade ? 'scale(0.98)' : 'scale(1)',
+                transition: 'opacity 0.2s ease, transform 0.2s ease',
+                filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.5))'
+              }}
+            />
+            
+            {/* دکمه‌های ناوبری تصویر */}
+            {images.length > 1 && (
+              <>
+                <Button 
+                  variant="link" 
+                  className="position-absolute start-0 top-50 translate-middle-y text-white p-3 focus-ring-0 z-2"
+                  onClick={(e) => { e.stopPropagation(); handleNextImage(); }}
+                >
+                  <FaChevronLeft className="fs-3 drop-shadow" />
+                </Button>
+                <Button 
+                  variant="link" 
+                  className="position-absolute end-0 top-50 translate-middle-y text-white p-3 focus-ring-0 z-2"
+                  onClick={(e) => { e.stopPropagation(); handlePrevImage(); }}
+                >
+                  <FaChevronRight className="fs-3 drop-shadow" />
+                </Button>
+              </>
+            )}
+
+            {/* آیکون بزرگنمایی گوشه تصویر */}
+            <div className="position-absolute bottom-0 end-0 m-3 z-2">
+              <span className="badge bg-dark bg-opacity-75 p-2 rounded-circle border border-secondary d-flex align-items-center justify-content-center shadow" style={{ width: '38px', height: '38px' }}>
+                <FaExpand className="text-white-50 fs-6" />
+              </span>
+            </div>
+
+            <div className="position-absolute top-0 start-0 m-3 d-flex flex-column gap-2 z-2" onClick={(e) => e.stopPropagation()}>
+              <Button 
+                variant="dark" 
+                className="rounded-circle shadow p-0 d-flex align-items-center justify-content-center border-0 bg-dark bg-opacity-75"
+                onClick={() => setIsWishlisted(!isWishlisted)}
+                style={{ width: '42px', height: '42px', backdropFilter: 'blur(5px)' }}
+              >
+                {isWishlisted ? <FaHeart className="text-danger fs-5" /> : <FaRegHeart className="text-white fs-5" />}
+              </Button>
+            </div>
+
+            {isOutOfStock && (
+              <div className="position-absolute top-0 end-0 m-3 z-2">
+                <Badge bg="danger" className="px-3 py-2 fs-6 rounded-pill shadow">ناموجود</Badge>
+              </div>
+            )}
+          </div>
+
+          {/* گالری کوچک */}
+          {images.length > 1 && (
+            <div className="d-flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {images.map((img, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => { setFade(true); setTimeout(() => { setSelectedImageIndex(idx); setFade(false); }, 200); }}
+                  className={`btn p-1 rounded-3 overflow-hidden ${
+                    selectedImageIndex === idx ? 'border border-success border-2' : 'border-0 opacity-50'
+                  }`}
+                  style={{ ...darkBoxStyle, width: '80px', height: '80px', flexShrink: 0, padding: 0 }}
+                >
+                  <img src={img} alt={`تصویر ${idx + 1}`} className="w-100 h-100 object-fit-contain" />
+                </button>
+              ))}
+            </div>
+          )}
+        </Col>
+
+        {/* بخش اطلاعات و خرید (سمت چپ) */}
+        <Col xs={12} lg={6}>
+          <div className="d-flex flex-column h-100">
+            <div className="mb-auto">
+              <div className="d-flex flex-wrap gap-2 mb-3">
+                {product?.category && (
+                  <Badge bg="success" className="px-3 py-2 rounded-pill fw-normal text-white bg-opacity-75">
+                    {product.category}
+                  </Badge>
+                )}
+                {product?.cultivationType && (
+                  <Badge bg="info" className="px-3 py-2 rounded-pill fw-normal text-white bg-opacity-75">
+                    نوع کشت: {product.cultivationType}
+                  </Badge>
+                )}
+              </div>
+
+              <h1 className="fw-bolder mb-3 fs-3 text-white lh-base">{product?.name}</h1>
+
+              <div className="d-flex flex-wrap align-items-center gap-3 mb-4">
+                <div className="d-flex align-items-center gap-1 text-warning bg-dark px-2 py-1 rounded-pill bg-opacity-50 border border-secondary">
+                  <FaStar className="mb-1" />
+                  <span className="fw-bold text-white pt-1">{product?.rating || '0'}</span>
+                </div>
+                <span className="text-white-50 small">({product?.numReviews || 0} دیدگاه)</span>
+                {product?.soldCount > 0 && (
+                  <span className="text-success small fw-bold">فروش رفته: {product.soldCount}</span>
+                )}
+              </div>
+
+              {/* باکس قیمت */}
+              <div className="p-3 p-md-4 rounded-4 mb-4 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2" style={darkBoxStyle}>
+                <span className="text-white-50 fw-medium">قیمت نهایی:</span>
+                <div className="d-flex align-items-baseline gap-1">
+                  <span className="fs-2 fw-black text-success" style={{ fontWeight: 900 }}>
+                    {activePrice ? Number(activePrice).toLocaleString('fa-IR') : '۰'}
+                  </span>
+                  <span className="text-white-50 small fw-bold">تومان</span>
+                </div>
+              </div>
+
+              {/* انتخاب سایز (در صورت وجود) */}
+              {product?.variants && product.variants.length > 0 && (
+                <div className="mb-4">
+                  <label className="text-white-50 mb-2 small fw-bold"><FaRuler className="me-1 ms-1"/> انتخاب سایز:</label>
+                  <Form.Select 
+                    value={selectedVariant?._id} 
+                    onChange={handleVariantChange}
+                    className="rounded-3 shadow-none text-white border-secondary"
+                    style={{ backgroundColor: 'rgba(0,0,0,0.5)', cursor: 'pointer' }}
+                  >
+                    {product.variants.map((v) => (
+                      <option key={v._id} value={v._id} className="bg-dark text-white">
+                        {v.size} {v.countInStock === 0 ? '(ناموجود)' : ''}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </div>
+              )}
+
+              {/* توضیحات محصول - رنگ سفید */}
+              <p className="text-white lh-lg mb-4 text-justify" style={{ textAlign: 'justify' }}>
+                {product?.description}
+              </p>
+            </div>
+
+            {/* دکمه خرید و تعداد */}
+            <div className="mt-4 pt-4 border-top border-secondary border-opacity-50">
+              {!isOutOfStock ? (
+                <Row className="g-2 g-sm-3 align-items-center">
+                  <Col xs={5} sm={4} md={3} lg={4} xl={3}>
+                    <div className="d-flex align-items-center justify-content-between rounded-pill p-1 shadow-sm h-100" style={darkBoxStyle}>
+                      <Button
+                        variant="link"
+                        className="text-white p-2 p-sm-3 border-0 text-decoration-none focus-ring-0"
+                        onClick={() => handleQtyChange(-1)}
+                        disabled={qty <= 1}
+                      >
+                        <FaMinus size={14} />
+                      </Button>
+                      <span className="fw-bold fs-5 px-1">{qty.toLocaleString('fa-IR')}</span>
+                      <Button
+                        variant="link"
+                        className="text-white p-2 p-sm-3 border-0 text-decoration-none focus-ring-0"
+                        onClick={() => handleQtyChange(1)}
+                        disabled={qty >= activeStock}
+                      >
+                        <FaPlus size={14} />
+                      </Button>
+                    </div>
+                  </Col>
+
+                  <Col xs={7} sm={8} md={9} lg={8} xl={9}>
+                    <Button
+                      variant="success"
+                      size="lg"
+                      className="w-100 rounded-pill py-3 shadow-sm d-flex align-items-center justify-content-center gap-2 fw-bold"
+                      onClick={handleAddToCart}
+                    >
+                      <FaCartPlus className="fs-5" />
+                      <span className="d-none d-sm-inline">افزودن به سبد خرید</span>
+                      <span className="d-inline d-sm-none">خرید</span>
+                    </Button>
+                  </Col>
+                </Row>
+              ) : (
+                <Button variant="secondary" size="lg" className="w-100 rounded-pill disabled py-3 text-white opacity-50 bg-dark border-0">
+                  متاسفانه موجود نیست
+                </Button>
+              )}
+
+              {/* آیکون‌های مزایا */}
+              <Row className="g-2 g-md-3 mt-4 text-center">
+                <Col xs={4}>
+                  <div className="p-2 py-3 rounded-4 h-100 d-flex flex-column align-items-center justify-content-center" style={darkBoxStyle}>
+                    <FaTruckFast className="text-success fs-4 mb-2" />
+                    <span className="small text-white-50 fw-medium" style={{ fontSize: '0.8rem' }}>ارسال سریع</span>
+                  </div>
+                </Col>
+                <Col xs={4}>
+                  <div className="p-2 py-3 rounded-4 h-100 d-flex flex-column align-items-center justify-content-center" style={darkBoxStyle}>
+                    <FaShieldHalved className="text-success fs-4 mb-2" />
+                    <span className="small text-white-50 fw-medium" style={{ fontSize: '0.8rem' }}>ضمانت اصالت</span>
+                  </div>
+                </Col>
+                <Col xs={4}>
+                  <div className="p-2 py-3 rounded-4 h-100 d-flex flex-column align-items-center justify-content-center" style={darkBoxStyle}>
+                    <FaAward className="text-success fs-4 mb-2" />
+                    <span className="small text-white-50 fw-medium" style={{ fontSize: '0.8rem' }}>بهترین کیفیت و رنگ</span>
+                  </div>
+                </Col>
+              </Row>
+            </div>
+          </div>
+        </Col>
+      </Row>
+
+      {/* بخش مشخصات تخصصی گیاه */}
+      <Card className="border-0 shadow-sm rounded-4 mb-5" style={darkBoxStyle}>
+        <Card.Header className="bg-transparent border-secondary border-opacity-50 p-3 p-md-4">
+          <h5 className="fw-bold mb-0 text-white fs-5">مشخصات تخصصی آکواریومی</h5>
+        </Card.Header>
+        <Card.Body className="p-3 p-md-4 pt-md-4">
+          <Row className="g-4">
+            <Col xs={6} md={3}>
+              <div className="d-flex align-items-center gap-2">
+                <FaSun className="text-warning fs-4" />
+                <div>
+                  <span className="d-block text-white-50 small">نیاز نوری</span>
+                  <span className="fw-bold">{product?.lightNeeds || 'نامشخص'}</span>
+                </div>
+              </div>
+            </Col>
+            <Col xs={6} md={3}>
+              <div className="d-flex align-items-center gap-2">
+                <FaDroplet className="text-info fs-4" />
+                <div>
+                  <span className="d-block text-white-50 small">نیاز CO2</span>
+                  <span className="fw-bold">{product?.co2Needs || 'نامشخص'}</span>
+                </div>
+              </div>
+            </Col>
+            <Col xs={6} md={3}>
+              <div className="d-flex align-items-center gap-2">
+                <FaLeaf className="text-success fs-4" />
+                <div>
+                  <span className="d-block text-white-50 small">سرعت رشد</span>
+                  <span className="fw-bold">{product?.growthRate || 'نامشخص'}</span>
+                </div>
+              </div>
+            </Col>
+            <Col xs={6} md={3}>
+              <div className="d-flex align-items-center gap-2">
+                <FaShieldHalved className="text-primary fs-4" />
+                <div>
+                  <span className="d-block text-white-50 small">سطح نگهداری</span>
+                  <span className="fw-bold">{product?.careLevel || 'نامشخص'}</span>
+                </div>
+              </div>
+            </Col>
+          </Row>
+          
+          <hr className="border-secondary opacity-25 my-4" />
+          
+          <Row className="g-3">
+            <Col xs={12} md={6}>
+              <div className="d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-50 pb-2">
+                <span className="text-white-50">محل قرارگیری در تانک:</span>
+                <span className="fw-bold text-end" style={{ paddingLeft: '12rem' }}>{product?.position || 'نامشخص'}</span>
+              </div>
+            </Col>
+            <Col xs={12} md={6}>
+              <div className="d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-50 pb-2">
+                <span className="text-white-50">خانواده گیاه:</span>
+                <span className="fw-bold text-end" style={{ paddingLeft: '12rem' }}>{product?.family || 'نامشخص'}</span>
+              </div>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
+
+      {/* بخش نظرات */}
+      <Card className="border-0 shadow-sm rounded-4 mb-5" style={darkBoxStyle}>
+        <Card.Header className="bg-transparent border-secondary border-opacity-50 p-3 p-md-4">
+          <h5 className="fw-bold mb-0 text-white fs-5">نظرات کاربران</h5>
+        </Card.Header>
+        <Card.Body className="p-3 p-md-4">
+          <Row>
+            {/* لیست نظرات */}
+            <Col md={6} className="mb-4 mb-md-0">
+              <h6 className="mb-4 text-white-50">دیدگاه‌های ثبت شده ({product?.reviews?.length || 0})</h6>
+              {product?.reviews?.length === 0 ? (
+                <Alert variant="info" className="bg-dark border-secondary text-white-50">
+                  هیچ نظری برای این محصول ثبت نشده است. اولین نفر باشید!
+                </Alert>
+              ) : (
+                <div className="d-flex flex-column gap-3">
+                  {product?.reviews?.map((review) => (
+                    <div key={review._id} className="p-3 rounded-3" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+                        <span className="fw-bold text-white d-flex align-items-center gap-2">
+                          <FaUser className="text-secondary" /> {review.name}
+                        </span>
+                        <div className="text-warning small">
+                          {[...Array(5)].map((_, i) => (
+                            <FaStar key={i} className={i < review.rating ? 'text-warning' : 'text-secondary'} />
+                          ))}
+                        </div>
+                      </div>
+                      <p className="mb-0 text-white-50 small lh-lg">{review.comment}</p>
+                      
+                      {/* پاسخ ادمین */}
+                      {review.replies && review.replies.length > 0 && (
+                        <div className="mt-3 ms-3 p-2 rounded-2 border-start border-success border-2 bg-dark bg-opacity-50">
+                          <span className="d-block fw-bold text-success small mb-1">پاسخ آکوالوتوس:</span>
+                          <p className="mb-0 text-white-50 small">{review.replies[0].comment}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Col>
+
+            {/* فرم ثبت نظر */}
+            <Col md={6}>
+              <h6 className="mb-4 text-white-50">ثبت دیدگاه جدید</h6>
+              <Form onSubmit={submitReviewHandler}>
+                <Form.Group className="mb-3">
+                  <Form.Label className="small text-white-50">امتیاز شما</Form.Label>
+                  <Form.Select 
+                    value={rating} 
+                    onChange={(e) => setRating(Number(e.target.value))}
+                    className="bg-dark text-white border-secondary shadow-none"
+                  >
+                    <option value="5">۵ - عالی</option>
+                    <option value="4">۴ - خیلی خوب</option>
+                    <option value="3">۳ - معمولی</option>
+                    <option value="2">۲ - ضعیف</option>
+                    <option value="1">۱ - خیلی ضعیف</option>
+                  </Form.Select>
+                </Form.Group>
+                
+                <Form.Group className="mb-4">
+                  <Form.Label className="small text-white-50">متن دیدگاه</Form.Label>
+                  <Form.Control 
+                    as="textarea" 
+                    rows={4} 
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    required
+                    className="bg-dark text-white border-secondary shadow-none"
+                    placeholder="تجربه خود را درباره این محصول بنویسید..."
+                  />
+                </Form.Group>
+
+                <Button type="submit" variant="success" className="w-100 rounded-pill">
+                  ثبت دیدگاه
+                </Button>
+              </Form>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
+
+      {/* مدال بزرگنمایی عکس (Lightbox) با قابلیت ناوبری */}
+      <Modal 
+        show={showModal} 
+        onHide={() => setShowModal(false)} 
+        centered 
+        size="lg"
+        contentClassName="bg-transparent border-0"
+      >
+        <Modal.Body className="p-0 position-relative text-center d-flex align-items-center justify-content-center">
+          {/* دکمه بستن */}
+          <Button 
+            variant="dark" 
+            className="position-absolute top-0 end-0 m-3 rounded-circle border-0 z-3 bg-dark bg-opacity-75"
+            onClick={() => setShowModal(false)}
+            style={{ width: '45px', height: '45px' }}
+          >
+            ✕
+          </Button>
+
+          {/* تصویر بزرگ‌شده */}
+          <img 
+            src={images[selectedImageIndex]} 
+            alt={product?.name} 
+            className="img-fluid rounded-4 shadow-lg w-100 object-fit-contain" 
+            style={{ maxHeight: '85vh', backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', padding: '20px' }}
+          />
+
+          {/* دکمه‌های ناوبری داخل مودال (فقط در صورت وجود چند عکس) */}
+          {images.length > 1 && (
+            <>
+              <Button 
+                variant="dark" 
+                className="position-absolute start-0 top-50 translate-middle-y m-3 rounded-circle border-0 z-3 bg-dark bg-opacity-75 d-flex align-items-center justify-content-center shadow"
+                onClick={handleNextImage}
+                style={{ width: '45px', height: '45px' }}
+              >
+                <FaChevronLeft className="fs-4 text-white" />
+              </Button>
+              <Button 
+                variant="dark" 
+                className="position-absolute end-0 top-50 translate-middle-y m-3 rounded-circle border-0 z-3 bg-dark bg-opacity-75 d-flex align-items-center justify-content-center shadow"
+                onClick={handlePrevImage}
+                style={{ width: '45px', height: '45px' }}
+              >
+                <FaChevronRight className="fs-4 text-white" />
+              </Button>
+
+              {/* نشانگر شماره عکس در مودال */}
+              <div className="position-absolute bottom-0 start-50 translate-middle-x mb-3 z-3">
+                <span className="badge bg-dark bg-opacity-75 px-3 py-2 rounded-pill border border-secondary text-white small">
+                  {selectedImageIndex + 1} / {images.length}
+                </span>
+              </div>
+            </>
+          )}
+        </Modal.Body>
+      </Modal>
+
+    </Container>
+  );
+};
+
+export default ProductPage;
+"""
+
+try:
+    if os.path.exists(file_path):
+        os.makedirs(os.path.dirname(backup_path), exist_ok=True)
+        shutil.copy2(file_path, backup_path)
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write(jsx_code)
+    print("✓ ProductPage.jsx updated with 12rem spacing!")
+except Exception as e:
+    print(f"✗ Failed: {e}")

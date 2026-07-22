@@ -1,0 +1,339 @@
+import { useState } from 'react'
+import { Navbar, Nav, Container, NavDropdown, Badge } from 'react-bootstrap'
+import { FaShoppingCart, FaUser } from 'react-icons/fa'
+import { FiMenu } from 'react-icons/fi'
+import { LinkContainer } from 'react-router-bootstrap'
+import { useSelector, useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { useLogoutMutation } from '../../slices/usersApiSlice'
+import { useGetSettingsQuery } from '../../slices/settingsApiSlice'
+import { useGetFamiliesQuery } from '../../slices/familiesApiSlice'
+import { logout } from '../../slices/authSlice'
+import SearchBox from '../ui/SearchBox'
+import NotificationBell from '../ui/NotificationBell'
+import CustomerNotificationBell from '../ui/CustomerNotificationBell'
+import AnnouncementBar from '../ui/AnnouncementBar'
+
+const Header = () => {
+  const { cartItems } = useSelector((state) => state.cart)
+  const { userInfo } = useSelector((state) => state.auth)
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const [logoutApiCall] = useLogoutMutation()
+  const { data: settings } = useGetSettingsQuery()
+  const { data: families } = useGetFamiliesQuery()
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [openSection, setOpenSection] = useState(null)
+
+  const logoutHandler = async () => {
+    try {
+      await logoutApiCall().unwrap()
+      dispatch(logout())
+      navigate('/login')
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const toggleSection = (section) => {
+    setOpenSection(openSection === section ? null : section)
+  }
+
+  const goToFilter = (params) => {
+    setDrawerOpen(false)
+    setOpenSection(null)
+    const query = new URLSearchParams(params).toString()
+    navigate(`/filter?${query}`)
+  }
+
+  const goTo = (path) => {
+    setDrawerOpen(false)
+    setOpenSection(null)
+    navigate(path)
+  }
+
+  const totalCartItems = cartItems.reduce((a, c) => a + c.qty, 0)
+
+  return (
+    <header className='aq-sticky-header'>
+      <Navbar className='aqualotus-navbar' style={{ padding: '10px 0' }}>
+        <Container fluid='md'>
+          <div className='d-flex align-items-center w-100 aq-navbar-row' style={{ gap: '8px' }}>
+
+            {/* لوگو و برند — راست */}
+            <LinkContainer to='/'>
+              <Navbar.Brand className='brand-logo d-flex align-items-center me-0' style={{ flexShrink: 0 }}>
+                <img src='/logo.png' alt='AquaLotus' className='aq-brand-logo-img' />
+              </Navbar.Brand>
+            </LinkContainer>
+
+            {/* منوی اصلی — وسط، فقط دسکتاپ بزرگ */}
+            <Nav className='d-none d-lg-flex mx-auto aq-navbar-center-nav'>
+              <LinkContainer to='/'><Nav.Link>محصولات</Nav.Link></LinkContainer>
+              <LinkContainer to='/blog'><Nav.Link>مجله آکواریوم و گیاهان</Nav.Link></LinkContainer>
+              <LinkContainer to='/about'><Nav.Link>درباره ما</Nav.Link></LinkContainer>
+              <LinkContainer to='/contact'><Nav.Link>تماس با ما</Nav.Link></LinkContainer>
+            </Nav>
+
+            {/* آیکون کاربر و ورود */}
+            {userInfo ? (
+                <NavDropdown
+                  title={
+                    <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.9rem' }}>
+                      <span className='d-none d-sm-inline'>{userInfo.name}</span>
+                      <FaUser className='d-sm-none' style={{ fontSize: '1.1rem' }} />
+                    </span>
+                  }
+                  id='user-menu'
+                  align='end'
+                >
+                  {!userInfo.isAdmin && (
+                    <LinkContainer to='/profile'>
+                      <NavDropdown.Item>پنل کاربری</NavDropdown.Item>
+                    </LinkContainer>
+                  )}
+                  {userInfo.isAdmin && (
+                    <>
+                      <LinkContainer to='/profile'><NavDropdown.Item>پنل کاربری</NavDropdown.Item></LinkContainer>
+                      <NavDropdown.Divider />
+                      <LinkContainer to='/admin/dashboard'><NavDropdown.Item>📊 داشبورد</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/reports'><NavDropdown.Item>📈 گزارش‌گیری</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/productlist'><NavDropdown.Item>محصولات</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/orderlist'><NavDropdown.Item>سفارش‌ها</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/reviews'><NavDropdown.Item>💬 نظرات و پاسخ‌ها</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/userlist'><NavDropdown.Item>کاربران</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/familylist'><NavDropdown.Item>خانواده‌های گیاهی</NavDropdown.Item></LinkContainer>
+                      <NavDropdown.Divider />
+                      <LinkContainer to='/admin/sliders'><NavDropdown.Item>🖼️ اسلایدر</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/blog'><NavDropdown.Item>📝 وبلاگ</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/settings'><NavDropdown.Item>⚙️ تنظیمات</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/activity-log'><NavDropdown.Item>📋 لاگ فعالیت</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/linkpages'><NavDropdown.Item>🔗 لینک‌ساز</NavDropdown.Item></LinkContainer>
+                      <LinkContainer to='/admin/custompages'><NavDropdown.Item>🏗️ صفحه‌ساز</NavDropdown.Item></LinkContainer>
+                    </>
+                  )}
+                  <NavDropdown.Divider />
+                  <NavDropdown.Item onClick={logoutHandler}>خروج</NavDropdown.Item>
+                </NavDropdown>
+              ) : (
+                <div className='aq-navbar-icon-btn' onClick={() => navigate('/login')}>
+                  <FaUser style={{ color: 'rgba(255,255,255,0.92)', fontSize: '1.05rem' }} />
+                </div>
+              )}
+
+            {/* سرچ — فقط دسکتاپ، مینیمال */}
+            <div className='d-none d-md-flex' style={{ maxWidth: '260px', flexShrink: 0 }}>
+              <SearchBox />
+            </div>
+
+            {/* آیکون‌ها — سمت چپ */}
+            <div className='d-flex align-items-center ms-auto' style={{ gap: '8px' }}>
+              {userInfo && !userInfo.isAdmin && (
+                <div className='aq-navbar-icon-btn'><CustomerNotificationBell /></div>
+              )}
+
+              {(!userInfo || !userInfo.isAdmin) && (
+                <div
+                  id='cart-icon-target'
+                  className='aq-navbar-icon-btn'
+                  style={{ position: 'relative' }}
+                  onClick={() => navigate('/cart')}
+                >
+                  <FaShoppingCart style={{ color: 'rgba(255,255,255,0.92)', fontSize: '1.1rem' }} />
+                  {totalCartItems > 0 && (
+                    <Badge pill bg='danger' style={{
+                      position: 'absolute', top: '-6px', left: '-6px',
+                      fontSize: '0.6rem', minWidth: '17px', height: '17px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      {totalCartItems}
+                    </Badge>
+                  )}
+                </div>
+              )}
+
+              {userInfo?.isAdmin && (
+                <div className='aq-navbar-icon-btn'><NotificationBell /></div>
+              )}
+
+              
+              {/* دکمه همبرگر */}
+              <button
+              onClick={() => setDrawerOpen(true)}
+              className='aq-navbar-icon-btn aq-navbar-hamburger'
+              style={{ background: 'rgba(255,255,255,0.12)', border: 'none', cursor: 'pointer', flexShrink: 0 }}
+            >
+              <FiMenu style={{ fontSize: '1.2rem', color: 'white' }} />
+            </button>
+            </div>
+          </div>
+
+          {/* سرچ — موبایل */}
+          <div className='d-md-none' style={{ padding: '8px 4px 4px', width: '100%' }}>
+            <SearchBox />
+          </div>
+        </Container>
+      </Navbar>
+
+      <AnnouncementBar settings={settings} />
+
+      {/* 🌟 هماهنگی انیمیشن سایدبار کشویی در حالت راست‌چین (RTL) */}
+      <div
+        style={{
+          position: 'fixed', inset: 0, zIndex: 9999,
+          display: 'flex', 
+          pointerEvents: drawerOpen ? 'all' : 'none',
+          visibility: drawerOpen ? 'visible' : 'hidden',
+          transition: 'visibility 0.3s'
+        }}
+      >
+        {/* backdrop (پس‌زمینه تیره که نرم تاریک و روشن می‌شود) */}
+        <div
+          onClick={() => setDrawerOpen(false)}
+          style={{
+            flex: 1,
+            background: drawerOpen ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0)',
+            transition: 'background 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            pointerEvents: drawerOpen ? 'all' : 'none',
+          }}
+        />
+
+        {/* drawer panel (پنل اصلی منو که با افکت اسلاید بسیار شیک باز می‌شود) */}
+        <div style={{
+          width: '290px',
+          background: '#fff',
+          height: '100%',
+          overflowY: 'auto',
+          borderLeft: '1px solid #e0e0e0',
+          display: 'flex',
+          flexDirection: 'column',
+          direction: 'rtl',
+          boxShadow: drawerOpen ? '-5px 0 25px rgba(0,0,0,0.15)' : 'none',
+          /* انیمیشن ورودی از سمت راست با شتاب‌دهنده نیوتنی */
+          transform: drawerOpen ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s',
+        }}>
+          <div style={{
+            background: '#1b4332', padding: '14px 18px',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <img src='/logo.png' alt='logo' style={{ width: '36px', height: '36px', borderRadius: '50%' }} />
+              <span style={{ color: 'white', fontSize: '15px', fontWeight: '500' }}>دسته‌بندی محصولات</span>
+            </div>
+            <button
+              onClick={() => setDrawerOpen(false)}
+              style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.3rem', cursor: 'pointer', transition: 'transform 0.2s' }}
+              onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.15)'}
+              onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            >✕</button>
+          </div>
+
+          <div style={{ padding: '8px 0' }}>
+            <SectionLabel>🌿 گیاهان زنده</SectionLabel>
+            <DrawerItem icon='🌱' label='همه گیاهان' onClick={() => goToFilter({ category: 'گیاه زنده' })} />
+
+            <DrawerSection icon='📍' label='محل کاشت' color='#0d4f8b' isOpen={openSection === 'pos'} onToggle={() => toggleSection('pos')}>
+              <SubItem label='جلو آکواریوم' onClick={() => goToFilter({ position: 'جلو' })} />
+              <SubItem label='میانه آکواریوم' onClick={() => goToFilter({ position: 'میانه' })} />
+              <SubItem label='پشت آکواریوم' onClick={() => goToFilter({ position: 'پشت' })} />
+              <SubItem label='شناور' onClick={() => goToFilter({ position: 'شناور' })} />
+            </DrawerSection>
+
+            <DrawerSection icon='🌿' label='خانواده‌های گیاهی' color='#6a1b9a' isOpen={openSection === 'fam'} onToggle={() => toggleSection('fam')}>
+              {families?.map((f) => (
+                <SubItem key={f._id} label={f.name} onClick={() => goToFilter({ keyword: f.name })} />
+              ))}
+            </DrawerSection>
+
+            <DrawerSection icon='💧' label='نوع کشت' color='#006064' isOpen={openSection === 'cult'} onToggle={() => toggleSection('cult')}>
+              <SubItem label='💧 کشت آبزی' onClick={() => goToFilter({ cultivationType: 'آبزی' })} />
+              <SubItem label='🌱 کشت هیدروپونیک' onClick={() => goToFilter({ cultivationType: 'هیدروپونیک' })} />
+              <SubItem label='✅ هر دو نوع کشت' onClick={() => goToFilter({ cultivationType: 'هر دو' })} />
+            </DrawerSection>
+
+            <DrawerSection icon='🪨' label='نیاز به بستر' color='#4e342e' isOpen={openSection === 'soil'} onToggle={() => toggleSection('soil')}>
+              <SubItem label='🪨 نیاز به بستر دارد' onClick={() => goToFilter({ needsSoil: 'true' })} />
+              <SubItem label='🚫 بدون نیاز به بستر' onClick={() => goToFilter({ needsSoil: 'false' })} />
+            </DrawerSection>
+
+            <Divider />
+            <SectionLabel>🛒 لوازم و مکمل</SectionLabel>
+            <DrawerItem icon='🧪' label='کود و مکمل' onClick={() => goToFilter({ category: 'کود و مکمل' })} />
+            <DrawerItem icon='🪸' label='بستر آکواریوم' onClick={() => goToFilter({ category: 'بستر' })} />
+            <DrawerItem icon='🔧' label='لوازم جانبی' onClick={() => goToFilter({ category: 'لوازم جانبی' })} />
+
+            <Divider />
+            <DrawerItem icon='📖' label='وبلاگ' onClick={() => goTo('/blog')} />
+            <DrawerItem icon='📞' label='تماس با ما' onClick={() => goTo('/contact')} />
+            <DrawerItem icon='ℹ️' label='درباره ما' onClick={() => goTo('/about')} />
+          </div>
+        </div>
+      </div>
+    </header>
+  )
+}
+
+const SectionLabel = ({ children }) => (
+  <div style={{ padding: '5px 18px 3px' }}>
+    <span style={{ fontSize: '11px', color: '#888' }}>{children}</span>
+  </div>
+)
+
+const Divider = () => <div style={{ height: '1px', background: '#e0e0e0', margin: '10px 18px' }} />
+
+const DrawerItem = ({ icon, label, onClick }) => (
+  <div
+    onClick={onClick}
+    className='aq-drawer-item'
+    style={{ padding: '10px 18px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', transition: 'background 0.15s, transform 0.15s' }}
+    onMouseOver={(e) => { e.currentTarget.style.background = '#f0f7f3'; e.currentTarget.style.transform = 'translateX(-4px)' }}
+    onMouseOut={(e) => { e.currentTarget.style.background = ''; e.currentTarget.style.transform = '' }}
+    onTouchStart={(e) => { e.currentTarget.style.background = '#f0f7f3' }}
+    onTouchEnd={(e) => { e.currentTarget.style.background = '' }}
+  >
+    <span style={{ fontSize: '16px' }}>{icon}</span>
+    <span style={{ fontSize: '14px', color: '#333' }}>{label}</span>
+    <span style={{ marginRight: 'auto', color: '#aaa', fontSize: '12px' }}>‹</span>
+  </div>
+)
+
+const DrawerSection = ({ icon, label, color, isOpen, onToggle, children }) => (
+  <>
+    <div
+      onClick={onToggle}
+      style={{ padding: '10px 18px', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', transition: 'background 0.15s, transform 0.15s' }}
+      onMouseOver={(e) => { e.currentTarget.style.background = '#f0f7f3'; e.currentTarget.style.transform = 'translateX(-4px)' }}
+      onMouseOut={(e) => { e.currentTarget.style.background = ''; e.currentTarget.style.transform = '' }}
+    >
+      <span style={{ fontSize: '16px' }}>{icon}</span>
+      <span style={{ fontSize: '14px', color: '#333' }}>{label}</span>
+      <span style={{ marginRight: 'auto', color: '#aaa', fontSize: '12px', transition: 'transform 0.2s', display: 'inline-block', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
+    </div>
+    <div style={{
+      overflow: 'hidden',
+      maxHeight: isOpen ? '400px' : '0',
+      transition: 'max-height 0.3s ease',
+    }}>
+      <div style={{ padding: '2px 18px 6px 18px' }}>
+        <div style={{ borderRight: `2px solid ${color}`, paddingRight: '12px' }}>
+          {children}
+        </div>
+      </div>
+    </div>
+  </>
+)
+
+const SubItem = ({ label, onClick }) => (
+  <div
+    onClick={onClick}
+    style={{ padding: '7px 0', fontSize: '13px', color: '#666', cursor: 'pointer', transition: 'color 0.15s, padding-right 0.15s' }}
+    onMouseOver={(e) => { e.currentTarget.style.color = '#1b4332'; e.currentTarget.style.paddingRight = '6px' }}
+    onMouseOut={(e) => { e.currentTarget.style.color = '#666'; e.currentTarget.style.paddingRight = '0' }}
+  >
+    {label}
+  </div>
+)
+
+export default Header
+

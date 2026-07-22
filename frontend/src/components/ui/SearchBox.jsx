@@ -53,7 +53,7 @@ const SearchBox = () => {
   }
 
   return (
-    <div ref={wrapperRef} style={{ position: 'relative' }}>
+    <div ref={wrapperRef} style={{ position: 'relative', width: '100%' }}>
       <Form onSubmit={submitHandler} className='d-flex search-form'>
         <Form.Control
           type='text'
@@ -74,6 +74,7 @@ const SearchBox = () => {
       {/* نتایج live */}
       {showSuggestions && data?.products?.length > 0 && keyword.length >= 2 && (
         <ListGroup
+          className='aq-search-results'
           style={{
             position: 'absolute',
             top: '100%',

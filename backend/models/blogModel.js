@@ -8,6 +8,7 @@ const blogSchema = new mongoose.Schema(
     image: { type: String, default: '' },
     video: { type: String, default: '' },
     isPublished: { type: Boolean, default: false },
+    featuredInSlider: { type: Boolean, default: false },
     relatedProducts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
   },
   { timestamps: true }

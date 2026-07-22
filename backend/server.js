@@ -22,6 +22,7 @@ import linkPageRoutes from './routes/linkPageRoutes.js'
 import customPageRoutes from './routes/customPageRoutes.js'
 import wishlistRoutes from './routes/wishlistRoutes.js'
 import reportRoutes from './routes/reportRoutes.js'
+import quizRoutes from './routes/quizRoutes.js'
 import { redirectShortLink } from './controllers/linkPageController.js'
 import { generateSitemap } from './controllers/sitemapController.js'
 
@@ -62,6 +63,7 @@ app.use('/api', generalLimiter)
 
 app.use('/api/users/login', authLimiter)
 app.use('/api/users/register', authLimiter)
+app.use('/api/users/login-otp', authLimiter)
 app.use('/api/users', userRoutes)
 app.use('/api/activity-logs', activityLogRoutes)
 app.use('/api/products', productRoutes)
@@ -76,6 +78,7 @@ app.use('/api/linkpages', linkPageRoutes)
 app.use('/api/custompages', customPageRoutes)
 app.use('/api/wishlist', wishlistRoutes)
 app.use('/api/reports', reportRoutes)
+app.use('/api/quiz', quizRoutes)
 app.get('/go/:shortCode', redirectShortLink)
 app.get('/sitemap.xml', generateSitemap)
 

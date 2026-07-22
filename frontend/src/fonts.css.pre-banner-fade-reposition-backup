@@ -1,0 +1,42 @@
+@font-face {
+  font-family: 'MJGhalam';
+  src: url('/fonts/Mj_Ghalam-1.TTF') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'MJGhalam';
+  src: url('/fonts/Mj_Ghalam-2.TTF') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+.aq-quiz-banner-title,
+.aq-quiz-banner-title * {
+  font-family: 'MJGhalam', 'Vazirmatn', sans-serif !important;
+}
+
+.aq-quiz-banner-text,
+.aq-quiz-banner-text * {
+  font-family: 'MJGhalam', 'Vazirmatn', sans-serif !important;
+}
+
+.aq-quiz-banner-logo-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  margin-bottom: 8px;
+}
+
+.aq-quiz-banner-title {
+  font-size: 1.7rem !important;
+}
+
+.aq-quiz-banner-text {
+  font-size: 1.15rem !important;
+}

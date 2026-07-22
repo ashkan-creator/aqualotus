@@ -70,6 +70,97 @@ const authUser = asyncHandler(async (req, res) => {
   }
 })
 
+
+const requestLoginOtp = asyncHandler(async (req, res) => {
+  const { phone } = req.body
+  if (!phone) {
+    res.status(400)
+    throw new Error('شماره موبایل ارسال نشده')
+  }
+
+  let user = await User.findOne({ phone })
+  if (!user) {
+    user = await User.create({
+      name: 'کاربر آکوالوتوس',
+      phone,
+      isPhoneOnly: true,
+    })
+  }
+
+  const otpCode = Math.floor(100000 + Math.random() * 900000).toString()
+  user.loginOtpCode = otpCode
+  user.loginOtpExpire = Date.now() + 10 * 60 * 1000
+  user.loginOtpAttempts = 0
+  await user.save()
+
+  try {
+    await sendSms({
+      to: phone,
+      message: `کد ورود شما به آکوالوتوس: ${otpCode}\nاین کد تا ۱۰ دقیقه معتبراست.`,
+    })
+  } catch (err) {
+    user.loginOtpCode = null
+    user.loginOtpExpire = null
+    await user.save()
+    res.status(500)
+    throw new Error('ارسال پیامک با خطا مواجه شد')
+  }
+
+  res.json({ message: 'کد تایید ارسال شد' })
+})
+
+const verifyLoginOtp = asyncHandler(async (req, res) => {
+  const { phone, otp } = req.body
+  if (!phone || !otp) {
+    res.status(400)
+    throw new Error('شماره موبایل و کد تایید الزامی است')
+  }
+
+  const user = await User.findOne({ phone })
+  if (!user || !user.loginOtpCode || !user.loginOtpExpire) {
+    res.status(400)
+    throw new Error('درخواستی برای این شماره ثبت نشده')
+  }
+
+  if (user.loginOtpExpire < Date.now()) {
+    user.loginOtpCode = null
+    user.loginOtpExpire = null
+    await user.save()
+    res.status(400)
+    throw new Error('کد تایید منقضی شده است')
+  }
+
+  if (user.loginOtpAttempts >= 5) {
+    user.loginOtpCode = null
+    user.loginOtpExpire = null
+    await user.save()
+    res.status(400)
+    throw new Error('تعداد تلاش‌های شما بیش از حد مجاز است')
+  }
+
+  if (user.loginOtpCode !== otp) {
+    user.loginOtpAttempts += 1
+    await user.save()
+    res.status(400)
+    throw new Error('کد تایید نادرست است')
+  }
+
+  user.loginOtpCode = null
+  user.loginOtpExpire = null
+  user.loginOtpAttempts = 0
+  await user.save()
+
+  setTokenCookies(res, user._id, user.isAdmin)
+  res.json({
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    address: user.address,
+    isAdmin: user.isAdmin,
+  })
+})
+
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, phone, address } = req.body
   const userExists = await User.findOne({ email })
@@ -412,4 +503,6 @@ export {
   forgotPassword,
   resetPassword,
   verifyOtpAndReset,
+  requestLoginOtp,
+  verifyLoginOtp,
 }

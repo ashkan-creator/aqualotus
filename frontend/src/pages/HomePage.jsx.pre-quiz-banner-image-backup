@@ -1,0 +1,221 @@
+import { useState, useEffect } from 'react'
+import { Row, Col, Container, Button, Offcanvas, Form } from 'react-bootstrap'
+import { useParams, Link, useSearchParams } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
+import { useGetProductsQuery } from '../slices/productsApiSlice'
+import ProductCard from '../components/ui/ProductCard'
+import HeroSlider from '../components/ui/HeroSlider'
+import BlogHighlightsSlider from '../components/ui/BlogHighlightsSlider'
+import FilterSidebar from '../components/ui/FilterSidebar'
+import Loader from '../components/ui/Loader'
+import Message from '../components/ui/Message'
+import Paginate from '../components/ui/Paginate'
+import WelcomePopup from '../components/ui/WelcomePopup'
+
+const HomePage = () => {
+  const { keyword, pageNumber } = useParams()
+  const [searchParams] = useSearchParams()
+  const [showFilter, setShowFilter] = useState(false)
+  const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || 'newest')
+
+  const [filters, setFilters] = useState({
+    careLevel: '',
+    position: '',
+    cultivationType: '',
+    needsSoil: '',
+    minPrice: '',
+    maxPrice: '',
+    category: '',
+  })
+
+  // هر بار که searchParams عوض شد فیلترها آپدیت بشن
+  useEffect(() => {
+    setFilters({
+      careLevel: searchParams.get('careLevel') || '',
+      position: searchParams.get('position') || '',
+      cultivationType: searchParams.get('cultivationType') || '',
+      needsSoil: searchParams.get('needsSoil') || '',
+      minPrice: searchParams.get('minPrice') || '',
+      maxPrice: searchParams.get('maxPrice') || '',
+      category: searchParams.get('category') || '',
+    })
+    setSortBy(searchParams.get('sortBy') || 'newest')
+  }, [searchParams.toString()])
+
+  const queryParams = {
+    keyword: keyword || searchParams.get('keyword') || '',
+    pageNumber: pageNumber || 1,
+    position: filters.position,
+    cultivationType: filters.cultivationType,
+    needsSoil: filters.needsSoil,
+    careLevel: filters.careLevel,
+    category: filters.category,
+    minPrice: filters.minPrice,
+    maxPrice: filters.maxPrice,
+    sortBy,
+  }
+
+  const { data, isLoading, error } = useGetProductsQuery(queryParams)
+
+  const activeFilterCount = Object.values(filters).filter(Boolean).length
+
+  const resetFilters = () => {
+    setFilters({
+      careLevel: '', position: '', cultivationType: '',
+      needsSoil: '', minPrice: '', maxPrice: '', category: '',
+    })
+  }
+
+  return (
+    <>
+      <WelcomePopup />
+      <Helmet>
+        <title>{keyword ? `نتایج جستجو: ${keyword} | AquaLotus` : 'AquaLotus | فروشگاه گیاهان آبزی و آکواریوم'}</title>
+        <meta name='description' content='خرید آنلاین گیاهان زنده آکواریوم، کود و مکمل، بستر و لوازم جانبی آکواریوم با ارسال به سراسر ایران' />
+        <meta name='keywords' content='گیاه آکواریوم، گیاه آبزی، خرید گیاه آکواریوم، کود آکواریوم، بستر آکواریوم، لوازم جانبی آکواریوم' />
+        <meta name='robots' content='index, follow' />
+        <meta property='og:title' content='AquaLotus | فروشگاه گیاهان آبزی' />
+        <meta property='og:description' content='خرید آنلاین گیاهان زنده آکواریوم، کود و مکمل، بستر و لوازم جانبی آکواریوم' />
+        <meta property='og:image' content='https://aqualotus.ir/logo.png' />
+        <meta property='og:url' content='https://aqualotus.ir' />
+        <meta property='og:type' content='website' />
+        <meta property='og:site_name' content='AquaLotus' />
+        <meta property='og:locale' content='fa_IR' />
+        <meta name='twitter:card' content='summary_large_image' />
+        <meta name='twitter:title' content='AquaLotus | فروشگاه گیاهان آبزی' />
+        <meta name='twitter:description' content='خرید آنلاین گیاهان زنده آکواریوم' />
+        <meta name='twitter:image' content='https://aqualotus.ir/logo.png' />
+        <link rel='canonical' href='https://aqualotus.ir/' />
+        <script type='application/ld+json'>{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Store",
+          "name": "AquaLotus",
+          "description": "فروشگاه تخصصی گیاهان زنده آکواریوم و لوازم جانبی",
+          "url": "https://aqualotus.ir",
+          "logo": "https://aqualotus.ir/logo.png",
+          "image": "https://aqualotus.ir/logo.png",
+          "priceRange": "تومان",
+          "currenciesAccepted": "IRR",
+          "paymentAccepted": "کارت به کارت",
+          "areaServed": "ایران",
+          "address": { "@type": "PostalAddress", "addressCountry": "IR" },
+          "sameAs": []
+        })}</script>
+      </Helmet>
+      {!keyword && !activeFilterCount && (
+        <>
+          <HeroSlider />
+          <BlogHighlightsSlider />
+          <Link to='/quiz' className='d-block text-decoration-none mb-3'>
+            <div
+              className='d-flex flex-column align-items-center justify-content-center text-center rounded-4 p-4'
+              style={{
+                background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))',
+                minHeight: '180px',
+                color: '#fff',
+              }}
+            >
+              <div style={{ fontSize: '2rem' }}>🌿</div>
+              <h4 className='mt-2 mb-1' style={{ color: '#fff' }}>
+                گیاه مناسب آکواریومت رو پیدا کن!
+              </h4>
+              <p className='mb-0' style={{ color: '#fff', opacity: 0.9 }}>
+                با چند سوال ساده، بهترین گیاه‌ها رو برات پیشنهاد می‌دیم
+              </p>
+            </div>
+          </Link>
+        </>
+      )}
+      <Container className='py-4'>
+
+        {keyword && (
+          <div className='mb-3 d-flex align-items-center gap-2'>
+            <h5 className='mb-0'>نتایج جستجو: {keyword}</h5>
+            <Link to='/'><Button variant='outline-secondary' size='sm'>بازگشت</Button></Link>
+          </div>
+        )}
+
+        {activeFilterCount > 0 && !keyword && (
+          <div className='mb-3 d-flex align-items-center gap-2'>
+            <h5 className='mb-0'>نتایج فیلتر</h5>
+            <Button variant='outline-danger' size='sm' onClick={resetFilters}>
+              پاک کردن فیلتر
+            </Button>
+          </div>
+        )}
+
+        {isLoading ? <Loader /> : error ? (
+          <Message variant='danger'>{error?.data?.message || error.error}</Message>
+        ) : (
+          <Row>
+            <Col xs={12} className='d-lg-none mb-3'>
+              <Button variant='outline-success' size='sm' onClick={() => setShowFilter(true)}>
+                🔍 فیلتر {activeFilterCount > 0 && `(${activeFilterCount})`}
+              </Button>
+            </Col>
+
+            <Offcanvas
+              show={showFilter}
+              onHide={() => setShowFilter(false)}
+              placement='end'
+              className='d-lg-none aq-filter-offcanvas'
+            >
+              <Offcanvas.Header closeButton>
+                <Offcanvas.Title>فیلتر محصولات</Offcanvas.Title>
+              </Offcanvas.Header>
+              <Offcanvas.Body>
+                <FilterSidebar filters={filters} setFilters={setFilters} />
+              </Offcanvas.Body>
+            </Offcanvas>
+
+            <Col lg={3} className='d-none d-lg-block mb-4'>
+              <FilterSidebar filters={filters} setFilters={setFilters} />
+            </Col>
+
+            <Col lg={9}>
+              <div className='d-flex justify-content-start align-items-center gap-2 mb-3 aq-sort-toolbar'>
+          <label className='aq-sort-label'>مرتب‌سازی بر اساس:</label>
+          <Form.Select
+            size='sm'
+            className='aq-sort-select'
+            style={{ width: 'auto', minWidth: '180px' }}
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
+            <option value='newest'>جدیدترین</option>
+            <option value='oldest'>قدیمی‌ترین</option>
+            <option value='priceAsc'>ارزان‌ترین</option>
+            <option value='priceDesc'>گران‌ترین</option>
+            <option value='bestselling'>پرفروش‌ترین</option>
+          </Form.Select>
+        </div>
+              {data?.products?.length === 0 ? (
+                <div className='aq-empty-state'>
+                  <div className='aq-empty-icon'>🔍</div>
+                  <h4 className='mt-3' style={{ color: 'var(--primary)' }}>گیاهی پیدا نشد!</h4>
+                  <p className='text-muted mb-4'>متأسفانه چیزی با این مشخصات تو آکواریوم ما نداریم — یه جستجوی دیگه امتحان کن؟</p>
+                  <Link to='/' className='btn btn-aqualotus px-4'>
+                    🌿 همه محصولات
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  <Row className='g-3'>
+                    {data?.products?.map((product) => (
+                      <Col key={product._id} sm={12} md={6} lg={4} xl={3}>
+                        <ProductCard product={product} />
+                      </Col>
+                    ))}
+                  </Row>
+                  <Paginate pages={data?.pages} page={data?.page} keyword={keyword || ''} />
+                </>
+              )}
+            </Col>
+          </Row>
+        )}
+      </Container>
+    </>
+  )
+}
+
+export default HomePage

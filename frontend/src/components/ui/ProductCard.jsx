@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Card, Badge } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import { useSelector } from 'react-redux'
@@ -13,12 +13,13 @@ import { useViewTransitionNavigate } from '../../hooks/useViewTransitionNavigate
 import { apiSlice } from '../../slices/apiSlice'
 import Rating from './Rating'
 import { calcDiscountedPrice } from '../../utils/cartUtils'
+import { motion } from 'framer-motion'
 import { useScrollReveal } from '../../hooks/useScrollReveal'
 
 const careLevelConfig = {
-  'آسان': { color: 'success', icon: '🟢' },
-  'متوسط': { color: 'warning', icon: '🟡' },
-  'سخت': { color: 'danger', icon: '🔴' },
+  'آسان': { color: 'success', icon: '🌱' },
+  'متوسط': { color: 'warning', icon: '⚡' },
+  'سخت': { color: 'danger', icon: '🔥' },
 }
 
 const ProductCard = ({ product }) => {
@@ -39,6 +40,10 @@ const ProductCard = ({ product }) => {
   const [imgIndex, setImgIndex] = useState(0)
   const [prevIndex, setPrevIndex] = useState(0)
 
+  const cardRef = useRef(null)
+  const [tiltStyle, setTiltStyle] = useState({})
+  const [isHovered, setIsHovered] = useState(false)
+
   useEffect(() => {
     if (allImages.length <= 1) return
     const timer = setInterval(() => {
@@ -57,7 +62,6 @@ const ProductCard = ({ product }) => {
       }
     }, 6000)
     return () => clearInterval(timer)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imgIndex, allImages.length])
 
   const inStock = product.variants && product.variants.length > 0
@@ -92,23 +96,61 @@ const ProductCard = ({ product }) => {
         toast.success('به لیست علاقه‌مندی‌ها اضافه شد')
       }
     } catch (err) {
-      toast.error(err?.data?.message || 'خطا در به‌روزرسانی علاقه‌مندی‌ها')
+      toast.error(err?.data?.message || 'خطا در عملیات علاقه‌مندی')
     }
+  }
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return
+    const { left, top, width, height } = cardRef.current.getBoundingClientRect()
+    const x = e.clientX - left
+    const y = e.clientY - top
+    const rotateX = ((y - height / 2) / (height / 2)) * -8
+    const rotateY = ((x - width / 2) / (width / 2)) * 8
+    setTiltStyle({
+      transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.03, 1.03, 1.03)`,
+      transition: 'transform 0.1s ease-out',
+      boxShadow: `${-rotateY * 2}px ${rotateX * 2}px 30px rgba(0,0,0,0.4)`,
+    })
+  }
+
+  const handleMouseEnter = () => {
+    setIsHovered(true)
+    prefetchProduct(productUrl.split('/product/')[1])
+  }
+
+  const handleMouseLeave = () => {
+    setIsHovered(false)
+    setTiltStyle({
+      transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)',
+      transition: 'transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out',
+      boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
+    })
   }
 
   return (
     <div ref={revealRef} className='aq-scroll-init h-100'>
-      <Card
-        className={`product-card aq-product-card h-100 ${!inStock ? 'aq-out-of-stock' : ''}`}
+      <div
+        ref={cardRef}
+        className={`aq-product-card-3d ${!inStock ? 'aq-out-of-stock' : ''}`}
         onClick={handleCardClick}
-        onMouseEnter={() => prefetchProduct(productUrl.split('/product/')[1])}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         onTouchStart={() => prefetchProduct(productUrl.split('/product/')[1])}
-        style={{ cursor: 'pointer' }}
+        style={{
+          cursor: 'pointer',
+          borderRadius: '20px',
+          overflow: 'hidden',
+          position: 'relative',
+          transformStyle: 'preserve-3d',
+          ...tiltStyle,
+        }}
       >
-        <div className='aq-product-media' style={{ position: 'relative', overflow: 'hidden' }}>
+        {/* Image Container */}
+        <div className='aq-product-media-3d' style={{ position: 'relative', overflow: 'hidden', height: '260px' }}>
           <Link to={productUrl} onClick={handleLinkClick}>
-            <div style={{ position: 'relative', width: '100%', height: '220px', overflow: 'hidden' }}>
-              {/* لایه‌ی پس‌زمینه‌ی ثابت — همیشه یه عکس کامل زیر عکس در حال تعویض می‌مونه */}
+            <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
               <img
                 src={allImages[prevIndex]}
                 alt=''
@@ -119,42 +161,46 @@ const ProductCard = ({ product }) => {
                   ...imgFilterStyle,
                 }}
               />
-              {/* عکس فعلی — با انیمیشن اسلاید وارد می‌شه، روی لایه‌ی پس‌زمینه */}
-              <img
+              <motion.img
                 key={imgIndex}
                 src={allImages[imgIndex]}
                 alt={product.name}
                 loading='lazy'
                 className='card-img-top product-img aq-slideshow-slide'
+                layoutId={`product-img-${product._id}`}
+                transition={{ duration: 0.1, ease: "easeOut" }}
                 style={{
                   position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
-                  viewTransitionName: `product-img-${product._id}`,
+                  transform: isHovered ? 'scale(1.1)' : 'scale(1)',
                   ...imgFilterStyle,
                 }}
               />
             </div>
           </Link>
 
-          {/* نشانگر چراغ موجودی */}
+          {/* Gradient Overlay */}
           <div style={{
-            position: 'absolute', top: '10px', right: '10px',
-            width: '10px', height: '10px', borderRadius: '50%',
-            backgroundColor: inStock ? '#52b788' : '#6c757d',
-            animation: inStock ? 'aq-pulse 2s infinite' : 'none',
+            position: 'absolute', inset: 0,
+            background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0) 70%)',
+            pointerEvents: 'none',
+            zIndex: 2,
           }} />
 
-          {/* دکمه‌ی علاقه‌مندی */}
+
+
+          {/* Wishlist Button */}
           <button
             onClick={handleWishlistClick}
             aria-label='افزودن به علاقه‌مندی‌ها'
+            className='aq-wishlist-btn-3d'
             style={{
               position: 'absolute', top: '10px', left: '10px', zIndex: 5,
-              background: 'rgba(255,255,255,0.85)', border: 'none', borderRadius: '50%',
+              background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%',
               width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-              transition: 'transform 0.2s',
+              cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+              transition: 'transform 0.2s, background 0.2s',
             }}
-            onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.1)')}
+            onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.15)')}
             onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
           >
             {isWishlisted ? (
@@ -164,94 +210,122 @@ const ProductCard = ({ product }) => {
             )}
           </button>
 
-          {/* داته‌های تصویر در پایین */}
+          {/* Glassmorphism Header - Small, next to wishlist button */}
+          <div style={{
+            position: 'absolute', top: '10px', left: '50px', right: '10px', zIndex: 3,
+            padding: '5px 10px',
+            borderRadius: '10px',
+            border: '1px solid rgba(255,255,255,0.08)',
+            background: 'rgba(0,0,0,0.25)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            color: '#fff',
+            transform: 'translateZ(30px)',
+          }}>
+            <div className="d-flex justify-content-between align-items-center">
+              <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+                <h6 style={{
+                  margin: 0, fontSize: '0.72rem', fontWeight: 700,
+                  lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                }}>
+                  {product.name}
+                </h6>
+                <p style={{
+                  margin: '2px 0 0', fontSize: '0.62rem', color: 'rgba(255,255,255,0.75)',
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                }}>
+                  محل کاشت: {product.position || product.careLevel || '—'}
+                </p>
+              </div>
+              <div style={{ marginRight: '6px', flexShrink: 0, alignSelf: 'flex-end', marginBottom: '2px' }}>
+                <img
+                  src="/logo.png"
+                  alt="AquaLotus"
+                  style={{ height: '14px', width: 'auto', opacity: 0.7 }}
+                  onError={(e) => { e.target.style.display = 'none' }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Slideshow Dots */}
           {allImages.length > 1 && (
             <div style={{
-              position: 'absolute', bottom: '30px', left: '50%', transform: 'translateX(-50%)',
+              position: 'absolute', bottom: '10px', left: '50%', transform: 'translateX(-50%)', zIndex: 5,
               display: 'flex', gap: '4px',
             }}>
               {allImages.map((_, i) => (
                 <div key={i} style={{
                   width: '5px', height: '5px', borderRadius: '50%',
-                  background: i === imgIndex ? '#fff' : 'rgba(255,255,255,0.4)',
-                  transition: 'background 0.3s',
+                  background: i === imgIndex ? '#fff' : 'rgba(255,255,255,0.35)',
+                  transition: 'background 0.3s, transform 0.3s',
+                  transform: i === imgIndex ? 'scale(1.3)' : 'scale(1)',
                 }} />
               ))}
             </div>
           )}
 
+          {/* Out of Stock Overlay */}
           {!inStock && (
             <div style={{
-              position: 'absolute', inset: 0,
+              position: 'absolute', inset: 0, zIndex: 4,
               background: 'rgba(0,0,0,0.35)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              borderRadius: '8px 8px 0 0',
             }}>
               <span style={{
                 background: 'rgba(0,0,0,0.6)', color: '#ccc',
-                padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem',
+                padding: '4px 12px', borderRadius: '20px', fontSize: '0.75rem',
               }}>ناموجود</span>
             </div>
           )}
-
-          <div className='aq-product-badge-slide' style={{
-            position: 'absolute', bottom: 0, left: 0, right: 0,
-            padding: '6px 10px',
-            background: inStock
-              ? 'linear-gradient(0deg, rgba(45,106,79,0.92), rgba(45,106,79,0))'
-              : 'linear-gradient(0deg, rgba(80,80,80,0.92), rgba(80,80,80,0))',
-            color: inStock ? '#fff' : '#bbb',
-            fontSize: '0.75rem', textAlign: 'center',
-          }}>
-            {inStock ? '✓ موجود در انبار' : '✕ ناموجود'}
-          </div>
         </div>
 
-        <Card.Body className='d-flex flex-column' style={!inStock ? { opacity: 0.6 } : {}}>
-          <div className='mb-2'>
-            <Badge bg={careConfig.color} className='care-badge-card'>
+        {/* Card Body */}
+        <div style={{
+          padding: '12px 14px',
+          background: 'rgba(10,10,10,0.88)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          borderTop: '1px solid rgba(255,255,255,0.06)',
+        }}>
+          <div className='d-flex align-items-center gap-2 mb-2'>
+            <Badge bg={careConfig.color} className='care-badge-card' style={{ fontSize: '0.68rem' }}>
               {careConfig.icon} {product.careLevel}
             </Badge>
             {hasDiscount && (
-              <Badge bg='danger' className='me-1 discount-badge'>
+              <Badge bg='danger' className='discount-badge' style={{ fontSize: '0.68rem' }}>
                 {product.discount}% تخفیف
               </Badge>
             )}
           </div>
 
-          <Link to={productUrl} onClick={handleLinkClick} className='product-title-link'>
-            <Card.Title as='h6' className='product-title aq-display-title'>
-              {product.name}
-            </Card.Title>
-          </Link>
-
           <Rating value={product.rating} text={`(${product.numReviews})`} />
 
-          <div className='mt-auto pt-2'>
+          <div className='mt-2'>
             {hasDiscount ? (
-              <div>
-                <span className='original-price text-muted text-decoration-line-through me-2'>
-                  {product.price.toLocaleString('fa-IR')} تومان
-                </span>
-                <span className='discounted-price text-danger fw-bold'>
+              <div className="d-flex align-items-center gap-2">
+                <span className='discounted-price fw-bold' style={{ fontSize: '0.9rem', color: '#fff' }}>
                   {Math.round(discountedPrice).toLocaleString('fa-IR')} تومان
+                </span>
+                <span className='original-price text-muted text-decoration-line-through' style={{ fontSize: '0.75rem' }}>
+                  {product.price.toLocaleString('fa-IR')}
                 </span>
               </div>
             ) : (
-              <span className='product-price'>
+              <span className='product-price fw-bold' style={{ fontSize: '0.9rem', color: '#fff' }}>
                 {product.price.toLocaleString('fa-IR')} تومان
               </span>
             )}
             {product.discountMinQty > 0 && (
               <div className='qty-discount-hint mt-1'>
-                <small className='text-success'>
-                  🎁 خرید {product.discountMinQty}+ عدد: {product.discountQtyPercent}% تخفیف
+                <small className='text-success' style={{ fontSize: '0.68rem' }}>
+                  🎁 از خرید {product.discountMinQty}+ عدد: {product.discountQtyPercent}% تخفیف
                 </small>
               </div>
             )}
           </div>
-        </Card.Body>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }

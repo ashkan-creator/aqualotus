@@ -44,7 +44,7 @@ const BlogPage = () => {
       <HeroSlider location='blog' />
 
       <Container className='py-4 py-md-5'>
-        <h2 className='mb-4'>وبلاگ</h2>
+        <h2 className='mb-4 aq-page-title'>وبلاگ</h2>
         {isLoading ? (
           <Loader />
         ) : error ? (
@@ -55,7 +55,7 @@ const BlogPage = () => {
           <Row className='g-3 g-md-4'>
             {posts?.map((post) => (
               <Col key={post._id} xs={12} sm={6} lg={4}>
-                <Card className='h-100' style={{ borderRadius: '12px', overflow: 'hidden' }}>
+                <Card className='h-100 aq-blog-card' style={{ borderRadius: '12px', overflow: 'hidden' }}>
                   {post.image && (
                     <Card.Img variant='top' src={post.image} loading='lazy'
                       style={{ height: '180px', objectFit: 'cover' }} />

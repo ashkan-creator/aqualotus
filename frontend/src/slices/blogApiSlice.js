@@ -7,6 +7,11 @@ export const blogApiSlice = apiSlice.injectEndpoints({
       providesTags: ['Blog'],
       keepUnusedDataFor: 30,
     }),
+    getFeaturedPosts: builder.query({
+      query: () => '/api/blog/featured',
+      providesTags: ['Blog'],
+      keepUnusedDataFor: 30,
+    }),
     getAllPosts: builder.query({
       query: () => '/api/blog/all',
       providesTags: ['Blog'],
@@ -33,6 +38,7 @@ export const blogApiSlice = apiSlice.injectEndpoints({
 
 export const {
   useGetPostsQuery,
+  useGetFeaturedPostsQuery,
   useGetAllPostsQuery,
   useGetPostByIdQuery,
   useCreatePostMutation,

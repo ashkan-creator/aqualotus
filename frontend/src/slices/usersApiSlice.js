@@ -51,6 +51,20 @@ export const usersApiSlice = apiSlice.injectEndpoints({
         body: data,
       }),
     }),
+    requestLoginOtp: builder.mutation({
+      query: (data) => ({
+        url: `${USERS_URL}/login-otp/request`,
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    verifyLoginOtp: builder.mutation({
+      query: (data) => ({
+        url: `${USERS_URL}/login-otp/verify`,
+        method: 'POST',
+        body: data,
+      }),
+    }),
     profile: builder.mutation({
       query: (data) => ({
         url: `${USERS_URL}/profile`,
@@ -97,6 +111,8 @@ export const {
   useForgotPasswordMutation,
   useResetPasswordMutation,
   useVerifyOtpAndResetMutation,
+  useRequestLoginOtpMutation,
+  useVerifyLoginOtpMutation,
   useProfileMutation,
   useGetUsersQuery,
   useDeleteUserMutation,

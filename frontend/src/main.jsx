@@ -10,6 +10,7 @@ import Loader from './components/ui/Loader'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './index.css'
 import './animations.css'
+import './fonts.css'
 
 // صفحات پرترافیک (بدون lazy — برای سرعت)
 import HomePage from './pages/HomePage'
@@ -31,6 +32,7 @@ const PlaceOrderPage = lazy(() => import('./pages/PlaceOrderPage'))
 const OrderPage = lazy(() => import('./pages/OrderPage'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
 const ContactPage = lazy(() => import('./pages/ContactPage'))
+const QuizPage = lazy(() => import('./pages/QuizPage'))
 const AboutPage = lazy(() => import('./pages/AboutPage'))
 const BlogPage = lazy(() => import('./pages/BlogPage'))
 const BlogPostPage = lazy(() => import('./pages/BlogPostPage'))
@@ -53,6 +55,7 @@ const AdminLinkPageListPage = lazy(() => import('./pages/admin/LinkPageListPage'
 const AdminLinkPageEditPage = lazy(() => import('./pages/admin/LinkPageEditPage'))
 const AdminCustomPageListPage = lazy(() => import('./pages/admin/CustomPageListPage'))
 const AdminCustomPageEditPage = lazy(() => import('./pages/admin/CustomPageEditPage'))
+const AdminPanelPage = lazy(() => import('./pages/admin/AdminPanelPage'))
 
 import PrivateRoute from './components/PrivateRoute'
 import AdminRoute from './components/AdminRoute'
@@ -83,6 +86,7 @@ const router = createBrowserRouter([
       { path: 'filter', element: <HomePage /> },
       { path: 'search/:keyword/page/:pageNumber', element: <HomePage /> },
       { path: 'contact', element: withSuspense(ContactPage) },
+      { path: 'quiz', element: withSuspense(QuizPage) },
       { path: 'about', element: withSuspense(AboutPage) },
       { path: 'blog', element: withSuspense(BlogPage) },
       { path: 'blog/:id', element: withSuspense(BlogPostPage) },
@@ -120,6 +124,7 @@ const router = createBrowserRouter([
           { path: 'linkpages/:id/edit', element: withSuspense(AdminLinkPageEditPage) },
           { path: 'custompages', element: withSuspense(AdminCustomPageListPage) },
           { path: 'custompages/:id/edit', element: withSuspense(AdminCustomPageEditPage) },
+          { path: 'panel', element: withSuspense(AdminPanelPage) },
         ],
       },
       { path: '*', element: <NotFoundPage /> },

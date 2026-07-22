@@ -56,6 +56,7 @@ const BlogPostPage = () => {
               })}</script>
             </Helmet>
 
+            <div className='aq-blogpost-card'>
             <h2 style={{ fontSize: 'clamp(1.2rem, 4vw, 1.8rem)', marginBottom: '0.5rem' }}>
               {post?.title}
             </h2>
@@ -87,6 +88,7 @@ const BlogPostPage = () => {
                 </Row>
               </div>
             )}
+            </div>
           </Col>
         </Row>
       )}

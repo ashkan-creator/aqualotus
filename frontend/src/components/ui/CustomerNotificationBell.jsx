@@ -7,7 +7,6 @@ import {
   useMarkMyNotificationReadMutation,
   useMarkAllMyNotificationsReadMutation,
 } from '../../slices/notificationsApiSlice'
-import './CustomerNotificationBell.css'
 
 const typeIcons = {
   new_review: '⭐',
@@ -72,19 +71,19 @@ const CustomerNotificationBell = () => {
   }
 
   return (
-    <div ref={ref} style={{ position: 'relative' }}>
+    <div ref={ref} style={{ position: 'relative', display: 'inline-block' }}>
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label='نوتیفیکیشن‌ها'
         style={{
           background: 'none', border: 'none', position: 'relative',
-          cursor: 'pointer', padding: '4px',
+          cursor: 'pointer', padding: '6px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center'
         }}
       >
         <FaBell style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.2rem' }} />
         {unreadCount > 0 && (
           <span style={{
-            position: 'absolute', top: '-4px', left: '-4px',
+            position: 'absolute', top: '2px', left: '2px',
             backgroundColor: '#e63946', color: '#fff',
             borderRadius: '50%', fontSize: '0.6rem',
             minWidth: '17px', height: '17px',
@@ -96,59 +95,75 @@ const CustomerNotificationBell = () => {
       </button>
 
       {open && (
-        <div className='customer-notif-dropdown'>
+        <div 
+          style={{
+            position: 'absolute',
+            top: '45px',
+            left: window.innerWidth < 480 ? '-60px' : '0',
+            width: window.innerWidth < 480 ? 'calc(100vw - 32px)' : '310px',
+            maxWidth: '340px',
+            maxHeight: '380px',
+            overflowY: 'auto',
+            backgroundColor: '#fff',
+            color: '#212529',
+            borderRadius: '8px',
+            boxShadow: '0 4px 18px rgba(0,0,0,0.15)',
+            zIndex: 2000,
+            direction: 'rtl',
+          }}
+        >
           <div style={{
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            padding: '12px 14px', borderBottom: '1px solid #eee',
-            position: 'sticky', top: 0, background: '#fff',
+            padding: '10px 12px', borderBottom: '1px solid #eee',
+            position: 'sticky', top: 0, background: '#fff', zIndex: 10
           }}>
-            <strong>نوتیفیکیشن‌ها</strong>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <strong style={{ fontSize: '0.9rem' }}>نوتیفیکیشن‌ها</strong>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               {unreadCount > 0 && (
                 <button onClick={handleMarkAll} style={{
                   background: 'none', border: 'none',
-                  color: '#2d6a4f', fontSize: '0.8rem', cursor: 'pointer',
+                  color: '#2d6a4f', fontSize: '0.75rem', cursor: 'pointer',
                 }}>
                   علامت‌گذاری همه
                 </button>
               )}
               <button onClick={() => setOpen(false)} style={{
                 background: 'none', border: 'none',
-                color: '#999', fontSize: '1rem', cursor: 'pointer',
+                color: '#999', fontSize: '0.9rem', cursor: 'pointer',
               }}>✕</button>
             </div>
           </div>
 
           {isLoading ? (
-            <div style={{ textAlign: 'center', padding: '1rem', color: '#999' }}>در حال بارگذاری...</div>
+            <div style={{ textAlign: 'center', padding: '1rem', color: '#999', fontSize: '0.85rem' }}>در حال بارگذاری...</div>
           ) : !notifications || notifications.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '1rem', color: '#999' }}>نوتیفیکیشنی وجود ندارد</div>
+            <div style={{ textAlign: 'center', padding: '1rem', color: '#999', fontSize: '0.85rem' }}>نوتیفیکیشنی وجود ندارد</div>
           ) : (
             notifications.map((notif) => (
               <div
                 key={notif._id}
                 onClick={() => handleItemClick(notif)}
                 style={{
-                  padding: '10px 14px', borderBottom: '1px solid #f1f1f1',
+                  padding: '10px 12px', borderBottom: '1px solid #f1f1f1',
                   cursor: 'pointer',
                   backgroundColor: notif.isRead ? '#fff' : '#f0f7f3',
-                  display: 'flex', gap: '10px', alignItems: 'flex-start',
+                  display: 'flex', gap: '8px', alignItems: 'flex-start',
                 }}
               >
-                <span style={{ fontSize: '1.1rem' }}>{typeIcons[notif.type] || '🔔'}</span>
+                <span style={{ fontSize: '1rem' }}>{typeIcons[notif.type] || '🔔'}</span>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: notif.isRead ? 'normal' : 'bold', fontSize: '0.88rem' }}>
+                  <div style={{ fontWeight: notif.isRead ? 'normal' : 'bold', fontSize: '0.82rem', lineHeight: '1.4' }}>
                     {notif.title}
                   </div>
-                  <div style={{ fontSize: '0.8rem', color: '#555' }}>{notif.message}</div>
-                  <div style={{ fontSize: '0.72rem', color: '#999', marginTop: '2px' }}>
+                  <div style={{ fontSize: '0.78rem', color: '#555', marginTop: '2px' }}>{notif.message}</div>
+                  <div style={{ fontSize: '0.7rem', color: '#999', marginTop: '4px' }}>
                     {timeAgo(notif.createdAt)}
                   </div>
                 </div>
                 {!notif.isRead && (
                   <span style={{
-                    width: '8px', height: '8px', borderRadius: '50%',
-                    backgroundColor: '#2d6a4f', marginTop: '4px', flexShrink: 0,
+                    width: '6px', height: '6px', borderRadius: '50%',
+                    backgroundColor: '#2d6a4f', marginTop: '5px', flexShrink: 0,
                   }} />
                 )}
               </div>
