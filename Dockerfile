@@ -6,6 +6,7 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend/ ./
+RUN npm install vite
 RUN npm run build
 
 # ---------- مرحله ۲: ایمیج نهایی (Mongo رسمی + Node) ----------
