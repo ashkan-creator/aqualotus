@@ -1,0 +1,59 @@
+# syntax=docker/dockerfile:1
+
+# ---------- مرحله ۱: بیلد فرانت‌اند ----------
+FROM node:20-bookworm-slim AS frontend-build
+WORKDIR /app/frontend
+
+ENV NODE_ENV=development
+
+COPY frontend/package*.json ./
+RUN npm install --include=dev
+
+COPY frontend/ ./
+RUN npm run build
+
+# ---------- مرحله ۲: ایمیج نهایی (Node 20 + MongoDB) ----------
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y curl gnupg ca-certificates && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-7.0.gpg && \
+    echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list && \
+    apt-get update && \
+    apt-get install -y mongodb-org && \
+    mkdir -p /data/db /data/uploads && \
+    chmod 777 /data/db /data/uploads && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=80
+ENV MONGO_URI=mongodb://127.0.0.1:27017/aqualotus
+
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+COPY backend/ ./backend/
+COPY --from=frontend-build /app/frontend/dist ./frontend/dist
+
+COPY data_export/ ./data_export/
+
+RUN rm -rf /app/uploads && ln -s /data/uploads /app/uploads
+
+RUN echo '#!/bin/sh
+mkdir -p /data/db /data/uploads
+chmod 777 /data/db /data/uploads
+mongod --fork --logpath /var/log/mongodb.log --dbpath /data/db
+sleep 3
+node /app/data_export/import-data.js
+cp -r /app/data_export/uploads/* /data/uploads/ 2>/dev/null || true
+node backend/server.js' > /app/start.sh && \
+    chmod +x /app/start.sh
+
+EXPOSE 80
+
+CMD ["/bin/sh", "/app/start.sh"]
