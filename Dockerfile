@@ -17,7 +17,6 @@ FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# نصب ابزارهای مورد نیاز، Node.js 20 و MongoDB
 RUN apt-get update && apt-get install -y curl gnupg ca-certificates && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
@@ -25,7 +24,8 @@ RUN apt-get update && apt-get install -y curl gnupg ca-certificates && \
     echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list && \
     apt-get update && \
     apt-get install -y mongodb-org && \
-    mkdir -p /data/db && \
+    mkdir -p /data/db/mongo /data/db/uploads && \
+    chmod 777 /data/db/mongo /data/db/uploads && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -34,16 +34,24 @@ ENV NODE_ENV=production
 ENV PORT=80
 ENV MONGO_URI=mongodb://127.0.0.1:27017/aqualotus
 
-# نصب وابستگی‌های بک‌اند
 COPY package*.json ./
 RUN npm ci --omit=dev
 
-# کپی کد بک‌اند و خروجی فرانت‌اند
 COPY backend/ ./backend/
 COPY --from=frontend-build /app/frontend/dist ./frontend/dist
 
-# اسکریپت استارت هم‌زمان دیتابیس و نود
-RUN echo '#!/bin/bin/sh\nmongod --fork --logpath /var/log/mongodb.log --dbpath /data/db\nnode backend/server.js' > /app/start.sh && \
+COPY data_export/ ./data_export/
+
+RUN rm -rf /app/uploads && ln -s /data/db/uploads /app/uploads
+
+RUN echo '#!/bin/sh
+mkdir -p /data/db/mongo /data/db/uploads
+chmod 777 /data/db/mongo /data/db/uploads
+mongod --fork --logpath /var/log/mongodb.log --dbpath /data/db/mongo
+sleep 3
+node /app/data_export/import-data.js
+cp -r /app/data_export/uploads/* /data/db/uploads/ 2>/dev/null || true
+node backend/server.js' > /app/start.sh && \
     chmod +x /app/start.sh
 
 EXPOSE 80
