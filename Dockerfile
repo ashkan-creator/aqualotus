@@ -4,14 +4,11 @@
 FROM node:20-bookworm-slim AS frontend-build
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
-RUN npm ci
+RUN npm install
 COPY frontend/ ./
-RUN npm install vite
 RUN npm run build
 
 # ---------- مرحله ۲: ایمیج نهایی (Mongo رسمی + Node) ----------
-# از ایمیج رسمی mongo:7 شروع می‌کنیم (از طریق میرور داکر رانفلر قابل دسترسه)
-# و Node رو از ریپازیتوری خود دبیان نصب می‌کنیم (بدون نیاز به دامنه‌ی فیلترشده‌ی nodesource)
 FROM mongo:7
 
 RUN apt-get update \
@@ -20,7 +17,7 @@ RUN apt-get update \
 
 WORKDIR /app
 
-# نصب وابستگی‌های بک‌اند (فقط production)
+# نصب وابستگی‌های بک‌اند
 COPY package*.json ./
 RUN npm ci --omit=dev
 
