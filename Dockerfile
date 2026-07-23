@@ -3,11 +3,16 @@
 # ---------- مرحله ۱: build فرانت (Vite) ----------
 FROM node:20-bookworm-slim AS frontend-build
 WORKDIR /app/frontend
+
+# خنثی کردن تنظیمات پروداکشن سرور برای نصب قطعی Vite
+ENV NODE_ENV=development
+
 COPY frontend/package*.json ./
-RUN npm install
+# فورس کردن نصب تمام پکیج‌های توسعه
+RUN npm install --include=dev
+
 COPY frontend/ ./
-RUN npm install vite @vitejs/plugin-react --save-dev
-RUN npx vite build
+RUN npm run build
 
 # ---------- مرحله ۲: ایمیج نهایی (Mongo رسمی + Node) ----------
 FROM mongo:7
@@ -18,7 +23,8 @@ RUN apt-get update \
 
 WORKDIR /app
 
-# نصب وابستگی‌های بک‌اند
+# نصب وابستگی‌های بک‌اند برای حالت پروداکشن
+ENV NODE_ENV=production
 COPY package*.json ./
 RUN npm ci --omit=dev
 
