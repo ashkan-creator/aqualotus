@@ -6,7 +6,8 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm install
 COPY frontend/ ./
-RUN npm run build
+RUN npm install vite @vitejs/plugin-react --save-dev
+RUN npx vite build
 
 # ---------- مرحله ۲: ایمیج نهایی (Mongo رسمی + Node) ----------
 FROM mongo:7

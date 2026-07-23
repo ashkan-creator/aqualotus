@@ -1,5 +1,5 @@
 import { Container, Row, Col } from 'react-bootstrap'
-import { FaLeaf, FaInstagram, FaWhatsapp } from 'react-icons/fa'
+import { FaLeaf, FaInstagram, FaTelegram, FaWhatsapp } from 'react-icons/fa'
 import { LinkContainer } from 'react-router-bootstrap'
 
 const Footer = () => {
@@ -17,9 +17,10 @@ const Footer = () => {
               فروشگاه تخصصی گیاهان زنده آکواریوم و لوازم جانبی
             </p>
             <div className='social-links'>
-              <a href='https://instagram.com/aqualotus' target='_blank' rel='noopener noreferrer' className='social-link' title='اینستاگرام'><FaInstagram /></a>
-              <a href='https://wa.me/989124468190' target='_blank' rel='noopener noreferrer' className='social-link' title='واتساپ'><FaWhatsapp /></a>
-              <a href='https://rubika.ir/aqualotus' target='_blank' rel='noopener noreferrer' className='social-link' title='روبیکا'
+              <a href='#' className='social-link' title='اینستاگرام'><FaInstagram /></a>
+              <a href='#' className='social-link' title='تلگرام'><FaTelegram /></a>
+              <a href='#' className='social-link' title='واتساپ'><FaWhatsapp /></a>
+              <a href='#' className='social-link' title='روبیکا'
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1px' }}>
                 <img src='/rubika.png' alt='روبیکا' loading='lazy'
                   style={{ width: '20px', height: '20px', objectFit: 'contain', borderRadius: '4px' }} />
