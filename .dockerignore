@@ -1,0 +1,9 @@
+node_modules
+frontend/node_modules
+frontend/dist
+backend/node_modules
+.env
+.git
+.gitignore
+*.pre-*-backup*
+*.log

@@ -83,6 +83,12 @@ app.get('/go/:shortCode', redirectShortLink)
 app.get('/sitemap.xml', generateSitemap)
 
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
+// --- سرو فایل‌های استاتیک فرانت (production, single-container) ---
+app.use(express.static(path.join(__dirname, '../frontend/dist')))
+app.get(/^(?!\/api|\/uploads|\/go|\/sitemap\.xml).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'))
+})
+
 app.use(notFound)
 app.use(errorHandler)
 
