@@ -1,0 +1,90 @@
+[
+  {
+    "_id": "6a25282631970e536dc049cf",
+    "title": "مدل های آکواریوم های گیاهی آمانو",
+    "subtitle": "",
+    "image": "/uploads/image-1780819993712.jpg",
+    "link": "/",
+    "isActive": true,
+    "order": 1,
+    "createdAt": "2026-06-07T08:13:26.368Z",
+    "updatedAt": "2026-06-19T15:31:40.074Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a25283f31970e536dc049d0",
+    "title": "لذت ببرید",
+    "subtitle": "",
+    "image": "/uploads/image-1780820024304.jpg",
+    "link": "/",
+    "isActive": true,
+    "order": 2,
+    "createdAt": "2026-06-07T08:13:51.333Z",
+    "updatedAt": "2026-06-07T08:13:51.333Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a290a6a70aa28d86abf862b",
+    "title": "چقدر عالی",
+    "subtitle": "",
+    "image": "/uploads/image-1781074530584.jpg",
+    "link": "/",
+    "isActive": true,
+    "order": 3,
+    "createdAt": "2026-06-10T06:55:38.602Z",
+    "updatedAt": "2026-06-10T06:55:38.602Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a4a08eb1875dbc7fff3b504",
+    "title": "دیزاین آمانو",
+    "subtitle": "",
+    "location": "home",
+    "image": "/uploads/image-1783236817352.webp",
+    "link": "http://localhost:3000/amano",
+    "isActive": true,
+    "order": 1,
+    "createdAt": "2026-07-05T07:34:03.492Z",
+    "updatedAt": "2026-07-22T19:13:56.347Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a4aadcce71734bf71f53d15",
+    "title": "",
+    "subtitle": "",
+    "location": "home",
+    "image": "/uploads/image-1783279036702.webp",
+    "link": "http://localhost:3000/links/summersale",
+    "isActive": true,
+    "order": 1,
+    "createdAt": "2026-07-05T19:17:32.561Z",
+    "updatedAt": "2026-07-06T22:00:09.933Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a4ca046e6d4647eb08a0574",
+    "title": "هنوز گیاه به آکواریومت اضافه نکردی؟ ",
+    "subtitle": "وقتشه گیاهات رو انتخاب کنی",
+    "location": "home",
+    "image": "/uploads/image-1784650745504.webp",
+    "link": "/pages/summer-sale",
+    "isActive": true,
+    "order": 0,
+    "createdAt": "2026-07-07T06:44:22.641Z",
+    "updatedAt": "2026-07-21T16:19:13.031Z",
+    "__v": 0
+  },
+  {
+    "_id": "6a60727bee1a2b17bd7f0eab",
+    "title": "بهترین ها رو از ما بخواهید",
+    "subtitle": "از تک تک لحظات زندگیتون لذت ببرید",
+    "location": "blog",
+    "image": "/uploads/image-1784705631882.webp",
+    "link": "Ashkan/",
+    "isActive": true,
+    "order": 0,
+    "createdAt": "2026-07-22T07:34:19.631Z",
+    "updatedAt": "2026-07-22T07:46:11.151Z",
+    "__v": 0
+  }
+]

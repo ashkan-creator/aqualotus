@@ -1,0 +1,93 @@
+[
+  {
+    "_id": "6a2122789aa456bc6eca9612",
+    "user": "6a208ccf3b89b81db3a3230b",
+    "title": "سلام سلام",
+    "content": "محتوای پست...سلام",
+    "image": "/uploads/image-1784650876942.webp",
+    "video": "/uploads/video-1780598031269.webm",
+    "isPublished": false,
+    "createdAt": "2026-06-04T07:00:08.255Z",
+    "updatedAt": "2026-07-22T19:24:25.154Z",
+    "__v": 1,
+    "relatedProducts": [],
+    "featuredInSlider": false
+  },
+  {
+    "_id": "6a290a8470aa28d86abf862d",
+    "user": "6a208ccf3b89b81db3a3230b",
+    "title": "چمن مونته کارلو",
+    "content": "چمن مونته کارلو",
+    "image": "/uploads/image-1784650904503.webp",
+    "video": "/uploads/video-1781074722897.webm",
+    "isPublished": true,
+    "createdAt": "2026-06-10T06:56:04.773Z",
+    "updatedAt": "2026-07-22T18:43:25.603Z",
+    "__v": 1,
+    "relatedProducts": [],
+    "featuredInSlider": true
+  },
+  {
+    "_id": "6a4979101875dbc7fff3b493",
+    "user": "6a208ccf3b89b81db3a3230b",
+    "title": "انواع کریپتو کورین",
+    "content": "کریپتو کورین ها از بهترین و مقاوم ترین گیاهان آکواریوم هستند",
+    "image": "/uploads/image-1783277655399.webp",
+    "video": "",
+    "isPublished": true,
+    "createdAt": "2026-07-04T21:20:16.067Z",
+    "updatedAt": "2026-07-22T19:18:17.205Z",
+    "__v": 3,
+    "relatedProducts": [
+      "6a4781ae281adab3a474e48d",
+      "6a477e0d281adab3a474e416",
+      "6a477b79281adab3a474e3b4",
+      "6a4778dc281adab3a474e340",
+      "6a476f82281adab3a474e29d",
+      "6a476b43281adab3a474e1e6",
+      "6a43c3900d860d3453d1340b",
+      "6a43bda70d860d3453d13382"
+    ],
+    "featuredInSlider": false
+  },
+  {
+    "_id": "6a4aac90e71734bf71f53c97",
+    "user": "6a208ccf3b89b81db3a3230b",
+    "title": "حراج تابستانه آکوالوتوس",
+    "content": "محتوای پست...",
+    "image": "/uploads/image-1783278815136.webp",
+    "video": "",
+    "isPublished": true,
+    "relatedProducts": [
+      "6a38faaccaeae24cd5ed9fe2",
+      "6a38f83bcaeae24cd5ed9f39",
+      "6a38e47c1d382d87778184de",
+      "6a38e2c81d382d877781849a",
+      "6a38e0e01d382d8777818422",
+      "6a38dd631d382d8777818335",
+      "6a38dce01d382d8777818309",
+      "6a37e3861d382d877781716d",
+      "6a37e2091d382d8777817109",
+      "6a37e0151d382d8777817093",
+      "6a29090870aa28d86abf85fe"
+    ],
+    "createdAt": "2026-07-05T19:12:16.822Z",
+    "updatedAt": "2026-07-22T19:19:11.384Z",
+    "__v": 1,
+    "featuredInSlider": true
+  },
+  {
+    "_id": "6a5435705560e3b46d1db38f",
+    "user": "6a208ccf3b89b81db3a3230b",
+    "title": "عنوان پست جدید",
+    "content": "محتوای پست...",
+    "image": "/uploads/image-1784705854199.webp",
+    "video": "",
+    "isPublished": true,
+    "relatedProducts": [],
+    "createdAt": "2026-07-13T00:46:40.951Z",
+    "updatedAt": "2026-07-22T19:18:02.330Z",
+    "__v": 0,
+    "featuredInSlider": false
+  }
+]

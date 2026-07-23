@@ -1,0 +1,33 @@
+[
+  {
+    "_id": "6a4c9f28e6d4647eb08a053f",
+    "slug": "summer-sale",
+    "heroImage": "/uploads/image-1783406658023.webp",
+    "heroTitle": "هنوز گیاه به آکواریومت اضافه نکردی؟ ",
+    "heroSubtitle": "وقتشه گیاهات رو انتخاب کنی",
+    "heroButtonText": "",
+    "heroButtonLink": "",
+    "relatedProducts": [
+      "6a38f83bcaeae24cd5ed9f39",
+      "6a38faaccaeae24cd5ed9fe2",
+      "6a38dd631d382d8777818335",
+      "6a38dce01d382d8777818309",
+      "6a38e0e01d382d8777818422"
+    ],
+    "showInHomeSlider": true,
+    "linkedSliderId": "6a4ca046e6d4647eb08a0574",
+    "isPublished": true,
+    "sections": [
+      {
+        "heading": "حراج تابستانه",
+        "body": "آکواریومت رو رنگارنگ کن",
+        "image": "",
+        "align": "center",
+        "_id": "6a4ca046e6d4647eb08a0573"
+      }
+    ],
+    "createdAt": "2026-07-07T06:39:36.993Z",
+    "updatedAt": "2026-07-07T19:56:23.890Z",
+    "__v": 2
+  }
+]

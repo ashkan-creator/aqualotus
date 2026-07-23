@@ -1,0 +1,87 @@
+[
+  {
+    "_id": "6a4c24d31b821a8bc638f9fe",
+    "slug": "summersale",
+    "title": "حراج تابستانه",
+    "bio": "",
+    "avatar": "",
+    "isActive": true,
+    "links": [
+      {
+        "label": "لودویجیا اسفروکارپا (لودویجیا پیلوآ)",
+        "url": "/product/لودویجیا-اسفروکارپا-لودویجیا-پیلوآ",
+        "icon": "🪴",
+        "order": 0,
+        "isActive": true,
+        "shortCode": "42c9eabc",
+        "clicks": 0,
+        "type": "product",
+        "productId": "6a4784d7281adab3a474e521",
+        "_id": "6a4c24f61b821a8bc638fa1f"
+      },
+      {
+        "label": "کریپتوکورین لوسِنس",
+        "url": "/product/کریپتوکورین-لوسِنس",
+        "icon": "🪴",
+        "order": 1,
+        "isActive": true,
+        "shortCode": "a7206868",
+        "clicks": 0,
+        "type": "product",
+        "productId": "6a4781ae281adab3a474e48d",
+        "_id": "6a4c24f61b821a8bc638fa28"
+      },
+      {
+        "label": "کریپتوکورین می اویا",
+        "url": "/product/کریپتوکورین-می-اویا",
+        "icon": "🪴",
+        "order": 2,
+        "isActive": true,
+        "shortCode": "85e32a53",
+        "clicks": 0,
+        "type": "product",
+        "productId": "6a477e0d281adab3a474e416",
+        "_id": "6a4c24f61b821a8bc638fa33"
+      },
+      {
+        "label": "کریپتوکورین نِوِلی",
+        "url": "/product/کریپتوکورین-نِوِلی",
+        "icon": "🪴",
+        "order": 3,
+        "isActive": true,
+        "shortCode": "8c38b456",
+        "clicks": 0,
+        "type": "product",
+        "productId": "6a477b79281adab3a474e3b4",
+        "_id": "6a4c24f61b821a8bc638fa40"
+      },
+      {
+        "label": "کریپتوکورین والکری",
+        "url": "/product/کریپتوکورین-والکری",
+        "icon": "🪴",
+        "order": 4,
+        "isActive": true,
+        "shortCode": "fdf6638f",
+        "clicks": 0,
+        "type": "product",
+        "productId": "6a4778dc281adab3a474e340",
+        "_id": "6a4c24f61b821a8bc638fa4f"
+      },
+      {
+        "label": "کریپتوکورین وِندتی گرین گِکو",
+        "url": "/product/کریپتوکورین-وِندتی-گرین-گِکو",
+        "icon": "🪴",
+        "order": 5,
+        "isActive": true,
+        "shortCode": "5d404fe2",
+        "clicks": 0,
+        "type": "product",
+        "productId": "6a476f82281adab3a474e29d",
+        "_id": "6a4c24f61b821a8bc638fa60"
+      }
+    ],
+    "createdAt": "2026-07-06T21:57:39.880Z",
+    "updatedAt": "2026-07-06T21:58:14.701Z",
+    "__v": 6
+  }
+]

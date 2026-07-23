@@ -1,0 +1,66 @@
+[
+  {
+    "_id": "6a208ccf3b89b81db3a3230b",
+    "name": "ادمین AquaLotus",
+    "email": "admin@aqualotus.ir",
+    "password": "$2b$10$QGNWm6CQLZhVhwccZQeJ6.V0WG8y.Bh3qlDJhDwVuTvRT1l/LQ/fK",
+    "isAdmin": true,
+    "__v": 0,
+    "createdAt": "2026-06-03T20:21:35.172Z",
+    "updatedAt": "2026-06-03T20:21:35.172Z"
+  },
+  {
+    "_id": "6a208ccf3b89b81db3a3230c",
+    "name": "اشکان رضایی",
+    "email": "ashkan@aqualotus.ir",
+    "password": "$2b$10$O8uxc7JP3h5/9wIXGhgNJu4Wulk5l5Lrr6.zFZUSG94QTc5LKApR6",
+    "isAdmin": false,
+    "__v": 1,
+    "createdAt": "2026-06-03T20:21:35.173Z",
+    "updatedAt": "2026-07-15T09:40:02.291Z",
+    "address": "",
+    "addresses": [
+      {
+        "title": "خانه",
+        "province": "همدان",
+        "city": "همدان",
+        "address": "همدان سعیدیه",
+        "postalCode": "1234567891",
+        "phone": "09108896094",
+        "_id": "6a57557235d63b1b2c407488"
+      }
+    ],
+    "phone": ""
+  },
+  {
+    "_id": "6a208ccf3b89b81db3a3230d",
+    "name": "سارا محمدی",
+    "email": "sara@aqualotus.ir",
+    "password": "$2b$10$4Uw..rWH.FZvPlDJ7Zofm.ZUHLxXs59A0/3azVvgOSGFv5qm//HQC",
+    "isAdmin": false,
+    "__v": 0,
+    "createdAt": "2026-06-03T20:21:35.173Z",
+    "updatedAt": "2026-06-03T20:21:35.173Z"
+  },
+  {
+    "_id": "6a5e8ac55b4e25762b5b706d",
+    "name": "کاربر آکوالوتوس",
+    "googleId": null,
+    "isPhoneOnly": true,
+    "phone": "09123456789",
+    "address": "",
+    "resetPasswordToken": null,
+    "resetPasswordExpire": null,
+    "resetOtpCode": null,
+    "resetOtpExpire": null,
+    "resetOtpAttempts": 0,
+    "loginOtpCode": null,
+    "loginOtpExpire": null,
+    "loginOtpAttempts": 0,
+    "isAdmin": false,
+    "addresses": [],
+    "createdAt": "2026-07-20T20:53:25.510Z",
+    "updatedAt": "2026-07-20T20:53:26.246Z",
+    "__v": 0
+  }
+]

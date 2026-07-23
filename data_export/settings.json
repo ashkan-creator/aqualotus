@@ -1,0 +1,162 @@
+[
+  {
+    "_id": "6a208ccf3b89b81db3a32316",
+    "key": "announcement",
+    "value": "به دنیای زیبای گیاهان آکواریوم گیاهی آکوالوتوس خوش آمدید",
+    "__v": 0,
+    "createdAt": "2026-06-03T20:21:35.202Z",
+    "updatedAt": "2026-06-10T07:00:16.253Z"
+  },
+  {
+    "_id": "6a208ccf3b89b81db3a32317",
+    "key": "contact_phone",
+    "value": "09122122212",
+    "__v": 0,
+    "createdAt": "2026-06-03T20:21:35.202Z",
+    "updatedAt": "2026-06-10T07:00:33.031Z"
+  },
+  {
+    "_id": "6a208ccf3b89b81db3a32318",
+    "key": "contact_email",
+    "value": "info@aqualotus.ir",
+    "__v": 0,
+    "createdAt": "2026-06-03T20:21:35.203Z",
+    "updatedAt": "2026-06-10T07:01:05.985Z"
+  },
+  {
+    "_id": "6a208ccf3b89b81db3a32319",
+    "key": "about_text",
+    "value": "آکوا لوتوس تکثیر کننده مستقیم انواع گیاهان آکواریوم است.\nآکوالوتوس از سال 98 در زمینه گیاهان آکواریوم فعال است",
+    "__v": 0,
+    "createdAt": "2026-06-03T20:21:35.203Z",
+    "updatedAt": "2026-06-10T07:01:02.711Z"
+  },
+  {
+    "_id": "6a40c9e4143ec8a440bdc100",
+    "key": "popup_image",
+    "__v": 0,
+    "createdAt": "2026-06-28T07:14:44.007Z",
+    "updatedAt": "2026-07-12T19:41:04.259Z",
+    "value": "/uploads/image-1782630883977.jpg"
+  },
+  {
+    "_id": "6a40ca00143ec8a440bdc101",
+    "key": "popup_active",
+    "__v": 0,
+    "createdAt": "2026-06-28T07:15:12.581Z",
+    "updatedAt": "2026-07-12T19:41:04.198Z",
+    "value": "true"
+  },
+  {
+    "_id": "6a40cc87143ec8a440bdc102",
+    "key": "popup_title",
+    "__v": 0,
+    "createdAt": "2026-06-28T07:25:59.955Z",
+    "updatedAt": "2026-07-12T19:41:04.237Z",
+    "value": "تخفیف ویژه افتتاحیه سایت"
+  },
+  {
+    "_id": "6a40cc87143ec8a440bdc103",
+    "key": "popup_text",
+    "__v": 0,
+    "createdAt": "2026-06-28T07:25:59.964Z",
+    "updatedAt": "2026-07-12T19:41:04.247Z",
+    "value": "اینجا همه چیز تخفیف داره"
+  },
+  {
+    "_id": "6a40cc87143ec8a440bdc104",
+    "key": "popup_link",
+    "__v": 0,
+    "createdAt": "2026-06-28T07:25:59.979Z",
+    "updatedAt": "2026-07-12T19:41:04.268Z",
+    "value": ""
+  },
+  {
+    "_id": "6a40cc87143ec8a440bdc105",
+    "key": "popup_btn",
+    "__v": 0,
+    "createdAt": "2026-06-28T07:25:59.987Z",
+    "updatedAt": "2026-07-12T19:41:04.277Z",
+    "value": "خریدت رو شروع کن"
+  },
+  {
+    "_id": "6a40cc87143ec8a440bdc106",
+    "key": "popup_start",
+    "__v": 0,
+    "createdAt": "2026-06-28T07:25:59.994Z",
+    "updatedAt": "2026-07-12T19:41:04.287Z",
+    "value": ""
+  },
+  {
+    "_id": "6a40cc87143ec8a440bdc107",
+    "key": "popup_end",
+    "__v": 0,
+    "createdAt": "2026-06-28T07:25:59.996Z",
+    "updatedAt": "2026-07-12T19:41:04.296Z",
+    "value": ""
+  },
+  {
+    "_id": "6a417ae4143ec8a440bdc108",
+    "key": "popup_align",
+    "__v": 0,
+    "createdAt": "2026-06-28T19:49:56.641Z",
+    "updatedAt": "2026-07-12T19:41:04.298Z",
+    "value": "center"
+  },
+  {
+    "_id": "6a44c5f4bed9b043a208009d",
+    "key": "announcement_messages",
+    "__v": 0,
+    "createdAt": "2026-07-01T07:47:00.608Z",
+    "updatedAt": "2026-07-20T11:05:01.814Z",
+    "value": "[\"به دنیای زیبای گیاهان آکواریوم گیاهی آکوالوتوس خوش آمدید\",\"آکواریومت رو خالی نزار. شروع کن به خرید!!!!!\",\"ارسال رایگان سفارشات بالای 10 میلیون تومن\"]"
+  },
+  {
+    "_id": "6a44c5f4bed9b043a208009e",
+    "key": "announcement_interval",
+    "__v": 0,
+    "createdAt": "2026-07-01T07:47:00.632Z",
+    "updatedAt": "2026-07-20T11:05:01.838Z",
+    "value": "5"
+  },
+  {
+    "_id": "6a44c5f4bed9b043a208009f",
+    "key": "announcement_rgb",
+    "__v": 0,
+    "createdAt": "2026-07-01T07:47:00.647Z",
+    "updatedAt": "2026-07-20T11:05:01.860Z",
+    "value": "true"
+  },
+  {
+    "_id": "6a44c5f4bed9b043a20800a0",
+    "key": "announcement_color",
+    "__v": 0,
+    "createdAt": "2026-07-01T07:47:00.650Z",
+    "updatedAt": "2026-07-20T11:05:01.877Z",
+    "value": "#1b4332"
+  },
+  {
+    "_id": "6a451271bed9b043a20800a1",
+    "key": "announcement_animation",
+    "__v": 0,
+    "createdAt": "2026-07-01T13:13:21.781Z",
+    "updatedAt": "2026-07-20T11:05:01.889Z",
+    "value": "fade"
+  },
+  {
+    "_id": "6a4614c8e8345cfde8cc75d1",
+    "key": "announcement_rgb_speed",
+    "__v": 0,
+    "createdAt": "2026-07-02T07:35:36.724Z",
+    "updatedAt": "2026-07-20T11:05:01.884Z",
+    "value": "16"
+  },
+  {
+    "_id": "6a59259a7834a5f0e25f478c",
+    "key": "currentPeriodStart",
+    "value": "2026-07-16T18:40:26.626Z",
+    "createdAt": "2026-07-16T18:40:26.635Z",
+    "updatedAt": "2026-07-16T18:40:26.635Z",
+    "__v": 0
+  }
+]
