@@ -17,6 +17,7 @@ FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+# نصب ابزارهای مورد نیاز، Node.js 20 و MongoDB
 RUN apt-get update && apt-get install -y curl gnupg ca-certificates && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
@@ -34,23 +35,28 @@ ENV NODE_ENV=production
 ENV PORT=80
 ENV MONGO_URI=mongodb://127.0.0.1:27017/aqualotus
 
+# نصب وابستگی‌های بک‌اند
 COPY package*.json ./
 RUN npm ci --omit=dev
 
+# کپی کد بک‌اند و خروجی فرانت‌اند
 COPY backend/ ./backend/
 COPY --from=frontend-build /app/frontend/dist ./frontend/dist
 
+# کپی داده‌های صادراتی برای ایمپورت
 COPY data_export/ ./data_export/
 
+# ایجاد سیم‌لینک برای ماندگاری فایل‌های آپلود شده روی یک دیسک
 RUN rm -rf /app/uploads && ln -s /data/db/uploads /app/uploads
 
-RUN echo '#!/bin/sh
-mkdir -p /data/db/mongo /data/db/uploads
-chmod 777 /data/db/mongo /data/db/uploads
-mongod --fork --logpath /var/log/mongodb.log --dbpath /data/db/mongo
-sleep 3
-node /app/data_export/import-data.js
-cp -r /app/data_export/uploads/* /data/db/uploads/ 2>/dev/null || true
+# اسکریپت استارت هم‌زمان دیتابیس، ایمپورت داده‌ها و اجرای سرور
+RUN echo '#!/bin/sh\n\
+mkdir -p /data/db/mongo /data/db/uploads\n\
+chmod 777 /data/db/mongo /data/db/uploads\n\
+mongod --fork --logpath /var/log/mongodb.log --dbpath /data/db/mongo\n\
+sleep 3\n\
+node /app/data_export/import-data.js\n\
+cp -r /app/data_export/uploads/* /data/db/uploads/ 2>/dev/null || true\n\
 node backend/server.js' > /app/start.sh && \
     chmod +x /app/start.sh
 
