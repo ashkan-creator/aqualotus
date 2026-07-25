@@ -37,24 +37,6 @@ const app = express()
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' },
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: [
-          "'self'",
-          "'sha256-leb84nt8JruMyqO8gxVVo/gdvTDvhjgKyIyiZMbMgmU='",
-          'https://accounts.google.com',
-          'https://cdnjs.cloudflare.com',
-        ],
-        scriptSrcElem: [
-          "'self'",
-          'https://accounts.google.com',
-          'https://cdnjs.cloudflare.com',
-        ],
-        frameSrc: ["'self'", 'https://accounts.google.com'],
-        connectSrc: ["'self'", 'https://accounts.google.com'],
-      },
-    },
   })
 )
 

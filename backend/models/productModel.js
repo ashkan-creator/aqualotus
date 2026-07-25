@@ -23,7 +23,6 @@ const reviewSchema = new mongoose.Schema(
   { timestamps: true }
 )
 
-// سایزبندی محصول
 const variantSchema = new mongoose.Schema({
   size: { type: String, required: true },
   price: { type: Number, required: true },
@@ -43,6 +42,7 @@ const productSchema = new mongoose.Schema(
       default: 'آبزی',
     },
     needsSoil: { type: Boolean, default: false },
+    originCountry: { type: String, default: '' },
     brand: { type: String, required: true },
     category: {
       type: String,
@@ -70,7 +70,6 @@ const productSchema = new mongoose.Schema(
       enum: ['جلو', 'میانه', 'پشت', 'شناور', 'نامشخص'],
       default: 'نامشخص',
     },
-    // سایزبندی - اگه خالی باشه یعنی محصول سایز ندارد
     variants: [variantSchema],
   },
   { timestamps: true }

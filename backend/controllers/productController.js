@@ -9,13 +9,11 @@ const getProducts = asyncHandler(async (req, res) => {
   const pageSize = Number(process.env.PAGINATION_LIMIT) || 8
   const page = Number(req.query.pageNumber) || 1
 
-  // ادمین همه رو می‌بینه
   if (req.query.admin === 'true') {
     const products = await Product.find({}).sort({ createdAt: -1 })
     return res.json({ products, page: 1, pages: 1 })
   }
 
-  // فیلترها
   const filter = {}
 
   if (req.query.keyword) {
@@ -29,6 +27,9 @@ const getProducts = asyncHandler(async (req, res) => {
   }
   if (req.query.needsSoil !== undefined && req.query.needsSoil !== '') {
     filter.needsSoil = req.query.needsSoil === 'true'
+  }
+  if (req.query.originCountry) {
+    filter.originCountry = { $regex: req.query.originCountry, $options: 'i' }
   }
   if (req.query.careLevel) {
     filter.careLevel = req.query.careLevel
@@ -102,14 +103,13 @@ const updateProduct = asyncHandler(async (req, res) => {
     brand, category, countInStock,
     discount, discountMinQty, discountQtyPercent,
     careLevel, lightNeeds, co2Needs, growthRate,
-    family, position, cultivationType, needsSoil, variants,
+    family, position, cultivationType, needsSoil, originCountry, variants,
   } = req.body
 
   const product = await Product.findById(req.params.id)
   if (product) {
     const LOW_STOCK_THRESHOLD = 10
 
-    // ذخیره موجودی قبلی برای مقایسه بعد از سیو
     const prevCountInStock = product.countInStock
     const prevVariantStocks = {}
     ;(product.variants || []).forEach((v) => {
@@ -139,6 +139,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     product.position = position ?? product.position
     product.cultivationType = cultivationType ?? product.cultivationType
     product.needsSoil = needsSoil ?? product.needsSoil
+    product.originCountry = originCountry ?? product.originCountry
     product.variants = variants ?? product.variants
     const updatedProduct = await product.save()
 
@@ -168,7 +169,7 @@ const updateProduct = asyncHandler(async (req, res) => {
         await Notification.create({
           type: 'low_stock',
           title: 'موجودی رو به اتمام',
-          message: `موجودی "${updatedProduct.name}" فقط ${updatedProduct.countInStock} عدد باقی مانده`,
+          message: `موجودی "${updatedProduct.name}" فقط ${updatedProduct.countInStock} عدد باقیمانده`,
           link: `/admin/product/${updatedProduct._id}/edit`,
           relatedId: updatedProduct._id,
         })

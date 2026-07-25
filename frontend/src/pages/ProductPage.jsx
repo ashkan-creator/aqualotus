@@ -16,14 +16,75 @@ import {
   FaStar,
   FaChevronLeft,
   FaChevronRight,
-  FaLeaf,
   FaDroplet,
   FaSun,
   FaRuler,
   FaUser,
-  FaExpand
+  FaExpand,
+  FaWind,
+  FaGaugeHigh,
+  FaLayerGroup,
+  FaEarthAmericas
 } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
+
+// آیکون سفارشی لوتوس با برگ‌های رنگی پویا
+const LotusIcon = ({ careLevel, size = 28 }) => {
+  const leafColor = 
+    careLevel === 'آسان' ? '#22c55e' :
+    careLevel === 'متوسط' ? '#eab308' :
+    careLevel === 'سخت' ? '#ef4444' :
+    '#6b7280';
+
+  return (
+    <svg 
+      width={size} 
+      height={size} 
+      viewBox="0 0 32 32" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ flexShrink: 0 }}
+    >
+      {/* ساقه */}
+      <path 
+        d="M16 30V18" 
+        stroke="#8b6914" 
+        strokeWidth="2" 
+        strokeLinecap="round"
+      />
+      {/* برگ پایین چپ */}
+      <path 
+        d="M16 24C16 24 8 22 6 18C4 14 6 10 10 8C10 8 8 12 10 16C12 20 16 24 16 24Z" 
+        fill={leafColor}
+        opacity="0.85"
+      />
+      {/* برگ پایین راست */}
+      <path 
+        d="M16 24C16 24 24 22 26 18C28 14 26 10 22 8C22 8 24 12 22 16C20 20 16 24 16 24Z" 
+        fill={leafColor}
+        opacity="0.7"
+      />
+      {/* برگ بالا چپ */}
+      <path 
+        d="M16 18C16 18 10 16 8 12C6 8 8 4 12 2C12 2 10 6 12 10C14 14 16 18 16 18Z" 
+        fill={leafColor}
+        opacity="0.95"
+      />
+      {/* برگ بالا راست */}
+      <path 
+        d="M16 18C16 18 22 16 24 12C26 8 24 4 20 2C20 2 22 6 20 10C18 14 16 18 16 18Z" 
+        fill={leafColor}
+        opacity="0.8"
+      />
+      {/* برگ وسط بالا */}
+      <path 
+        d="M16 16C16 16 14 12 16 6C18 12 16 16 16 16Z" 
+        fill={leafColor}
+        opacity="1"
+      />
+    </svg>
+  );
+};
 
 const ProductPage = () => {
   const { id: productId } = useParams();
@@ -39,14 +100,10 @@ const ProductPage = () => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [fade, setFade] = useState(false);
   
-  // استیت مودال بزرگنمایی عکس
   const [showModal, setShowModal] = useState(false);
-
-  // استیت‌های فرم نظر
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
 
-  // استایل باکس‌های مشکی مات نیمه شفاف
   const darkBoxStyle = {
     backgroundColor: 'rgba(20, 20, 20, 0.75)',
     backdropFilter: 'blur(12px)',
@@ -75,7 +132,6 @@ const ProductPage = () => {
     if (productId) fetchProduct();
   }, [productId]);
 
-  // متغیرهای محاسبه‌شده بر اساس سایز انتخابی
   const activePrice = selectedVariant ? selectedVariant.price : product?.price;
   const activeStock = selectedVariant ? selectedVariant.countInStock : product?.countInStock;
   const isOutOfStock = activeStock === 0;
@@ -91,11 +147,11 @@ const ProductPage = () => {
     const variantId = e.target.value;
     const variant = product.variants.find(v => v._id === variantId);
     setSelectedVariant(variant);
-    setQty(1); // ریست کردن تعداد با تغییر سایز
+    setQty(1);
   };
 
   const handleAddToCart = () => {
-    toast.success(`${qty} عدد به سبد خرید افزوده شد`, { position: "bottom-right", theme: "dark" });
+    toast.success(`${qty} عدد به سبد خرید افزوده شد`, { position: "bottom-right", theme: "dark"});
   };
 
   const submitReviewHandler = (e) => {
@@ -104,7 +160,6 @@ const ProductPage = () => {
     setComment('');
   };
 
-  // کنترل اسلایدر عکس با انیمیشن
   const images = product?.images?.length > 0 ? product.images : [product?.image || '/placeholder.webp'];
   
   const handleNextImage = () => {
@@ -148,7 +203,6 @@ const ProductPage = () => {
   return (
     <Container className="py-4 py-lg-5 text-end text-white" style={{ direction: 'rtl' }}>
       
-      {/* Breadcrumb */}
       <nav aria-label="breadcrumb" className="mb-4 overflow-x-auto pb-2">
         <div className="d-flex align-items-center gap-2 small text-nowrap">
           <Link to="/" className="text-decoration-none text-white-50 hover-text-white">خانه</Link>
@@ -163,7 +217,6 @@ const ProductPage = () => {
 
       <Row className="g-4 g-lg-5 mb-5">
         
-        {/* بخش تصاویر (سمت راست) - بدون باکس زمینه با قابلیت کلیک برای بزرگنمایی */}
         <Col xs={12} lg={6}>
           <motion.div 
             layoutId={`product-img-${product?._id}`}
@@ -176,17 +229,14 @@ const ProductPage = () => {
               src={images[selectedImageIndex]}
               alt={product?.name}
               className="w-100 h-100 object-fit-contain p-2 p-md-4"
-              style={{ 
-                filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.5))'
-              }}
+              style={{ filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.5))' }}
             />
             
-            {/* دکمه‌های ناوبری تصویر */}
             {images.length > 1 && (
               <>
                 <Button 
                   variant="link" 
-                  className="position-absolute start-0 top-50 translate-middle-y text-white p-3 focus-ring-0 z-2"
+                  className="position-absolute start-0 top-50 translate-middle-y text-white p-3focus-ring-0 z-2"
                   onClick={(e) => { e.stopPropagation(); handleNextImage(); }}
                 >
                   <FaChevronLeft className="fs-3 drop-shadow" />
@@ -201,7 +251,6 @@ const ProductPage = () => {
               </>
             )}
 
-            {/* آیکون بزرگنمایی گوشه تصویر */}
             <div className="position-absolute bottom-0 end-0 m-3 z-2">
               <span className="badge bg-dark bg-opacity-75 p-2 rounded-circle border border-secondary d-flex align-items-center justify-content-center shadow" style={{ width: '38px', height: '38px' }}>
                 <FaExpand className="text-white-50 fs-6" />
@@ -226,7 +275,6 @@ const ProductPage = () => {
             )}
           </motion.div>
 
-          {/* گالری کوچک */}
           {images.length > 1 && (
             <div className="d-flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
               {images.map((img, idx) => (
@@ -245,7 +293,6 @@ const ProductPage = () => {
           )}
         </Col>
 
-        {/* بخش اطلاعات و خرید (سمت چپ) */}
         <Col xs={12} lg={6}>
           <div className="d-flex flex-column h-100">
             <div className="mb-auto">
@@ -275,7 +322,6 @@ const ProductPage = () => {
                 )}
               </div>
 
-              {/* باکس قیمت */}
               <div className="p-3 p-md-4 rounded-4 mb-4 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2" style={darkBoxStyle}>
                 <span className="text-white-50 fw-medium">قیمت نهایی:</span>
                 <div className="d-flex align-items-baseline gap-1">
@@ -286,7 +332,6 @@ const ProductPage = () => {
                 </div>
               </div>
 
-              {/* انتخاب سایز (در صورت وجود) */}
               {product?.variants && product.variants.length > 0 && (
                 <div className="mb-4">
                   <label className="text-white-50 mb-2 small fw-bold"><FaRuler className="me-1 ms-1"/> انتخاب سایز:</label>
@@ -305,13 +350,11 @@ const ProductPage = () => {
                 </div>
               )}
 
-              {/* توضیحات محصول - رنگ سفید */}
               <p className="text-white lh-lg mb-4 text-justify" style={{ textAlign: 'justify' }}>
                 {product?.description}
               </p>
             </div>
 
-            {/* دکمه خرید و تعداد */}
             <div className="mt-4 pt-4 border-top border-secondary border-opacity-50">
               {!isOutOfStock ? (
                 <Row className="g-2 g-sm-3 align-items-center">
@@ -356,24 +399,23 @@ const ProductPage = () => {
                 </Button>
               )}
 
-              {/* آیکون‌های مزایا */}
               <Row className="g-2 g-md-3 mt-4 text-center">
                 <Col xs={4}>
                   <div className="p-2 py-3 rounded-4 h-100 d-flex flex-column align-items-center justify-content-center" style={darkBoxStyle}>
                     <FaTruckFast className="text-success fs-4 mb-2" />
-                    <span className="small text-white-50 fw-medium" style={{ fontSize: '0.8rem' }}>ارسال سریع</span>
+                    <span className="small text-white-50 fw-medium" style={{ fontSize: '0.8rem'}}>ارسال سریع</span>
                   </div>
                 </Col>
                 <Col xs={4}>
                   <div className="p-2 py-3 rounded-4 h-100 d-flex flex-column align-items-center justify-content-center" style={darkBoxStyle}>
                     <FaShieldHalved className="text-success fs-4 mb-2" />
-                    <span className="small text-white-50 fw-medium" style={{ fontSize: '0.8rem' }}>ضمانت اصالت</span>
+                    <span className="small text-white-50 fw-medium" style={{ fontSize: '0.8rem'}}>ضمانت اصالت</span>
                   </div>
                 </Col>
                 <Col xs={4}>
                   <div className="p-2 py-3 rounded-4 h-100 d-flex flex-column align-items-center justify-content-center" style={darkBoxStyle}>
                     <FaAward className="text-success fs-4 mb-2" />
-                    <span className="small text-white-50 fw-medium" style={{ fontSize: '0.8rem' }}>بهترین کیفیت و رنگ</span>
+                    <span className="small text-white-50 fw-medium" style={{ fontSize: '0.8rem'}}>بهترین کیفیت و رنگ</span>
                   </div>
                 </Col>
               </Row>
@@ -382,14 +424,15 @@ const ProductPage = () => {
         </Col>
       </Row>
 
-      {/* بخش مشخصات تخصصی گیاه */}
+      {/* بخش مشخصات تخصصی آکواریومی */}
       <Card className="border-0 shadow-sm rounded-4 mb-5" style={darkBoxStyle}>
         <Card.Header className="bg-transparent border-secondary border-opacity-50 p-3 p-md-4">
           <h5 className="fw-bold mb-0 text-white fs-5">مشخصات تخصصی آکواریومی</h5>
         </Card.Header>
         <Card.Body className="p-3 p-md-4 pt-md-4">
+          {/* ردیف اول: ۶ آیتم با آیکون */}
           <Row className="g-4">
-            <Col xs={6} md={3}>
+            <Col xs={6} md={4} lg={2}>
               <div className="d-flex align-items-center gap-2">
                 <FaSun className="text-warning fs-4" />
                 <div>
@@ -398,30 +441,48 @@ const ProductPage = () => {
                 </div>
               </div>
             </Col>
-            <Col xs={6} md={3}>
+            <Col xs={6} md={4} lg={2}>
               <div className="d-flex align-items-center gap-2">
-                <FaDroplet className="text-info fs-4" />
+                <FaWind className="text-info fs-4" />
                 <div>
                   <span className="d-block text-white-50 small">نیاز CO2</span>
                   <span className="fw-bold">{product?.co2Needs || 'نامشخص'}</span>
                 </div>
               </div>
             </Col>
-            <Col xs={6} md={3}>
+            <Col xs={6} md={4} lg={2}>
               <div className="d-flex align-items-center gap-2">
-                <FaLeaf className="text-success fs-4" />
+                <FaGaugeHigh className="text-primary fs-4" />
                 <div>
                   <span className="d-block text-white-50 small">سرعت رشد</span>
                   <span className="fw-bold">{product?.growthRate || 'نامشخص'}</span>
                 </div>
               </div>
             </Col>
-            <Col xs={6} md={3}>
+            <Col xs={6} md={4} lg={2}>
               <div className="d-flex align-items-center gap-2">
-                <FaShieldHalved className="text-primary fs-4" />
+                <LotusIcon careLevel={product?.careLevel} size={28} />
                 <div>
                   <span className="d-block text-white-50 small">سطح نگهداری</span>
                   <span className="fw-bold">{product?.careLevel || 'نامشخص'}</span>
+                </div>
+              </div>
+            </Col>
+            <Col xs={6} md={4} lg={2}>
+              <div className="d-flex align-items-center gap-2">
+                <FaLayerGroup className="text-secondary fs-4" />
+                <div>
+                  <span className="d-block text-white-50 small">نیاز به بستر</span>
+                  <span className="fw-bold">{product?.needsSoil ? 'دارد' : 'ندارد'}</span>
+                </div>
+              </div>
+            </Col>
+            <Col xs={6} md={4} lg={2}>
+              <div className="d-flex align-items-center gap-2">
+                <FaEarthAmericas className="text-danger fs-4" />
+                <div>
+                  <span className="d-block text-white-50 small">برند / منشأ</span>
+                  <span className="fw-bold">{product?.brand || 'نامشخص'}</span>
                 </div>
               </div>
             </Col>
@@ -429,17 +490,18 @@ const ProductPage = () => {
           
           <hr className="border-secondary opacity-25 my-4" />
           
+          {/* ردیف دوم: محل قرارگیری و خانواده */}
           <Row className="g-3">
             <Col xs={12} md={6}>
               <div className="d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-50 pb-2">
                 <span className="text-white-50">محل قرارگیری در تانک:</span>
-                <span className="fw-bold text-end" style={{ paddingLeft: '12rem' }}>{product?.position || 'نامشخص'}</span>
+                <span className="fw-bold text-end">{product?.position || 'نامشخص'}</span>
               </div>
             </Col>
             <Col xs={12} md={6}>
               <div className="d-flex justify-content-between align-items-center border-bottom border-secondary border-opacity-50 pb-2">
                 <span className="text-white-50">خانواده گیاه:</span>
-                <span className="fw-bold text-end" style={{ paddingLeft: '12rem' }}>{product?.family || 'نامشخص'}</span>
+                <span className="fw-bold text-end">{product?.family || 'نامشخص'}</span>
               </div>
             </Col>
           </Row>
@@ -453,7 +515,6 @@ const ProductPage = () => {
         </Card.Header>
         <Card.Body className="p-3 p-md-4">
           <Row>
-            {/* لیست نظرات */}
             <Col md={6} className="mb-4 mb-md-0">
               <h6 className="mb-4 text-white-50">دیدگاه‌های ثبت شده ({product?.reviews?.length || 0})</h6>
               {product?.reviews?.length === 0 ? (
@@ -476,7 +537,6 @@ const ProductPage = () => {
                       </div>
                       <p className="mb-0 text-white-50 small lh-lg">{review.comment}</p>
                       
-                      {/* پاسخ ادمین */}
                       {review.replies && review.replies.length > 0 && (
                         <div className="mt-3 ms-3 p-2 rounded-2 border-start border-success border-2 bg-dark bg-opacity-50">
                           <span className="d-block fw-bold text-success small mb-1">پاسخ آکوالوتوس:</span>
@@ -489,7 +549,6 @@ const ProductPage = () => {
               )}
             </Col>
 
-            {/* فرم ثبت نظر */}
             <Col md={6}>
               <h6 className="mb-4 text-white-50">ثبت دیدگاه جدید</h6>
               <Form onSubmit={submitReviewHandler}>
@@ -530,7 +589,6 @@ const ProductPage = () => {
         </Card.Body>
       </Card>
 
-      {/* مدال بزرگنمایی عکس (Lightbox) با قابلیت ناوبری */}
       <Modal 
         show={showModal} 
         onHide={() => setShowModal(false)} 
@@ -539,7 +597,6 @@ const ProductPage = () => {
         contentClassName="bg-transparent border-0"
       >
         <Modal.Body className="p-0 position-relative text-center d-flex align-items-center justify-content-center">
-          {/* دکمه بستن */}
           <Button 
             variant="dark" 
             className="position-absolute top-0 end-0 m-3 rounded-circle border-0 z-3 bg-dark bg-opacity-75"
@@ -549,7 +606,6 @@ const ProductPage = () => {
             ✕
           </Button>
 
-          {/* تصویر بزرگ‌شده */}
           <img 
             src={images[selectedImageIndex]} 
             alt={product?.name} 
@@ -557,7 +613,6 @@ const ProductPage = () => {
             style={{ maxHeight: '85vh', backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', padding: '20px' }}
           />
 
-          {/* دکمه‌های ناوبری داخل مودال (فقط در صورت وجود چند عکس) */}
           {images.length > 1 && (
             <>
               <Button 
@@ -570,14 +625,13 @@ const ProductPage = () => {
               </Button>
               <Button 
                 variant="dark" 
-                className="position-absolute end-0 top-50 translate-middle-y m-3 rounded-circle border-0 z-3 bg-dark bg-opacity-75 d-flex align-items-center justify-content-center shadow"
+                className="position-absolute end-0 top-50 translate-middle-y m-3 rounded-circleborder-0 z-3 bg-dark bg-opacity-75 d-flex align-items-center justify-content-center shadow"
                 onClick={handlePrevImage}
                 style={{ width: '45px', height: '45px' }}
               >
                 <FaChevronRight className="fs-4 text-white" />
               </Button>
 
-              {/* نشانگر شماره عکس در مودال */}
               <div className="position-absolute bottom-0 start-50 translate-middle-x mb-3 z-3">
                 <span className="badge bg-dark bg-opacity-75 px-3 py-2 rounded-pill border border-secondary text-white small">
                   {selectedImageIndex + 1} / {images.length}
