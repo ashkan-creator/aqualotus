@@ -6,7 +6,6 @@ import { fileURLToPath } from 'url'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import mongoSanitize from 'express-mongo-sanitize'
-import compression from 'compression'
 import connectDB from './config/db.js'
 import { notFound, errorHandler } from './middleware/errorMiddleware.js'
 import userRoutes from './routes/userRoutes.js'
@@ -39,8 +38,6 @@ app.use(
     crossOriginResourcePolicy: { policy: 'cross-origin' },
   })
 )
-
-app.use(compression())
 
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -85,19 +82,9 @@ app.use('/api/quiz', quizRoutes)
 app.get('/go/:shortCode', redirectShortLink)
 app.get('/sitemap.xml', generateSitemap)
 
-app.use(
-  '/uploads',
-  express.static(path.join(__dirname, '../uploads'), {
-    maxAge: '7d',
-  })
-)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
 // --- سرو فایل‌های استاتیک فرانت (production, single-container) ---
-app.use(
-  express.static(path.join(__dirname, '../frontend/dist'), {
-    maxAge: '1d',
-    index: false,
-  })
-)
+app.use(express.static(path.join(__dirname, '../frontend/dist')))
 app.get(/^(?!\/api|\/uploads|\/go|\/sitemap\.xml).*/, (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/dist/index.html'))
 })
