@@ -160,11 +160,7 @@ const ProductPage = () => {
     setComment('');
   };
 
-  const images = product?.images?.length > 0
-    ? (product?.image && !product.images.includes(product.image)
-        ? [product.image, ...product.images]
-        : product.images)
-    : [product?.image || '/placeholder.webp'];
+  const images = product?.images?.length > 0 ? product.images : [product?.image || '/placeholder.webp'];
   
   const handleNextImage = () => {
     setFade(true);
