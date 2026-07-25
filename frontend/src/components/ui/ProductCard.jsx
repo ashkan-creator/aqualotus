@@ -22,7 +22,7 @@ const careLevelConfig = {
   'سخت': { color: 'danger', icon: '🔥' },
 }
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, index = 0 }) => {
   const discountedPrice = calcDiscountedPrice({ ...product, qty: 1 })
   const hasDiscount = product.discount > 0
   const careConfig = careLevelConfig[product.careLevel] || careLevelConfig['آسان']
@@ -130,6 +130,18 @@ const ProductCard = ({ product }) => {
 
   return (
     <div ref={revealRef} className='aq-scroll-init h-100'>
+      <motion.div
+        initial={{ opacity: 0, y: 45, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: -25, scale: 0.92 }}
+        transition={{
+          duration: 0.55,
+          delay: Math.min(index * 0.07, 0.7),
+          ease: [0.25, 0.1, 0.25, 1],
+        }}
+        layout
+        style={{ height: '100%' }}
+      >
       <div
         ref={cardRef}
         className={`aq-product-card-3d ${!inStock ? 'aq-out-of-stock' : ''}`}
@@ -326,6 +338,7 @@ const ProductCard = ({ product }) => {
           </div>
         </div>
       </div>
+      </motion.div>
     </div>
   )
 }

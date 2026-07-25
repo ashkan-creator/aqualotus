@@ -3,6 +3,7 @@ import { Row, Col, Container, Button, Offcanvas, Form } from 'react-bootstrap'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { useGetProductsQuery } from '../slices/productsApiSlice'
+import { AnimatePresence } from 'framer-motion'
 import ProductCard from '../components/ui/ProductCard'
 import HeroSlider from '../components/ui/HeroSlider'
 import BlogHighlightsSlider from '../components/ui/BlogHighlightsSlider'
@@ -206,11 +207,13 @@ const HomePage = () => {
               ) : (
                 <>
                   <Row className='g-3'>
-                    {data?.products?.map((product) => (
-                      <Col key={product._id} sm={12} md={6} lg={4} xl={3}>
-                        <ProductCard product={product} />
-                      </Col>
-                    ))}
+                    <AnimatePresence mode='popLayout'>
+                      {data?.products?.map((product, index) => (
+                        <Col key={product._id} sm={12} md={6} lg={4} xl={3}>
+                          <ProductCard product={product} index={index} />
+                        </Col>
+                      ))}
+                    </AnimatePresence>
                   </Row>
                   <Paginate pages={data?.pages} page={data?.page} keyword={keyword || ''} />
                 </>

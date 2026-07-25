@@ -48,7 +48,6 @@ app.use(
         ],
         scriptSrcElem: [
           "'self'",
-          "'sha256-leb84nt8JruMyqO8gxVVo/gdvTDvhjgKyIyiZMbMgmU='",
           'https://accounts.google.com',
           'https://cdnjs.cloudflare.com',
         ],
