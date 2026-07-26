@@ -57,7 +57,7 @@ const Header = () => {
   const totalCartItems = cartItems.reduce((a, c) => a + c.qty, 0)
 
   return (
-    <header className='aq-sticky-header' style={{ zIndex: 1050, position: 'relative' }}>
+    <header className='aq-sticky-header' style={{ zIndex: 1050 }}>
       <Navbar className='aqualotus-navbar py-1' style={{ direction: 'rtl', minHeight: '65px', position: 'relative', zIndex: 1 }}>
         <div className='aq-header-aurora-wrapper' aria-hidden='true'>
           <AuroraGridBackground beamCount={20} />
@@ -261,7 +261,7 @@ const DrawerSection = ({ icon, label, color, isOpen, onToggle, children }) => (
       <span style={{ fontSize: '13.5px', color: '#333' }}>{label}</span>
       <span style={{ marginRight: 'auto', color: '#aaa', fontSize: '11px', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
     </div>
-    <div style={{ overflow: 'hidden', maxHeight: isOpen ? '200px' : '0', transition: 'max-height 0.3s' }}>
+    <div style={{ overflow: 'hidden', maxHeight: isOpen ? '2000px' : '0', transition: 'max-height 0.3s' }}>
       <div style={{ padding: '2px 18px 6px 18px' }}><div style={{ borderRight: `2px solid ${color}`, paddingRight: '12px' }}>{children}</div></div>
     </div>
   </>
