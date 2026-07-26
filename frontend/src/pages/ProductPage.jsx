@@ -211,7 +211,7 @@ const ProductPage = () => {
         <div className="d-flex align-items-center gap-2 small text-nowrap">
           <Link to="/" className="text-decoration-none text-white-50 hover-text-white">خانه</Link>
           <FaChevronLeft className="text-white-50" style={{ fontSize: '0.65rem' }} />
-          <Link to="/products" className="text-decoration-none text-white-50 hover-text-white">محصولات</Link>
+          <Link to="/" className="text-decoration-none text-white-50 hover-text-white">محصولات</Link>
           <FaChevronLeft className="text-white-50" style={{ fontSize: '0.65rem' }} />
           <span className="text-white fw-bold text-truncate" style={{ maxWidth: '200px' }}>
             {product?.name}

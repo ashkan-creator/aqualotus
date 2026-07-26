@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FaBell } from 'react-icons/fa'
+import { useSelector } from 'react-redux'
 import {
   useGetNotificationsQuery,
   useGetUnreadCountQuery,
@@ -34,7 +35,9 @@ const NotificationBell = () => {
   const ref = useRef(null)
   const navigate = useNavigate()
 
+  const { userInfo } = useSelector((state) => state.auth)
   const { data: unreadData } = useGetUnreadCountQuery(undefined, {
+    skip: !userInfo,
     pollingInterval: 30000,
   })
   const { data: notifications, isLoading } = useGetNotificationsQuery(undefined, {
