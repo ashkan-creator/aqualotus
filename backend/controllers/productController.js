@@ -19,6 +19,9 @@ const getProducts = asyncHandler(async (req, res) => {
   if (req.query.keyword) {
     filter.name = { $regex: req.query.keyword, $options: 'i' }
   }
+  if (req.query.family) {
+    filter.family = req.query.family
+  }
   if (req.query.position) {
     filter.position = req.query.position
   }

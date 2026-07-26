@@ -27,6 +27,7 @@ const HomePage = () => {
     minPrice: '',
     maxPrice: '',
     category: '',
+    family: '',
   })
 
   // هر بار که searchParams عوض شد فیلترها آپدیت بشن
@@ -39,6 +40,7 @@ const HomePage = () => {
       minPrice: searchParams.get('minPrice') || '',
       maxPrice: searchParams.get('maxPrice') || '',
       category: searchParams.get('category') || '',
+      family: searchParams.get('family') || '',
     })
     setSortBy(searchParams.get('sortBy') || 'newest')
   }, [searchParams.toString()])
@@ -53,6 +55,7 @@ const HomePage = () => {
     category: filters.category,
     minPrice: filters.minPrice,
     maxPrice: filters.maxPrice,
+    family: filters.family,
     sortBy,
   }
 

@@ -214,7 +214,7 @@ const Header = () => {
 
             <DrawerSection icon='🌿' label='خانواده‌های گیاهی' color='#6a1b9a' isOpen={openSection === 'fam'} onToggle={() => toggleSection('fam')}>
               {families?.map((f) => (
-                <SubItem key={f._id} label={f.name} onClick={() => goToFilter({ keyword: f.name })} />
+                <SubItem key={f._id} label={f.name} onClick={() => goToFilter({ family: f.name })} />
               ))}
             </DrawerSection>
 
