@@ -27,6 +27,7 @@ import {
   FaEarthAmericas
 } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
+import { Helmet } from 'react-helmet-async';
 
 // آیکون سفارشی لوتوس با برگ‌های رنگی پویا
 const LotusIcon = ({ careLevel, size = 28 }) => {
@@ -206,7 +207,32 @@ const ProductPage = () => {
 
   return (
     <Container className="py-4 py-lg-5 text-end text-white" style={{ direction: 'rtl' }}>
-      
+      {product && (
+        <Helmet>
+          <title>{`${product.name} | AquaLotus`}</title>
+          <meta name="description" content={product.description?.slice(0, 160) || `خرید ${product.name} از فروشگاه آکوالوتوس`} />
+          <meta property="og:type" content="product" />
+          <meta property="og:title" content={product.name} />
+          <meta property="og:description" content={product.description?.slice(0, 160) || ''} />
+          {product.image && <meta property="og:image" content={product.image} />}
+          <script type="application/ld+json">
+            {JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Product',
+              name: product.name,
+              description: product.description || '',
+              image: product.image || (product.images && product.images[0]) || '',
+              offers: {
+                '@type': 'Offer',
+                priceCurrency: 'IRR',
+                price: product.price,
+                availability: 'https://schema.org/InStock',
+              },
+            })}
+          </script>
+        </Helmet>
+      )}
+
       <nav aria-label="breadcrumb" className="mb-4 overflow-x-auto pb-2">
         <div className="d-flex align-items-center gap-2 small text-nowrap">
           <Link to="/" className="text-decoration-none text-white-50 hover-text-white">خانه</Link>
