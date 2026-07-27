@@ -85,12 +85,7 @@ const HeroSlider = ({ location = 'home' }) => {
               </h1>
             )}
             {slide.subtitle && (
-              <p
-                className={`hero-subtitle aq-reveal aq-reveal-2 ${getTextStyleClassName(slide.titleStyle)}`}
-                style={buildTextStyle(slide.titleStyle)}
-              >
-                {slide.subtitle}
-              </p>
+              <p className='hero-subtitle aq-reveal aq-reveal-2'>{slide.subtitle}</p>
             )}
             <Link to={slide.link || '/'} className='hero-btn aq-reveal aq-reveal-3'>
               {slide.buttonText || 'مشاهده'}

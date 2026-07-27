@@ -1,7 +1,6 @@
 // BLOG_SLIDER_FEATURE_v1
 import { useState } from 'react'
 import { Container, Table, Button, Form, Modal, Card, Row, Col, Badge, Nav } from 'react-bootstrap'
-import TextStyleEditor from '../../components/admin/TextStyleEditor'
 import { FaEdit, FaTrash, FaPlus, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -32,19 +31,11 @@ const SliderListPage = () => {
 
   const [showModal, setShowModal] = useState(false)
   const [editingSlider, setEditingSlider] = useState(null)
-  const defaultTitleStyle = {
-  color: '#ffffff',
-  fontFamily: 'default',
-  textAlign: 'center',
-  shadow: { enabled: false, color: '#000000', blur: 8, offsetX: 0, offsetY: 2, inset: false },
-  glow: { enabled: false, color: '#52b788', intensity: 10 },
-  fadeIn: { enabled: false },
-}
-  const [form, setForm] = useState({ title: '', subtitle: '', image: '', link: '/', order: 0, location: 'home', titleStyle: defaultTitleStyle })
+  const [form, setForm] = useState({ title: '', subtitle: '', image: '', link: '/', order: 0, location: 'home' })
 
   const openCreate = () => {
     setEditingSlider(null)
-    setForm({ title: '', subtitle: '', image: '', link: '/', order: sliders?.length || 0, location: activeLocation, titleStyle: defaultTitleStyle })
+    setForm({ title: '', subtitle: '', image: '', link: '/', order: sliders?.length || 0, location: activeLocation })
     setShowModal(true)
   }
 
@@ -53,7 +44,6 @@ const SliderListPage = () => {
     setForm({
       title: slider.title || '',
       subtitle: slider.subtitle || '',
-      titleStyle: slider.titleStyle || defaultTitleStyle,
       image: slider.image || '',
       link: slider.link || '/',
       order: slider.order || 0,
@@ -321,8 +311,6 @@ const SliderListPage = () => {
               <Form.Label>زیرعنوان (اختیاری)</Form.Label>
               <Form.Control value={form.subtitle} onChange={(e) => setForm({ ...form, subtitle: e.target.value })} placeholder='توضیح کوتاه' />
             </Form.Group>
-            <TextStyleEditor value={form.titleStyle} onChange={(titleStyle) => setForm({ ...form, titleStyle })} />
-
             <Form.Group className='mb-3'>
               <Form.Label>تصویر <span className='text-danger'>*</span></Form.Label>
               <Form.Control type='file' accept='image/*' onChange={uploadHandler} disabled={loadingUpload} />

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useGetSlidersQuery } from '../../slices/sliderApiSlice'
 import { useGetFeaturedPostsQuery } from '../../slices/blogApiSlice'
-import { buildTextStyle, getTextStyleClassName } from '../../utils/buildTextStyle'
 
 const staticSlides = [
   {
@@ -40,7 +39,6 @@ const HeroSlider = ({ location = 'home' }) => {
   const blogSlides = (featuredPosts || []).map((post) => ({
     _id: post._id,
     title: post.title,
-    titleStyle: post.titleStyle,
     image: post.image,
     link: `/blog/${post._id}`,
     buttonText: 'مطالعه مطلب',
@@ -77,20 +75,12 @@ const HeroSlider = ({ location = 'home' }) => {
         >
           <div className='hero-content' style={{ position: 'relative', zIndex: 1 }}>
             {slide.title && (
-              <h1
-                className={`hero-title aq-display-title aq-reveal aq-reveal-1 ${getTextStyleClassName(slide.titleStyle)}`}
-                style={buildTextStyle(slide.titleStyle)}
-              >
+              <h1 className='hero-title aq-display-title aq-reveal aq-reveal-1'>
                 {slide.title}
               </h1>
             )}
             {slide.subtitle && (
-              <p
-                className={`hero-subtitle aq-reveal aq-reveal-2 ${getTextStyleClassName(slide.titleStyle)}`}
-                style={buildTextStyle(slide.titleStyle)}
-              >
-                {slide.subtitle}
-              </p>
+              <p className='hero-subtitle aq-reveal aq-reveal-2'>{slide.subtitle}</p>
             )}
             <Link to={slide.link || '/'} className='hero-btn aq-reveal aq-reveal-3'>
               {slide.buttonText || 'مشاهده'}

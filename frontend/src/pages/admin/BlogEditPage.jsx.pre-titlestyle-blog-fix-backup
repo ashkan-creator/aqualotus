@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import TextStyleEditor from '../../components/admin/TextStyleEditor'
 import { Container, Form, Button, Card, Badge, ListGroup } from 'react-bootstrap'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -24,14 +23,6 @@ const BlogEditPage = () => {
   const [video, setVideo] = useState('')
   const [isPublished, setIsPublished] = useState(false)
   const [relatedProducts, setRelatedProducts] = useState([])
-  const [titleStyle, setTitleStyle] = useState({
-  color: '#ffffff',
-  fontFamily: 'default',
-  textAlign: 'center',
-  shadow: { enabled: false, color: '#000000', blur: 8, offsetX: 0, offsetY: 2, inset: false },
-  glow: { enabled: false, color: '#52b788', intensity: 10 },
-  fadeIn: { enabled: false },
-})
   const [productSearch, setProductSearch] = useState('')
 
   useEffect(() => {
@@ -41,7 +32,6 @@ const BlogEditPage = () => {
       setImage(post.image || '')
       setVideo(post.video || '')
       setIsPublished(post.isPublished)
-      if (post.titleStyle) setTitleStyle(post.titleStyle)
       setRelatedProducts((post.relatedProducts || []).map((p) => (typeof p === 'string' ? p : p._id)))
     }
   }, [post])
@@ -89,7 +79,7 @@ const BlogEditPage = () => {
   const submitHandler = async (e) => {
     e.preventDefault()
     try {
-      await updatePost({ id, title, content, image, video, isPublished, relatedProducts, titleStyle }).unwrap()
+      await updatePost({ id, title, content, image, video, isPublished, relatedProducts }).unwrap()
       toast.success('پست ذخیره شد')
       navigate('/admin/blog')
     } catch {
@@ -111,8 +101,6 @@ const BlogEditPage = () => {
             <Form.Label>عنوان</Form.Label>
             <Form.Control value={title} onChange={(e) => setTitle(e.target.value)} required />
           </Form.Group>
-
-          <TextStyleEditor value={titleStyle} onChange={setTitleStyle} />
 
           <Form.Group className='mb-3'>
             <Form.Label>تصویر پست</Form.Label>

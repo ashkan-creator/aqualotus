@@ -9,6 +9,27 @@ const sliderSchema = new mongoose.Schema(
     link: { type: String, default: '/' },
     isActive: { type: Boolean, default: true },
     order: { type: Number, default: 0 },
+    titleStyle: {
+      color: { type: String, default: '#ffffff' },
+      fontFamily: { type: String, default: 'default' },
+      textAlign: { type: String, enum: ['right', 'center', 'left'], default: 'center' },
+      shadow: {
+        enabled: { type: Boolean, default: false },
+        color: { type: String, default: '#000000' },
+        blur: { type: Number, default: 8 },
+        offsetX: { type: Number, default: 0 },
+        offsetY: { type: Number, default: 2 },
+        inset: { type: Boolean, default: false },
+      },
+      glow: {
+        enabled: { type: Boolean, default: false },
+        color: { type: String, default: '#52b788' },
+        intensity: { type: Number, default: 10 },
+      },
+      fadeIn: {
+        enabled: { type: Boolean, default: false },
+      },
+    },
   },
   { timestamps: true }
 )

@@ -48,7 +48,7 @@ const getPostById = asyncHandler(async (req, res) => {
 // @route   POST /api/blog
 // @access  Private/Admin
 const createPost = asyncHandler(async (req, res) => {
-  const { title, content, image, video, isPublished, relatedProducts, titleStyle } = req.body
+  const { title, content, image, video, isPublished, relatedProducts } = req.body
   const post = await Blog.create({
     user: req.user._id,
     title,
@@ -74,7 +74,6 @@ const updatePost = asyncHandler(async (req, res) => {
     post.isPublished = req.body.isPublished ?? post.isPublished
     post.featuredInSlider = req.body.featuredInSlider ?? post.featuredInSlider
     post.relatedProducts = req.body.relatedProducts ?? post.relatedProducts
-    post.titleStyle = req.body.titleStyle ?? post.titleStyle
     const updated = await post.save()
     res.json(updated)
   } else {
