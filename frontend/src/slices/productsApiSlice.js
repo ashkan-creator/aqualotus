@@ -17,6 +17,7 @@ export const productsApiSlice = apiSlice.injectEndpoints({
           category: params.category || '',
           minPrice: params.minPrice || '',
           maxPrice: params.maxPrice || '',
+          family: params.family || '',
           sortBy: params.sortBy || 'newest',
         },
       }),
