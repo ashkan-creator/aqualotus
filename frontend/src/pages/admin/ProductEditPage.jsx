@@ -12,6 +12,7 @@ import { useUploadVideoMutation } from '../../slices/uploadApiSlice'
 import { useGetFamiliesQuery } from '../../slices/familiesApiSlice'
 import Loader from '../../components/ui/Loader'
 import Message from '../../components/ui/Message'
+import './ProductEditPage.css'
 
 const ProductEditPage = () => {
   const { id: productId } = useParams()
@@ -39,6 +40,9 @@ const ProductEditPage = () => {
   const [needsSoil, setNeedsSoil] = useState(false)
   const [variants, setVariants] = useState([])
   const [newVariant, setNewVariant] = useState({ size: '', price: '', countInStock: '' })
+
+  // فیلدهای «مشخصات گیاه» و «سایزبندی و قیمت‌گذاری» فقط برای دسته‌ی «گیاه زنده» معنا دارن
+  const isPlantCategory = category === 'گیاه زنده'
 
   const { data: product, isLoading, error } = useGetProductDetailsQuery(productId)
   const [updateProduct, { isLoading: loadingUpdate }] = useUpdateProductMutation()
@@ -178,6 +182,11 @@ const ProductEditPage = () => {
                     <option value='سنگ'>سنگ</option>
                     <option value='چوب'>چوب</option>
                   </Form.Select>
+                  {!isPlantCategory && (
+                    <small className='aq-category-note d-block mt-2'>
+                      🔒 فیلدهای «سایزبندی و قیمت‌گذاری» و «مشخصات گیاه» فقط برای دسته‌ی «گیاه زنده» فعالن
+                    </small>
+                  )}
                 </Form.Group>
                 <Form.Group className='mb-3'>
                   <Form.Label>
@@ -192,77 +201,95 @@ const ProductEditPage = () => {
                 </Form.Group>
               </Card>
 
-              {/* سایزبندی */}
-              <Card className='p-3 mb-3'>
-                <h5 className='mb-3'>📐 سایزبندی و قیمت‌گذاری</h5>
-                <small className='text-muted d-block mb-3'>
-                  اگر محصول سایزهای مختلف دارد اینجا تعریف کنید. در غیر اینصورت خالی بگذارید.
-                </small>
+              {/* سایزبندی — فقط برای دسته‌ی «گیاه زنده» */}
+              <div className={`aq-collapsible ${isPlantCategory ? 'is-open' : 'is-closed'}`}>
+                <div className='aq-collapsible-inner'>
+                  <Card className='p-3 mb-3 aq-plant-only-card'>
+                    <h5 className='mb-3'>📐 سایزبندی و قیمت‌گذاری</h5>
+                    <small className='text-muted d-block mb-3'>
+                      اگر محصول سایزهای مختلف دارد اینجا تعریف کنید. در غیر اینصورت خالی بگذارید.
+                    </small>
 
-                {variants.length > 0 && (
-                  <Table size='sm' bordered className='mb-3'>
-                    <thead>
-                      <tr>
-                        <th>سایز</th>
-                        <th>قیمت (تومان)</th>
-                        <th>موجودی</th>
-                        <th></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {variants.map((v, idx) => (
-                        <tr key={idx}>
-                          <td><Badge bg='success'>{v.size}</Badge></td>
-                          <td>{Number(v.price).toLocaleString('fa-IR')}</td>
-                          <td>{v.countInStock}</td>
-                          <td>
-                            <Button size='sm' variant='outline-danger' onClick={() => removeVariantHandler(idx)}>
-                              <FaTrash size={10} />
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </Table>
-                )}
+                    {variants.length > 0 && (
+                      <Table size='sm' bordered className='mb-3'>
+                        <thead>
+                          <tr>
+                            <th>سایز</th>
+                            <th>قیمت (تومان)</th>
+                            <th>موجودی</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {variants.map((v, idx) => (
+                            <tr key={idx}>
+                              <td><Badge bg='success'>{v.size}</Badge></td>
+                              <td>{Number(v.price).toLocaleString('fa-IR')}</td>
+                              <td>{v.countInStock}</td>
+                              <td>
+                                <Button
+                                  size='sm'
+                                  variant='outline-danger'
+                                  className='aq-variant-remove-btn'
+                                  disabled={!isPlantCategory}
+                                  onClick={() => removeVariantHandler(idx)}
+                                >
+                                  <FaTrash size={10} />
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+                    )}
 
-                <Row className='g-2 align-items-end'>
-                  <Col xs={4}>
-                    <Form.Label>سایز</Form.Label>
-                    <Form.Control
-                      size='sm'
-                      placeholder='مثلاً: کوچک'
-                      value={newVariant.size}
-                      onChange={(e) => setNewVariant({ ...newVariant, size: e.target.value })}
-                    />
-                  </Col>
-                  <Col xs={4}>
-                    <Form.Label>قیمت</Form.Label>
-                    <Form.Control
-                      size='sm'
-                      type='number'
-                      placeholder='تومان'
-                      value={newVariant.price}
-                      onChange={(e) => setNewVariant({ ...newVariant, price: e.target.value })}
-                    />
-                  </Col>
-                  <Col xs={3}>
-                    <Form.Label>موجودی</Form.Label>
-                    <Form.Control
-                      size='sm'
-                      type='number'
-                      placeholder='تعداد'
-                      value={newVariant.countInStock}
-                      onChange={(e) => setNewVariant({ ...newVariant, countInStock: e.target.value })}
-                    />
-                  </Col>
-                  <Col xs={1}>
-                    <Button size='sm' className='btn-aqualotus' onClick={addVariantHandler}>
-                      <FaPlus />
-                    </Button>
-                  </Col>
-                </Row>
-              </Card>
+                    <div className='aq-variant-add-grid'>
+                      <div className='aq-variant-field'>
+                        <Form.Label>سایز</Form.Label>
+                        <Form.Control
+                          size='sm'
+                          placeholder='مثلاً: کوچک'
+                          value={newVariant.size}
+                          disabled={!isPlantCategory}
+                          onChange={(e) => setNewVariant({ ...newVariant, size: e.target.value })}
+                        />
+                      </div>
+                      <div className='aq-variant-field'>
+                        <Form.Label>قیمت</Form.Label>
+                        <Form.Control
+                          size='sm'
+                          type='number'
+                          placeholder='تومان'
+                          value={newVariant.price}
+                          disabled={!isPlantCategory}
+                          onChange={(e) => setNewVariant({ ...newVariant, price: e.target.value })}
+                        />
+                      </div>
+                      <div className='aq-variant-field'>
+                        <Form.Label>موجودی</Form.Label>
+                        <Form.Control
+                          size='sm'
+                          type='number'
+                          placeholder='تعداد'
+                          value={newVariant.countInStock}
+                          disabled={!isPlantCategory}
+                          onChange={(e) => setNewVariant({ ...newVariant, countInStock: e.target.value })}
+                        />
+                      </div>
+                      <button
+                        type='button'
+                        className='aq-variant-add-btn'
+                        disabled={!isPlantCategory}
+                        onClick={addVariantHandler}
+                        aria-label='افزودن سایز'
+                        title='افزودن سایز'
+                      >
+                        <FaPlus />
+                      </button>
+                    </div>
+                  </Card>
+                </div>
+              </div>
 
               <Card className='p-3'>
                 <h5 className='mb-3'>🏷️ تخفیف</h5>
@@ -326,71 +353,75 @@ const ProductEditPage = () => {
                 {loadingVideo && <small className='text-muted'>در حال آپلود ویدیو...</small>}
               </Card>
 
-              <Card className='p-3'>
-                <h5 className='mb-3'>🌿 مشخصات گیاه</h5>
-                <Form.Group className='mb-3'>
-                  <Form.Label>خانواده گیاهی</Form.Label>
-                  <Form.Select value={family} onChange={(e) => setFamily(e.target.value)}>
-                    <option value=''>-- انتخاب خانواده --</option>
-                    {families?.map((f) => (
-                      <option key={f._id} value={f.name}>{f.name}</option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-                <Form.Group className='mb-3'>
-                  <Form.Label>محل کاشت</Form.Label>
-                  <Form.Select value={position} onChange={(e) => setPosition(e.target.value)}>
-                    <option value='جلو'>جلو</option>
-                    <option value='میانه'>میانه</option>
-                    <option value='پشت'>پشت</option>
-                    <option value='شناور'>شناور</option>
-                    <option value='نامشخص'>نامشخص</option>
-                  </Form.Select>
-                </Form.Group>
-                <Form.Group className='mb-3'>
-                  <Form.Label>نوع کشت</Form.Label>
-                  <Form.Select value={cultivationType} onChange={(e) => setCultivationType(e.target.value)}>
-                    <option value='آبزی'>آبزی</option>
-                    <option value='هیدروپونیک'>هیدروپونیک</option>
-                    <option value='هر دو'>هر دو</option>
-                  </Form.Select>
-                </Form.Group>
-                <Form.Group className='mb-3'>
-                  <Form.Check type='checkbox' label='نیاز به بستر دارد' checked={needsSoil} onChange={(e) => setNeedsSoil(e.target.checked)} />
-                </Form.Group>
-                <Form.Group className='mb-3'>
-                  <Form.Label>سختی نگهداری</Form.Label>
-                  <Form.Select value={careLevel} onChange={(e) => setCareLevel(e.target.value)}>
-                    <option value='آسان'>🟢 آسان</option>
-                    <option value='متوسط'>🟡 متوسط</option>
-                    <option value='سخت'>🔴 سخت</option>
-                  </Form.Select>
-                </Form.Group>
-                <Form.Group className='mb-3'>
-                  <Form.Label>نیاز نوری</Form.Label>
-                  <Form.Select value={lightNeeds} onChange={(e) => setLightNeeds(e.target.value)}>
-                    <option value='کم'>کم</option>
-                    <option value='متوسط'>متوسط</option>
-                    <option value='زیاد'>زیاد</option>
-                  </Form.Select>
-                </Form.Group>
-                <Form.Group className='mb-3'>
-                  <Form.Label>نیاز CO2</Form.Label>
-                  <Form.Select value={co2Needs} onChange={(e) => setCo2Needs(e.target.value)}>
-                    <option value='بدون CO2'>بدون CO2</option>
-                    <option value='اختیاری'>غیر ضروری ولی تاثیر گذار در رشد و کیفیت</option>
-                    <option value='ضروری'>ضروری</option>
-                  </Form.Select>
-                </Form.Group>
-                <Form.Group className='mb-3'>
-                  <Form.Label>سرعت رشد</Form.Label>
-                  <Form.Select value={growthRate} onChange={(e) => setGrowthRate(e.target.value)}>
-                    <option value='کند'>کند</option>
-                    <option value='متوسط'>متوسط</option>
-                    <option value='سریع'>سریع</option>
-                  </Form.Select>
-                </Form.Group>
-              </Card>
+              <div className={`aq-collapsible ${isPlantCategory ? 'is-open' : 'is-closed'}`}>
+                <div className='aq-collapsible-inner'>
+                  <Card className='p-3 aq-plant-only-card'>
+                    <h5 className='mb-3'>🌿 مشخصات گیاه</h5>
+                    <Form.Group className='mb-3'>
+                      <Form.Label>خانواده گیاهی</Form.Label>
+                      <Form.Select value={family} disabled={!isPlantCategory} onChange={(e) => setFamily(e.target.value)}>
+                        <option value=''>-- انتخاب خانواده --</option>
+                        {families?.map((f) => (
+                          <option key={f._id} value={f.name}>{f.name}</option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                    <Form.Group className='mb-3'>
+                      <Form.Label>محل کاشت</Form.Label>
+                      <Form.Select value={position} disabled={!isPlantCategory} onChange={(e) => setPosition(e.target.value)}>
+                        <option value='جلو'>جلو</option>
+                        <option value='میانه'>میانه</option>
+                        <option value='پشت'>پشت</option>
+                        <option value='شناور'>شناور</option>
+                        <option value='نامشخص'>نامشخص</option>
+                      </Form.Select>
+                    </Form.Group>
+                    <Form.Group className='mb-3'>
+                      <Form.Label>نوع کشت</Form.Label>
+                      <Form.Select value={cultivationType} disabled={!isPlantCategory} onChange={(e) => setCultivationType(e.target.value)}>
+                        <option value='آبزی'>آبزی</option>
+                        <option value='هیدروپونیک'>هیدروپونیک</option>
+                        <option value='هر دو'>هر دو</option>
+                      </Form.Select>
+                    </Form.Group>
+                    <Form.Group className='mb-3'>
+                      <Form.Check type='checkbox' label='نیاز به بستر دارد' checked={needsSoil} disabled={!isPlantCategory} onChange={(e) => setNeedsSoil(e.target.checked)} />
+                    </Form.Group>
+                    <Form.Group className='mb-3'>
+                      <Form.Label>سختی نگهداری</Form.Label>
+                      <Form.Select value={careLevel} disabled={!isPlantCategory} onChange={(e) => setCareLevel(e.target.value)}>
+                        <option value='آسان'>🟢 آسان</option>
+                        <option value='متوسط'>🟡 متوسط</option>
+                        <option value='سخت'>🔴 سخت</option>
+                      </Form.Select>
+                    </Form.Group>
+                    <Form.Group className='mb-3'>
+                      <Form.Label>نیاز نوری</Form.Label>
+                      <Form.Select value={lightNeeds} disabled={!isPlantCategory} onChange={(e) => setLightNeeds(e.target.value)}>
+                        <option value='کم'>کم</option>
+                        <option value='متوسط'>متوسط</option>
+                        <option value='زیاد'>زیاد</option>
+                      </Form.Select>
+                    </Form.Group>
+                    <Form.Group className='mb-3'>
+                      <Form.Label>نیاز CO2</Form.Label>
+                      <Form.Select value={co2Needs} disabled={!isPlantCategory} onChange={(e) => setCo2Needs(e.target.value)}>
+                        <option value='بدون CO2'>بدون CO2</option>
+                        <option value='اختیاری'>غیر ضروری ولی تاثیر گذار در رشد و کیفیت</option>
+                        <option value='ضروری'>ضروری</option>
+                      </Form.Select>
+                    </Form.Group>
+                    <Form.Group className='mb-3'>
+                      <Form.Label>سرعت رشد</Form.Label>
+                      <Form.Select value={growthRate} disabled={!isPlantCategory} onChange={(e) => setGrowthRate(e.target.value)}>
+                        <option value='کند'>کند</option>
+                        <option value='متوسط'>متوسط</option>
+                        <option value='سریع'>سریع</option>
+                      </Form.Select>
+                    </Form.Group>
+                  </Card>
+                </div>
+              </div>
             </Col>
           </Row>
 

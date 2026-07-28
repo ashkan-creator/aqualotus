@@ -1,0 +1,117 @@
+/* بخش‌های وابسته به دسته‌بندی «گیاه زنده» — سایزبندی و مشخصات گیاه */
+
+.aq-collapsible {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
+  opacity: 1;
+}
+.aq-collapsible.is-closed {
+  grid-template-rows: 0fr;
+  opacity: 0;
+  pointer-events: none;
+}
+.aq-collapsible-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.aq-plant-only-card {
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease, filter 0.35s ease;
+}
+.aq-collapsible.is-open .aq-plant-only-card:hover {
+  border-color: var(--primary-light, #52b788);
+  box-shadow: 0 4px 16px rgba(45, 106, 79, 0.12);
+  transform: translateY(-1px);
+}
+.aq-collapsible.is-closed .aq-plant-only-card {
+  filter: grayscale(0.3);
+}
+
+/* پیام توضیحی زیر دراپ‌داون دسته‌بندی */
+.aq-category-note {
+  color: var(--secondary, #0d4f8b);
+  background: rgba(13, 79, 139, 0.08);
+  border-radius: 6px;
+  padding: 6px 10px;
+  animation: aq-note-fade-in 0.3s ease;
+}
+@keyframes aq-note-fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ردیف افزودن سایز */
+.aq-variant-add-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+.aq-variant-field {
+  min-width: 0;
+}
+
+.aq-variant-add-btn {
+  flex-shrink: 0;
+  width: 42px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: linear-gradient(135deg, var(--primary, #2d6a4f) 0%, var(--primary-dark, #1b4332) 100%);
+  color: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease,
+    background 0.25s ease, opacity 0.25s ease;
+  box-shadow: 0 2px 6px rgba(45, 106, 79, 0.25);
+}
+.aq-variant-add-btn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 14px rgba(45, 106, 79, 0.4);
+  background: linear-gradient(135deg, var(--primary-dark, #1b4332) 0%, var(--primary, #2d6a4f) 100%);
+}
+.aq-variant-add-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.96);
+}
+.aq-variant-add-btn:focus-visible {
+  outline: 2px solid var(--primary-light, #52b788);
+  outline-offset: 2px;
+}
+.aq-variant-add-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.aq-variant-remove-btn {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.aq-variant-remove-btn:hover:not(:disabled) {
+  transform: scale(1.08);
+}
+
+@media (max-width: 480px) {
+  .aq-variant-add-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .aq-variant-add-grid .aq-variant-add-btn {
+    grid-column: span 2;
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aq-collapsible,
+  .aq-plant-only-card,
+  .aq-variant-add-btn,
+  .aq-variant-remove-btn,
+  .aq-category-note {
+    transition: none !important;
+    animation: none !important;
+  }
+}
