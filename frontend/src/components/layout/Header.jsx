@@ -203,7 +203,7 @@ const Header = () => {
           </div>
           <div style={{ padding: '8px 0' }}>
             <SectionLabel>🌿 گیاهان زنده</SectionLabel>
-            <DrawerItem icon='🌱' label='همه گیاهان' onClick={() => goToFilter({ category: 'گیاهزنده' })} />
+            <DrawerItem icon='🌱' label='همه گیاهان' onClick={() => goToFilter({ category: 'گیاه زنده' })} />
 
             <DrawerSection icon='📍' label='محل کاشت' color='#0d4f8b' isOpen={openSection === 'pos'} onToggle={() => toggleSection('pos')}>
               <SubItem label='جلو آکواریوم' onClick={() => goToFilter({ position: 'جلو' })} />
@@ -221,7 +221,7 @@ const Header = () => {
             <DrawerSection icon='💧' label='نوع کشت' color='#006064' isOpen={openSection === 'cult'} onToggle={() => toggleSection('cult')}>
               <SubItem label='💧 کشت آبزی' onClick={() => goToFilter({ cultivationType: 'آبزی' })} />
               <SubItem label='🌱 کشت هیدروپونیک' onClick={() => goToFilter({ cultivationType: 'هیدروپونیک' })} />
-              <SubItem label='✅ هر دو نوع کشت' onClick={() => goToFilter({ cultivationType: 'هردو' })} />
+              <SubItem label='✅ هر دو نوع کشت' onClick={() => goToFilter({ cultivationType: 'هر دو' })} />
             </DrawerSection>
 
             <DrawerSection icon='🪨' label='نیاز به بستر' color='#4e342e' isOpen={openSection ==='soil'} onToggle={() => toggleSection('soil')}>
