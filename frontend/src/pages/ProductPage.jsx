@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Badge, Spinner, Alert, Form, Modal } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
+import { useGetProductDetailsQuery } from '../slices/productsApiSlice';
+import { addToCart } from '../slices/cartSlice';
 import { 
   FaCartPlus, 
   FaHeart, 
@@ -92,9 +94,6 @@ const ProductPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [qty, setQty] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -112,26 +111,20 @@ const ProductPage = () => {
     color: '#fff'
   };
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(`/api/products/${productId}`);
-        if (!res.ok) throw new Error('محصول مورد نظر یافت نشد.');
-        const data = await res.json();
-        setProduct(data);
-        if (data.variants && data.variants.length > 0) {
-          setSelectedVariant(data.variants[0]);
-        }
-        setLoading(false);
-      } catch (err) {
-        setError(err.message || 'خطا در ارتباط با سرور');
-        setLoading(false);
-      }
-    };
+  // با RTK Query به‌جای fetch خام: اگه کاربر قبلاً رو کارت این
+  // محصول هاور/لمس کرده بود، prefetchProduct تو ProductCard.jsx این
+  // دیتا رو از قبل تو کش گذاشته — پس اینجا اسپینر نمی‌بینیم
+  // و انیمیشن View Transition نمی‌شکنه
+  const { data: product, isLoading: loading, error: fetchErrorObj } = useGetProductDetailsQuery(productId, {
+    skip: !productId,
+  });
+  const error = fetchErrorObj ? (fetchErrorObj.data?.message || 'محصول مورد نظر یافت نشد.') : null;
 
-    if (productId) fetchProduct();
-  }, [productId]);
+  useEffect(() => {
+    if (product?.variants && product.variants.length > 0) {
+      setSelectedVariant(product.variants[0]);
+    }
+  }, [product]);
 
   const activePrice = selectedVariant ? selectedVariant.price : product?.price;
   const activeStock = selectedVariant ? selectedVariant.countInStock : product?.countInStock;
@@ -152,6 +145,14 @@ const ProductPage = () => {
   };
 
   const handleAddToCart = () => {
+    dispatch(addToCart({
+      _id: product._id, name: product.name, image: product.image,
+      price: activePrice, countInStock: activeStock,
+      discount: product.discount, discountMinQty: product.discountMinQty,
+      discountQtyPercent: product.discountQtyPercent,
+      qty: Number(qty),
+      selectedSize: selectedVariant ? selectedVariant.size : null,
+    }));
     toast.success(`${qty} عدد به سبد خرید افزوده شد`, { position: "bottom-right", theme: "dark"});
   };
 
@@ -252,7 +253,7 @@ const ProductPage = () => {
             layoutId={`product-img-${product?._id}`}
             transition={{ duration: 0.1, ease: "easeOut" }}
             className="position-relative rounded-4 overflow-hidden mb-3 d-flex align-items-center justify-content-center" 
-            style={{ aspectRatio: '1 / 1', maxHeight: '500px', cursor: 'zoom-in' }}
+            style={{ aspectRatio: '1 / 1', maxHeight: '500px', cursor: 'zoom-in', viewTransitionName: `product-img-${product?._id}` }}
             onClick={() => setShowModal(true)}
           >
             <img
