@@ -1,4 +1,4 @@
-const CACHE = 'aqualotus-v2'
+const CACHE = 'aqualotus-v3'
 const STATIC = [
   '/',
   '/index.html',
@@ -22,6 +22,13 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return
   if (e.request.url.includes('/api/')) return
+
+  // منابع cross-origin (CDN‌های خارجی مثل cdnjs، فونت گوگل) رو دست نمی‌زنیم.
+  // fetch داخل Service Worker از CSP «connect-src» پیروی می‌کنه (نه
+  // script-src)، و connect-src فقط 'self' و accounts.google.com رو مجاز
+  // کرده — پس تلاش برای کش‌کردن این منابع همیشه با CSP بلاک می‌شد. بذاریم
+  // خود مرورگر مستقیم (طبق script-src که این دامنه‌ها رو مجاز کرده) لودشون کنه.
+  if (new URL(e.request.url).origin !== self.location.origin) return
 
   // Navigation requests (HTML pages) must always be network-first: the HTML
   // references hashed JS/CSS filenames, so serving a stale cached HTML can
