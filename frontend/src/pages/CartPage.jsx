@@ -9,6 +9,7 @@ import { addToCart, removeFromCart } from '../slices/cartSlice'
 import Message from '../components/ui/Message'
 import { Helmet } from 'react-helmet-async'
 import { calcDiscountedPrice } from '../utils/cartUtils'
+import './CartPage.css'
 
 const CartPage = () => {
   const navigate = useNavigate()
@@ -28,9 +29,9 @@ const CartPage = () => {
   }
 
   return (
-    <Container className='py-4'>
+    <Container className='py-4 aq-cart-page'>
       <Helmet><title>سبد خرید | AquaLotus</title></Helmet>
-      <h2 className='mb-4'>سبد خرید</h2>
+      <h2 className='mb-4 aq-cart-title'>سبد خرید</h2>
       {cartItems.length === 0 ? (
         <div className='aq-empty-state'>
           <div className='aq-empty-icon'>🪴</div>
@@ -43,18 +44,18 @@ const CartPage = () => {
       ) : (
         <Row>
           <Col md={8}>
-            <ListGroup variant='flush'>
+            <ListGroup variant='flush' className='aq-cart-list'>
               {cartItems.map((item) => {
                 const discountedPrice = calcDiscountedPrice(item)
                 const hasDiscount = discountedPrice < item.price
                 return (
-                  <ListGroup.Item key={`${item._id}-${item.selectedSize || ''}`} className='cart-item'>
+                  <ListGroup.Item key={`${item._id}-${item.selectedSize || ''}`} className='aq-cart-item'>
                     <Row className='align-items-center'>
                       <Col md={2}>
                         <Image src={item.image} alt={item.name} fluid rounded />
                       </Col>
                       <Col md={4}>
-                        <Link to={`/product/${item._id}`}>{item.name}</Link>
+                        <Link to={`/product/${item._id}`} className='aq-cart-item-name'>{item.name}</Link>
                         {/* نمایش سایز */}
                         {item.selectedSize && (
                           <div className='mt-1'>
@@ -63,7 +64,7 @@ const CartPage = () => {
                         )}
                         {hasDiscount && (
                           <div>
-                            <small className='text-danger'>
+                            <small className='aq-cart-price-discounted'>
                               {item.discount > 0
                                 ? `${item.discount}% تخفیف`
                                 : `تخفیف تعداد ${item.discountQtyPercent}%`}
@@ -74,19 +75,20 @@ const CartPage = () => {
                       <Col md={2}>
                         {hasDiscount ? (
                           <div>
-                            <small className='text-muted text-decoration-line-through d-block'>
+                            <small className='aq-cart-price-old text-decoration-line-through d-block'>
                               {item.price.toLocaleString('fa-IR')}
                             </small>
-                            <span className='text-danger'>
+                            <span className='aq-cart-price-discounted'>
                               {Math.round(discountedPrice).toLocaleString('fa-IR')} تومان
                             </span>
                           </div>
                         ) : (
-                          <span>{item.price.toLocaleString('fa-IR')} تومان</span>
+                          <span className='aq-cart-price'>{item.price.toLocaleString('fa-IR')} تومان</span>
                         )}
                       </Col>
                       <Col md={2}>
                         <Form.Select
+                          className='aq-cart-qty-select'
                           value={item.qty}
                           onChange={(e) => addToCartHandler(item, Number(e.target.value))}
                         >
@@ -99,6 +101,7 @@ const CartPage = () => {
                         <Button
                           variant='outline-danger'
                           size='sm'
+                          className='aq-cart-remove-btn'
                           onClick={() => removeFromCartHandler(item._id, item.selectedSize)}
                         >
                           <FaTrash />
@@ -112,7 +115,7 @@ const CartPage = () => {
           </Col>
 
           <Col md={4}>
-            <Card className='cart-summary'>
+            <Card className='cart-summary aq-cart-summary'>
               <ListGroup variant='flush'>
                 <ListGroup.Item>
                   <h5>خلاصه سفارش</h5>

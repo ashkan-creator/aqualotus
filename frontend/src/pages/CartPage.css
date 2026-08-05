@@ -1,0 +1,103 @@
+/* استایل شیشه‌ای مشکی مات برای صفحه‌ی سبد خرید — هماهنگ با تم تیره‌ی سایت */
+
+.aq-cart-title {
+  color: #fff !important;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.aq-cart-list {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.aq-cart-item {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #fff !important;
+  padding: 16px !important;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+.aq-cart-item:hover {
+  background-color: rgba(0, 0, 0, 0.72) !important;
+  border-color: rgba(149, 213, 178, 0.35) !important;
+}
+
+.aq-cart-item img {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.aq-cart-item-name {
+  color: #fff !important;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.aq-cart-item-name:hover {
+  color: var(--primary-light, #52b788) !important;
+}
+
+.aq-cart-price {
+  color: #fff !important;
+  font-weight: 600;
+}
+.aq-cart-price-old {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+.aq-cart-price-discounted {
+  color: #ff8787 !important;
+  font-weight: 700;
+}
+
+.aq-cart-qty-select {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #fff !important;
+}
+.aq-cart-qty-select:focus {
+  border-color: var(--primary-light, #52b788) !important;
+  box-shadow: 0 0 0 0.2rem rgba(82, 183, 136, 0.25) !important;
+}
+.aq-cart-qty-select option {
+  background-color: #1b1b1b;
+  color: #fff;
+}
+
+.aq-cart-remove-btn {
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+.aq-cart-remove-btn:hover {
+  transform: scale(1.08);
+}
+
+/* کارت خلاصه‌ی سفارش */
+.aq-cart-summary {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 16px !important;
+  color: #fff !important;
+  overflow: hidden;
+}
+.aq-cart-summary .list-group-item {
+  background-color: transparent !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #fff !important;
+}
+.aq-cart-summary h5 {
+  color: #fff !important;
+  font-weight: 700;
+}
+.aq-cart-summary small {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+.aq-cart-summary .text-success {
+  color: var(--primary-light, #52b788) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aq-cart-item,
+  .aq-cart-item-name,
+  .aq-cart-remove-btn {
+    transition: none !important;
+  }
+}
