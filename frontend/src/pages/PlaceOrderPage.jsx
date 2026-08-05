@@ -7,7 +7,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { toast } from 'react-toastify'
 import { useCreateOrderMutation } from '../slices/ordersApiSlice'
 import { clearCartItems } from '../slices/cartSlice'
-import { calcDiscountedPrice } from '../utils/cartUtils'
+import { calcDiscountedPrice, MIN_ORDER_AMOUNT } from '../utils/cartUtils'
 import Loader from '../components/ui/Loader'
 import Message from '../components/ui/Message'
 
@@ -16,7 +16,7 @@ const PlaceOrderPage = () => {
   const dispatch = useDispatch()
 
   const cart = useSelector((state) => state.cart)
-  const { cartItems, shippingAddress, itemsPrice, shippingPrice, totalPrice } = cart
+  const { cartItems, shippingAddress, itemsPrice, shippingPrice, packagingPrice, totalPrice } = cart
 
   const [createOrder, { isLoading, error }] = useCreateOrderMutation()
 
@@ -25,6 +25,10 @@ const PlaceOrderPage = () => {
   }, [shippingAddress, navigate])
 
   const placeOrderHandler = async () => {
+    if (itemsPrice < MIN_ORDER_AMOUNT) {
+      toast.error(`حداقل مبلغ سفارش ${MIN_ORDER_AMOUNT.toLocaleString('fa-IR')} تومان است`)
+      return
+    }
     try {
       const res = await createOrder({
         // ✅ selectedSize همراه با هر آیتم ارسال میشه
@@ -37,6 +41,7 @@ const PlaceOrderPage = () => {
         paymentMethod: 'کارت به کارت',
         itemsPrice,
         shippingPrice,
+        packagingPrice,
         totalPrice,
       }).unwrap()
       dispatch(clearCartItems())
@@ -153,6 +158,16 @@ const PlaceOrderPage = () => {
               </ListGroup.Item>
               <ListGroup.Item>
                 <Row>
+                  <Col>هزینه بسته‌بندی:</Col>
+                  <Col className='text-end'>
+                    {packagingPrice === 0
+                      ? 'رایگان 🎉'
+                      : `${packagingPrice.toLocaleString('fa-IR')} تومان`}
+                  </Col>
+                </Row>
+              </ListGroup.Item>
+              <ListGroup.Item>
+                <Row>
                   <Col><strong>جمع کل:</strong></Col>
                   <Col className='text-end'>
                     <strong>
@@ -173,7 +188,7 @@ const PlaceOrderPage = () => {
               <ListGroup.Item>
                 <Button
                   className='w-100 btn-aqualotus'
-                  disabled={cartItems.length === 0 || isLoading}
+                  disabled={cartItems.length === 0 || isLoading || itemsPrice < MIN_ORDER_AMOUNT}
                   onClick={placeOrderHandler}
                 >
                   {isLoading ? 'در حال ثبت...' : 'ثبت سفارش'}

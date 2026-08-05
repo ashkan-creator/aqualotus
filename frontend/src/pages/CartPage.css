@@ -101,3 +101,7 @@
     transition: none !important;
   }
 }
+
+.aq-cart-min-order-warning small {
+  color: #ffc857 !important;
+}

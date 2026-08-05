@@ -180,6 +180,10 @@ const OrderPage = () => {
       <thead><tr><th>محصول</th><th>تعداد</th><th>قیمت واحد</th><th>جمع</th></tr></thead>
       <tbody>${items}</tbody>
     </table>
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;margin-top:6px">
+      <span>هزینه بسته‌بندی</span>
+      <span>${!order.packagingPrice ? 'رایگان' : Math.round(order.packagingPrice).toLocaleString('fa-IR') + ' تومان'}</span>
+    </div>
     <div class="total-row">
       <span style="font-size:13px;color:#666">جمع کل</span>
       <span class="total">${Math.round(order.totalPrice).toLocaleString('fa-IR')} تومان</span>
@@ -301,6 +305,16 @@ const OrderPage = () => {
                         {order.shippingPrice === 0
                           ? 'رایگان 🎉'
                           : `${order.shippingPrice.toLocaleString('fa-IR')} تومان`}
+                      </Col>
+                    </Row>
+                  </ListGroup.Item>
+                  <ListGroup.Item>
+                    <Row>
+                      <Col>بسته‌بندی:</Col>
+                      <Col className='text-end'>
+                        {!order.packagingPrice
+                          ? 'رایگان 🎉'
+                          : `${order.packagingPrice.toLocaleString('fa-IR')} تومان`}
                       </Col>
                     </Row>
                   </ListGroup.Item>

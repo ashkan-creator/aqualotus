@@ -6,6 +6,10 @@ import Product from '../models/productModel.js'
 // @desc    ساخت سفارش جدید
 // @route   POST /api/orders
 // @access  Private
+const MIN_ORDER_AMOUNT = 1500000
+const PACKAGING_FEE = 300000
+const FREE_PACKAGING_THRESHOLD = 10000000
+
 const addOrderItems = asyncHandler(async (req, res) => {
   const {
     orderItems,
@@ -13,13 +17,22 @@ const addOrderItems = asyncHandler(async (req, res) => {
     paymentMethod,
     itemsPrice,
     shippingPrice,
-    totalPrice,
   } = req.body
 
   if (orderItems && orderItems.length === 0) {
     res.status(400)
     throw new Error('سبد خرید خالی است')
   }
+
+  // اعتبارسنجی سمت سرور: حداقل مبلغ سفارش و هزینه بسته‌بندی رو خودمون
+  // دوباره محاسبه می‌کنیم، نه این‌که فقط به عدد ارسالی از فرانت اعتماد کنیم
+  if (!itemsPrice || itemsPrice < MIN_ORDER_AMOUNT) {
+    res.status(400)
+    throw new Error(`حداقل مبلغ سفارش ${MIN_ORDER_AMOUNT.toLocaleString('fa-IR')} تومان است`)
+  }
+
+  const packagingPrice = itemsPrice >= FREE_PACKAGING_THRESHOLD ? 0 : PACKAGING_FEE
+  const totalPrice = itemsPrice + (shippingPrice || 0) + packagingPrice
 
   const order = new Order({
     orderItems: orderItems.map((x) => ({
@@ -32,6 +45,7 @@ const addOrderItems = asyncHandler(async (req, res) => {
     paymentMethod,
     itemsPrice,
     shippingPrice,
+    packagingPrice,
     totalPrice,
   })
 

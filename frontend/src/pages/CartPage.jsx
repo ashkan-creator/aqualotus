@@ -8,13 +8,15 @@ import { FaTrash } from 'react-icons/fa'
 import { addToCart, removeFromCart } from '../slices/cartSlice'
 import Message from '../components/ui/Message'
 import { Helmet } from 'react-helmet-async'
-import { calcDiscountedPrice } from '../utils/cartUtils'
+import { calcDiscountedPrice, MIN_ORDER_AMOUNT, FREE_PACKAGING_THRESHOLD } from '../utils/cartUtils'
+import { toast } from 'react-toastify'
 import './CartPage.css'
 
 const CartPage = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const { cartItems, itemsPrice, shippingPrice, totalPrice } = useSelector((state) => state.cart)
+  const { cartItems, itemsPrice, shippingPrice, packagingPrice, totalPrice } = useSelector((state) => state.cart)
+  const remainingForMinOrder = MIN_ORDER_AMOUNT - itemsPrice
 
   const addToCartHandler = (product, qty) => {
     dispatch(addToCart({ ...product, qty }))
@@ -25,6 +27,10 @@ const CartPage = () => {
   }
 
   const checkoutHandler = () => {
+    if (itemsPrice < MIN_ORDER_AMOUNT) {
+      toast.error(`حداقل مبلغ سفارش ${MIN_ORDER_AMOUNT.toLocaleString('fa-IR')} تومان است`)
+      return
+    }
     navigate('/login?redirect=/shipping')
   }
 
@@ -140,6 +146,12 @@ const CartPage = () => {
                 </ListGroup.Item>
                 <ListGroup.Item>
                   <Row>
+                    <Col>هزینه بسته‌بندی:</Col>
+                    <Col>{packagingPrice === 0 ? 'رایگان 🎉' : `${packagingPrice.toLocaleString('fa-IR')} تومان`}</Col>
+                  </Row>
+                </ListGroup.Item>
+                <ListGroup.Item>
+                  <Row>
                     <Col><strong>جمع کل:</strong></Col>
                     <Col><strong>{Math.round(totalPrice).toLocaleString('fa-IR')} تومان</strong></Col>
                   </Row>
@@ -149,8 +161,22 @@ const CartPage = () => {
                     <small>🎉 ارسال رایگان برای خرید بالای ۵۰۰,۰۰۰ تومان</small>
                   </ListGroup.Item>
                 )}
+                {packagingPrice === 0 && itemsPrice >= FREE_PACKAGING_THRESHOLD && (
+                  <ListGroup.Item className='text-success text-center'>
+                    <small>🎉 بسته‌بندی رایگان برای خرید بالای {FREE_PACKAGING_THRESHOLD.toLocaleString('fa-IR')} تومان</small>
+                  </ListGroup.Item>
+                )}
+                {remainingForMinOrder > 0 && (
+                  <ListGroup.Item className='text-center aq-cart-min-order-warning'>
+                    <small>حداقل مبلغ سفارش {MIN_ORDER_AMOUNT.toLocaleString('fa-IR')} تومان است — {remainingForMinOrder.toLocaleString('fa-IR')} تومان دیگر خرید کنید</small>
+                  </ListGroup.Item>
+                )}
                 <ListGroup.Item>
-                  <Button className='w-100 btn-aqualotus' disabled={cartItems.length === 0} onClick={checkoutHandler}>
+                  <Button
+                    className='w-100 btn-aqualotus'
+                    disabled={cartItems.length === 0 || itemsPrice < MIN_ORDER_AMOUNT}
+                    onClick={checkoutHandler}
+                  >
                     ادامه خرید
                   </Button>
                 </ListGroup.Item>
