@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { saveShippingAddress } from '../slices/cartSlice'
 import { iranProvinces } from '../data/iranProvinces'
 import { useGetMyAddressesQuery } from '../slices/addressesApiSlice'
+import './ShippingPage.css'
 
 const ShippingPage = () => {
   const { shippingAddress } = useSelector((state) => state.cart)
@@ -55,7 +56,7 @@ const ShippingPage = () => {
   }
 
   return (
-    <Container className='py-5'>
+    <Container className='py-5 aq-shipping-page'>
       <Row className='justify-content-center'>
         <Col xs={12} md={6}>
           <Card className='auth-card'>
@@ -162,10 +163,10 @@ const ShippingPage = () => {
                     📦 سفارشات فقط به صورت <strong>پس کرایه</strong> ارسال می‌شوند و هزینه کرایه به عهده مشتری است.
                   </div>
                   <div className='notice-item mt-2'>
-                    🚚 ارسال به خارج از تهران: <strong>تیپاکس</strong> و <strong>پست پیشتاز</strong>
+                    🚚 ارسال به خارج از تهران: فقط <strong>شنبه و یکشنبه</strong> با <strong>تیپاکس</strong> و <strong>ماهکس</strong>
                   </div>
                   <div className='notice-item mt-2'>
-                    🛵 ارسال در تهران: <strong>اسنپ</strong> و <strong>الوپیک</strong>
+                    🛵 ارسال در تهران: <strong>همه روز به‌جز جمعه</strong> با <strong>اسنپ</strong> و <strong>الوپیک</strong>
                   </div>
                 </div>
                 <Button type='submit' className='w-100 btn-aqualotus'>

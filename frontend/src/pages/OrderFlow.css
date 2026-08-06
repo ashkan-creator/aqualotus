@@ -1,0 +1,71 @@
+/* استایل تیره‌ی مات مشترک برای تأیید سفارش و جزئیات سفارش */
+
+.aq-order-page h2,
+.aq-order-page h4,
+.aq-order-page h5,
+.aq-order-page h6 {
+  color: #fff !important;
+}
+
+.aq-order-page .list-group-item {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #fff !important;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+.aq-order-page .list-group-item:hover {
+  background-color: rgba(0, 0, 0, 0.72) !important;
+}
+
+.aq-order-page .card {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
+  border-radius: 16px !important;
+}
+
+.aq-order-page a {
+  color: #fff !important;
+  transition: color 0.2s ease;
+}
+.aq-order-page a:hover {
+  color: var(--primary-light, #52b788) !important;
+}
+
+.aq-order-page small,
+.aq-order-page .text-muted {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.aq-order-page .form-control,
+.aq-order-page .form-select {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #fff !important;
+}
+.aq-order-page .form-control:focus,
+.aq-order-page .form-select:focus {
+  border-color: var(--primary-light, #52b788) !important;
+  box-shadow: 0 0 0 0.2rem rgba(82, 183, 136, 0.25) !important;
+}
+.aq-order-page .form-label {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* اطلاعات کارت بانکی */
+.aq-order-page .bank-info {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+.aq-order-page .card-number {
+  color: var(--primary-light, #52b788) !important;
+}
+.aq-order-page .shaba-number {
+  color: #9fd8ff !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aq-order-page .list-group-item,
+  .aq-order-page a {
+    transition: none !important;
+  }
+}

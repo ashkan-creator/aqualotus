@@ -14,6 +14,7 @@ import {
 } from '../slices/ordersApiSlice'
 import Loader from '../components/ui/Loader'
 import Message from '../components/ui/Message'
+import './OrderFlow.css'
 
 const OrderTracker = ({ order }) => {
   const steps = [
@@ -181,6 +182,10 @@ const OrderPage = () => {
       <tbody>${items}</tbody>
     </table>
     <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;margin-top:6px">
+      <span>هزینه ارسال</span>
+      <span>پس‌کرایه</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:#666;margin-top:6px">
       <span>هزینه بسته‌بندی</span>
       <span>${!order.packagingPrice ? 'رایگان' : Math.round(order.packagingPrice).toLocaleString('fa-IR') + ' تومان'}</span>
     </div>
@@ -199,7 +204,7 @@ const OrderPage = () => {
   }
 
   return (
-    <Container className='py-4'>
+    <Container className='py-4 aq-order-page'>
       {isLoading ? (
         <Loader />
       ) : error ? (
@@ -301,11 +306,7 @@ const OrderPage = () => {
                   <ListGroup.Item>
                     <Row>
                       <Col>ارسال:</Col>
-                      <Col className='text-end'>
-                        {order.shippingPrice === 0
-                          ? 'رایگان 🎉'
-                          : `${order.shippingPrice.toLocaleString('fa-IR')} تومان`}
-                      </Col>
+                      <Col className='text-end'>پس‌کرایه</Col>
                     </Row>
                   </ListGroup.Item>
                   <ListGroup.Item>

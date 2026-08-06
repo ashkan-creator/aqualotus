@@ -10,6 +10,7 @@ import { clearCartItems } from '../slices/cartSlice'
 import { calcDiscountedPrice, MIN_ORDER_AMOUNT } from '../utils/cartUtils'
 import Loader from '../components/ui/Loader'
 import Message from '../components/ui/Message'
+import './OrderFlow.css'
 
 const PlaceOrderPage = () => {
   const navigate = useNavigate()
@@ -52,7 +53,7 @@ const PlaceOrderPage = () => {
   }
 
   return (
-    <Container className='py-4'>
+    <Container className='py-4 aq-order-page'>
       <h2 className='mb-4'>تأیید سفارش</h2>
       <Row>
         <Col md={8}>
@@ -69,6 +70,9 @@ const PlaceOrderPage = () => {
             <ListGroup.Item>
               <h4>روش پرداخت</h4>
               <p>💳 کارت به کارت</p>
+              <p className='text-muted mb-0'>
+                <small>پس از ثبت سفارش، اطلاعات کارت نمایش داده می‌شود — لطفاً مبلغ را کارت‌به‌کارت کرده و تصویر رسید را در همان صفحه بارگذاری کنید.</small>
+              </p>
             </ListGroup.Item>
 
             <ListGroup.Item>
@@ -149,11 +153,7 @@ const PlaceOrderPage = () => {
               <ListGroup.Item>
                 <Row>
                   <Col>هزینه ارسال:</Col>
-                  <Col className='text-end'>
-                    {shippingPrice === 0
-                      ? 'رایگان 🎉'
-                      : `${shippingPrice.toLocaleString('fa-IR')} تومان`}
-                  </Col>
+                  <Col className='text-end'>پس‌کرایه</Col>
                 </Row>
               </ListGroup.Item>
               <ListGroup.Item>

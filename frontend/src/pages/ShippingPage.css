@@ -1,0 +1,51 @@
+/* استایل تیره‌ی مات برای صفحه‌ی آدرس ارسال */
+
+.aq-shipping-page h2 {
+  color: #fff !important;
+}
+
+.aq-shipping-page .card {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 20px !important;
+}
+
+.aq-shipping-page .form-label {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.aq-shipping-page .form-control,
+.aq-shipping-page .form-select {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #fff !important;
+}
+.aq-shipping-page .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+.aq-shipping-page .form-control:focus,
+.aq-shipping-page .form-select:focus {
+  border-color: var(--primary-light, #52b788) !important;
+  box-shadow: 0 0 0 0.2rem rgba(82, 183, 136, 0.25) !important;
+}
+.aq-shipping-page .form-select option {
+  background-color: #1b1b1b;
+  color: #fff;
+}
+
+.aq-shipping-page .shipping-notice {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: rgba(255, 255, 255, 0.85);
+}
+.aq-shipping-page .notice-item strong {
+  color: var(--primary-light, #52b788);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aq-shipping-page * {
+    transition: none !important;
+  }
+}
