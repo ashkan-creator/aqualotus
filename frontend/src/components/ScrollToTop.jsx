@@ -13,6 +13,9 @@ const ScrollToTop = () => {
   const location = useLocation()
 
   useLayoutEffect(() => {
+    // صفحه‌بندی محصولات (HomePage) خودش مسئول اسکرول به بالای گرید محصولاته، نه بالای کل صفحه -- پس اینجا براش کاری نمی‌کنیم
+    const isProductPagination = /^\/(search\/[^/]+\/)?page\/\d+$/.test(location.pathname)
+    if (isProductPagination) return
     window.scrollTo(0, 0)
   }, [location.pathname, location.search])
 
