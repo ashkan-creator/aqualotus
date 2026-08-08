@@ -23,12 +23,12 @@ export const updateCart = (state) => {
     (acc, item) => acc + calcDiscountedPrice(item) * item.qty,
     0
   )
-  // هزینه ارسال
-  state.shippingPrice = state.itemsPrice > 500000 ? 0 : 35000
+  // ارسال «پس‌کرایه»ست — هزینه‌ش دست فروشگاه نیست، جزو جمع‌کل حساب نمیشه
+  state.shippingPrice = 0
   // هزینه بسته‌بندی — رایگان برای سفارش‌های بالای ۱۰ میلیون تومان
   state.packagingPrice = state.itemsPrice >= FREE_PACKAGING_THRESHOLD ? 0 : PACKAGING_FEE
   // جمع نهایی
-  state.totalPrice = state.itemsPrice + state.shippingPrice + state.packagingPrice
+  state.totalPrice = state.itemsPrice + state.packagingPrice
   localStorage.setItem('cart', JSON.stringify(state))
   return state
 }

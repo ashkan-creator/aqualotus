@@ -141,7 +141,7 @@ const CartPage = () => {
                 <ListGroup.Item>
                   <Row>
                     <Col>هزینه ارسال:</Col>
-                    <Col>{shippingPrice === 0 ? 'رایگان 🎉' : `${shippingPrice.toLocaleString('fa-IR')} تومان`}</Col>
+                    <Col>پس‌کرایه</Col>
                   </Row>
                 </ListGroup.Item>
                 <ListGroup.Item>
@@ -156,11 +156,6 @@ const CartPage = () => {
                     <Col><strong>{Math.round(totalPrice).toLocaleString('fa-IR')} تومان</strong></Col>
                   </Row>
                 </ListGroup.Item>
-                {shippingPrice === 0 && (
-                  <ListGroup.Item className='text-success text-center'>
-                    <small>🎉 ارسال رایگان برای خرید بالای ۵۰۰,۰۰۰ تومان</small>
-                  </ListGroup.Item>
-                )}
                 {packagingPrice === 0 && itemsPrice >= FREE_PACKAGING_THRESHOLD && (
                   <ListGroup.Item className='text-success text-center'>
                     <small>🎉 بسته‌بندی رایگان برای خرید بالای {FREE_PACKAGING_THRESHOLD.toLocaleString('fa-IR')} تومان</small>

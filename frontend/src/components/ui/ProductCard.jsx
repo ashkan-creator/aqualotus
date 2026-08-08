@@ -184,6 +184,7 @@ const ProductCard = ({ product, index = 0 }) => {
                 style={{
                   position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
                   transform: isHovered ? 'scale(1.1)' : 'scale(1)',
+                  viewTransitionName: `product-img-${product._id}`,
                   ...imgFilterStyle,
                 }}
               />

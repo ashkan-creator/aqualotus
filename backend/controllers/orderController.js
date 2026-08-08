@@ -16,7 +16,6 @@ const addOrderItems = asyncHandler(async (req, res) => {
     shippingAddress,
     paymentMethod,
     itemsPrice,
-    shippingPrice,
   } = req.body
 
   if (orderItems && orderItems.length === 0) {
@@ -31,8 +30,10 @@ const addOrderItems = asyncHandler(async (req, res) => {
     throw new Error(`حداقل مبلغ سفارش ${MIN_ORDER_AMOUNT.toLocaleString('fa-IR')} تومان است`)
   }
 
+  // ارسال «پس‌کرایه»ست — هزینه‌ش دست فروشگاه نیست، جزو مبلغ کارت‌به‌کارت حساب نمیشه
+  const shippingPrice = 0
   const packagingPrice = itemsPrice >= FREE_PACKAGING_THRESHOLD ? 0 : PACKAGING_FEE
-  const totalPrice = itemsPrice + (shippingPrice || 0) + packagingPrice
+  const totalPrice = itemsPrice + packagingPrice
 
   const order = new Order({
     orderItems: orderItems.map((x) => ({
