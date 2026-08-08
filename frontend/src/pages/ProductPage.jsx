@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Badge, Spinner, Alert, Form, Modal } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
@@ -98,8 +98,7 @@ const ProductPage = () => {
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isWishlisted, setIsWishlisted] = useState(false);
-  const [fade, setFade] = useState(false);
-  
+
   const [showModal, setShowModal] = useState(false);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
@@ -169,19 +168,11 @@ const ProductPage = () => {
     : [product?.image || '/placeholder.webp'];
   
   const handleNextImage = () => {
-    setFade(true);
-    setTimeout(() => {
-      setSelectedImageIndex((prev) => (prev + 1) % images.length);
-      setFade(false);
-    }, 200);
+    setSelectedImageIndex((prev) => (prev + 1) % images.length);
   };
 
   const handlePrevImage = () => {
-    setFade(true);
-    setTimeout(() => {
-      setSelectedImageIndex((prev) => (prev - 1 + images.length) % images.length);
-      setFade(false);
-    }, 200);
+    setSelectedImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
   if (loading) {
@@ -256,12 +247,19 @@ const ProductPage = () => {
             style={{ aspectRatio: '1 / 1', maxHeight: '500px', cursor: 'zoom-in', viewTransitionName: `product-img-${product?._id}` }}
             onClick={() => setShowModal(true)}
           >
-            <img
-              src={images[selectedImageIndex]}
-              alt={product?.name}
-              className="w-100 h-100 object-fit-contain p-2 p-md-4"
-              style={{ filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.5))' }}
-            />
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={selectedImageIndex}
+                src={images[selectedImageIndex]}
+                alt={product?.name}
+                initial={{ opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.97 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="w-100 h-100 object-fit-contain p-2 p-md-4"
+                style={{ filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.5))' }}
+              />
+            </AnimatePresence>
             
             {images.length > 1 && (
               <>
@@ -309,16 +307,18 @@ const ProductPage = () => {
           {images.length > 1 && (
             <div className="d-flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
               {images.map((img, idx) => (
-                <button
+                <motion.button
                   key={idx}
-                  onClick={() => { setFade(true); setTimeout(() => { setSelectedImageIndex(idx); setFade(false); }, 200); }}
+                  onClick={() => setSelectedImageIndex(idx)}
+                  whileHover={{ scale: 1.06 }}
+                  whileTap={{ scale: 0.95 }}
                   className={`btn p-1 rounded-3 overflow-hidden ${
                     selectedImageIndex === idx ? 'border border-success border-2' : 'border-0 opacity-50'
                   }`}
-                  style={{ ...darkBoxStyle, width: '80px', height: '80px', flexShrink: 0, padding: 0 }}
+                  style={{ ...darkBoxStyle, width: '80px', height: '80px', flexShrink: 0, padding: 0, transition: 'opacity 0.25s ease, border-color 0.25s ease' }}
                 >
                   <img src={img} alt={`تصویر ${idx + 1}`} className="w-100 h-100 object-fit-contain" />
-                </button>
+                </motion.button>
               ))}
             </div>
           )}
@@ -637,12 +637,19 @@ const ProductPage = () => {
             ✕
           </Button>
 
-          <img 
-            src={images[selectedImageIndex]} 
-            alt={product?.name} 
-            className="img-fluid rounded-4 shadow-lg w-100 object-fit-contain" 
-            style={{ maxHeight: '85vh', backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', padding: '20px' }}
-          />
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={selectedImageIndex}
+              src={images[selectedImageIndex]}
+              alt={product?.name}
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.97 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="img-fluid rounded-4 shadow-lg w-100 object-fit-contain"
+              style={{ maxHeight: '85vh', backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', padding: '20px' }}
+            />
+          </AnimatePresence>
 
           {images.length > 1 && (
             <>
