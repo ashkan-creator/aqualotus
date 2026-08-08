@@ -108,6 +108,21 @@ body {
 }
 
 .hero-slide.active { opacity: 1; }
+/* انواع دیگه‌ی ترنزیشن اسلایدر (کنار محو‌شدن پیش‌فرض بالا) */
+.hero-slider.aq-slider-slide .hero-slide {
+  transform: translateX(40px);
+  transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+}
+.hero-slider.aq-slider-slide .hero-slide.active {
+  transform: translateX(0);
+}
+.hero-slider.aq-slider-zoom .hero-slide {
+  transform: scale(1.08);
+  transition: opacity 0.8s ease-in-out, transform 1.1s ease-in-out;
+}
+.hero-slider.aq-slider-zoom .hero-slide.active {
+  transform: scale(1);
+}
 
 .hero-content {
   text-align: center;

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useGetSlidersQuery } from '../../slices/sliderApiSlice'
 import { useGetFeaturedPostsQuery } from '../../slices/blogApiSlice'
 import { buildTextStyle, getTextStyleClassName } from '../../utils/buildTextStyle'
+import { useGetSettingsQuery } from '../../slices/settingsApiSlice'
 
 const staticSlides = [
   {
@@ -36,6 +37,9 @@ const HeroSlider = ({ location = 'home' }) => {
   const [current, setCurrent] = useState(0)
   const { data: dbSliders } = useGetSlidersQuery(location, { skip: location === 'blog' })
   const { data: featuredPosts } = useGetFeaturedPostsQuery(undefined, { skip: location !== 'blog' })
+  const { data: siteSettings } = useGetSettingsQuery()
+  const transitionType = siteSettings?.sliderTransitionType || 'fade'
+  const intervalMs = Number(siteSettings?.sliderIntervalMs) || 4000
 
   const blogSlides = (featuredPosts || []).map((post) => ({
     _id: post._id,
@@ -55,12 +59,12 @@ const HeroSlider = ({ location = 'home' }) => {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % slides.length)
-    }, 4000)
+    }, intervalMs)
     return () => clearInterval(timer)
-  }, [slides.length])
+  }, [slides.length, intervalMs])
 
   return (
-    <div className='hero-slider'>
+    <div className={`hero-slider ${transitionType !== 'fade' ? `aq-slider-${transitionType}` : ''}`}>
       {slides.map((slide, index) => (
         <div
           key={slide._id}

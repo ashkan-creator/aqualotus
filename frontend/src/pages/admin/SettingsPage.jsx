@@ -26,6 +26,11 @@ const SettingsPage = () => {
     rgbSpeed: 6,
   })
 
+  const [sliderCfg, setSliderCfg] = useState({
+    transitionType: 'fade',
+    intervalSeconds: 4,
+  })
+
   const [popup, setPopup] = useState({
     popup_active: false,
     popup_title: '',
@@ -64,6 +69,10 @@ const SettingsPage = () => {
       color: settings.announcement_color || '#1b4332',
       animation: settings.announcement_animation || 'fade',
       rgbSpeed: Number(settings.announcement_rgb_speed) || 6,
+    })
+    setSliderCfg({
+      transitionType: settings.sliderTransitionType || 'fade',
+      intervalSeconds: Number(settings.sliderIntervalMs) ? Number(settings.sliderIntervalMs) / 1000 : 4,
     })
     setPopup({
       popup_active: settings.popup_active === 'true',
@@ -218,6 +227,45 @@ const SettingsPage = () => {
                   announcement_color: announcementCfg.color,
                   announcement_animation: announcementCfg.animation,
                   announcement_rgb_speed: String(announcementCfg.rgbSpeed),
+                })
+              }
+            >
+              ذخیره
+            </Button>
+          </Card>
+        </Col>
+
+        {/* اسلایدر */}
+        <Col xs={12} md={6}>
+          <Card className='p-3 p-md-4'>
+            <h5 className='mb-3'>🖼️ تنظیمات اسلایدر</h5>
+            <Form.Group className='mb-3' style={{ maxWidth: '260px' }}>
+              <Form.Label>نوع ترنزیشن</Form.Label>
+              <Form.Select
+                value={sliderCfg.transitionType}
+                onChange={(e) => setSliderCfg({ ...sliderCfg, transitionType: e.target.value })}
+              >
+                <option value='fade'>محو شدن (Fade)</option>
+                <option value='slide'>لغزشی (Slide)</option>
+                <option value='zoom'>زوم (Zoom)</option>
+              </Form.Select>
+            </Form.Group>
+            <Form.Group className='mb-3' style={{ maxWidth: '220px' }}>
+              <Form.Label>فاصله‌ی تعویض اسلاید (ثانیه)</Form.Label>
+              <Form.Control
+                type='number'
+                min='2'
+                value={sliderCfg.intervalSeconds}
+                onChange={(e) => setSliderCfg({ ...sliderCfg, intervalSeconds: e.target.value })}
+              />
+            </Form.Group>
+            <Button
+              className='btn-aqualotus'
+              size='sm'
+              onClick={() =>
+                saveSection({
+                  sliderTransitionType: sliderCfg.transitionType,
+                  sliderIntervalMs: String(Number(sliderCfg.intervalSeconds) * 1000),
                 })
               }
             >
