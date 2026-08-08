@@ -134,6 +134,23 @@ body {
   0% { background-position: 100% 50%; }
   100% { background-position: 0 50%; }
 }
+/* ظاهرشدن خودکار فیلتر خانواده‌ی گیاهی زیر «نوع جنس» */
+.aq-family-inline-filter {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.15);
+  animation: aq-family-filter-in 0.35s ease;
+}
+.aq-family-inline-label {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 6px;
+}
+@keyframes aq-family-filter-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 
 
 .hero-content {
