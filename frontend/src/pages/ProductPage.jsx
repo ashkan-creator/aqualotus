@@ -247,7 +247,7 @@ const ProductPage = () => {
             style={{ aspectRatio: '1 / 1', maxHeight: '500px', cursor: 'zoom-in', viewTransitionName: `product-img-${product?._id}` }}
             onClick={() => setShowModal(true)}
           >
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="wait" initial={false}>
               <motion.img
                 key={selectedImageIndex}
                 src={images[selectedImageIndex]}
@@ -637,7 +637,7 @@ const ProductPage = () => {
             ✕
           </Button>
 
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" initial={false}>
             <motion.img
               key={selectedImageIndex}
               src={images[selectedImageIndex]}
