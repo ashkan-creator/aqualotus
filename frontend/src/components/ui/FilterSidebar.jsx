@@ -1,5 +1,6 @@
 import { Card, Button, Badge, Accordion } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
+import { useGetFamiliesQuery } from '../../slices/familiesApiSlice'
 
 const MAX_PRICE = 5000000
 
@@ -63,6 +64,7 @@ const chipLabelFor = (key, value) => {
   if (key === 'minPrice') return `از ${Number(value).toLocaleString('fa-IR')} ت`
   if (key === 'maxPrice') return `تا ${Number(value).toLocaleString('fa-IR')} ت`
   if (key === 'needsSoil') return `بستر: ${value === 'true' ? 'دارد' : 'ندارد'}`
+  if (key === 'family') return `خانواده: ${value}`
   const group = CHIP_GROUPS.find((g) => g.key === key)
   const opt = group?.options.find((o) => o.value === value)
   return opt?.label || value
@@ -70,11 +72,12 @@ const chipLabelFor = (key, value) => {
 
 const FilterSidebar = ({ filters, setFilters }) => {
   const navigate = useNavigate()
+  const { data: families } = useGetFamiliesQuery()
 
   const resetFilters = () => {
     setFilters({
       careLevel: '', position: '', cultivationType: '',
-      needsSoil: '', minPrice: '', maxPrice: '', category: '',
+      needsSoil: '', minPrice: '', maxPrice: '', category: '', family: '',
     })
     navigate('/')
   }
@@ -146,6 +149,30 @@ const FilterSidebar = ({ filters, setFilters }) => {
             </Accordion.Body>
           </Accordion.Item>
         ))}
+
+        {filters.category === 'گیاه زنده' && families && families.length > 0 && (
+          <Accordion.Item eventKey='family' className='aq-filter-accordion-item'>
+            <Accordion.Header>
+              <span className='aq-filter-section-icon'>🌿</span>
+              <span>خانواده گیاهی</span>
+              {filters.family && <Badge bg='success' className='ms-2 aq-filter-count-badge'>1</Badge>}
+            </Accordion.Header>
+            <Accordion.Body>
+              <div className='d-flex flex-wrap gap-2'>
+                {families.map((f) => (
+                  <button
+                    key={f._id}
+                    type='button'
+                    className={`aq-filter-pill ${filters.family === f.name ? 'active' : ''}`}
+                    onClick={() => toggleOption('family', f.name)}
+                  >
+                    {f.name}
+                  </button>
+                ))}
+              </div>
+            </Accordion.Body>
+          </Accordion.Item>
+        )}
 
         <Accordion.Item eventKey='price' className='aq-filter-accordion-item'>
           <Accordion.Header>

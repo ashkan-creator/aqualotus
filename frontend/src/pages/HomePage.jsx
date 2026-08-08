@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Row, Col, Container, Button, Offcanvas, Form } from 'react-bootstrap'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { useGetProductsQuery } from '../slices/productsApiSlice'
 import { AnimatePresence } from 'framer-motion'
 import ProductCard from '../components/ui/ProductCard'
+import ProductCardSkeleton from '../components/ui/ProductCardSkeleton'
 import HeroSlider from '../components/ui/HeroSlider'
 import BlogHighlightsSlider from '../components/ui/BlogHighlightsSlider'
 import FilterSidebar from '../components/ui/FilterSidebar'
@@ -18,6 +19,12 @@ const HomePage = () => {
   const [searchParams] = useSearchParams()
   const [showFilter, setShowFilter] = useState(false)
   const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || 'newest')
+  const productsTopRef = useRef(null)
+
+  // موقع تغییر صفحه (پیجینیشن)، اسکرول رو ببر بالای گرید محصولات
+  useEffect(() => {
+    productsTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [pageNumber])
 
   const [filters, setFilters] = useState({
     careLevel: '',
@@ -153,7 +160,15 @@ const HomePage = () => {
           </div>
         )}
 
-        {isLoading ? <Loader /> : error ? (
+        {isLoading ? (
+          <Row className='g-3'>
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Col key={i} sm={12} md={6} lg={4} xl={3}>
+                <ProductCardSkeleton />
+              </Col>
+            ))}
+          </Row>
+        ) : error ? (
           <Message variant='danger'>{error?.data?.message || error.error}</Message>
         ) : (
           <Row>
@@ -181,7 +196,7 @@ const HomePage = () => {
               <FilterSidebar filters={filters} setFilters={setFilters} />
             </Col>
 
-            <Col lg={9}>
+            <Col lg={9} ref={productsTopRef}>
               <div className='d-flex justify-content-start align-items-center gap-2 mb-3 aq-sort-toolbar'>
           <label className='aq-sort-label'>مرتب‌سازی بر اساس:</label>
           <Form.Select
