@@ -69,3 +69,11 @@
     transition: none !important;
   }
 }
+
+/* یادداشت راهنمای پرداخت داخل باکس خلاصه سفارش */
+.aq-payment-note {
+  background: rgba(82, 183, 136, 0.12) !important;
+  border-top: 1px solid rgba(82, 183, 136, 0.3) !important;
+  color: #d7f5e6 !important;
+  text-align: center;
+}

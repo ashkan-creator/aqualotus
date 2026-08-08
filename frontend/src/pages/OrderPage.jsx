@@ -26,14 +26,14 @@ const OrderTracker = ({ order }) => {
   const activeStep = steps.filter(s => s.done).length - 1
 
   return (
-    <div style={{ margin: '0 0 28px', padding: '20px', background: '#f8fdf9', borderRadius: '12px', border: '1px solid #d8f0e4' }}>
+    <div style={{ margin: '0 0 28px', padding: '20px', background: 'rgba(0,0,0,0.6)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative' }}>
         <div style={{
           position: 'absolute', top: '20px', right: '10%', left: '10%', height: '3px',
-          background: '#e0e0e0', zIndex: 0,
+          background: 'rgba(255,255,255,0.15)', zIndex: 0,
         }}>
           <div style={{
-            height: '100%', background: '#2d6a4f',
+            height: '100%', background: '#52b788',
             width: `${(activeStep / (steps.length - 1)) * 100}%`,
             transition: 'width 0.5s ease',
           }} />
@@ -42,16 +42,16 @@ const OrderTracker = ({ order }) => {
           <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 1, flex: 1 }}>
             <div style={{
               width: '40px', height: '40px', borderRadius: '50%',
-              background: step.done ? '#2d6a4f' : '#e0e0e0',
-              color: step.done ? 'white' : '#999',
+              background: step.done ? '#2d6a4f' : 'rgba(255,255,255,0.1)',
+              color: step.done ? 'white' : 'rgba(255,255,255,0.5)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: '1.1rem', marginBottom: '8px',
               transition: 'background 0.3s',
-              boxShadow: i === activeStep ? '0 0 0 3px rgba(45,106,79,0.25)' : 'none',
+              boxShadow: i === activeStep ? '0 0 0 3px rgba(82,183,136,0.3)' : 'none',
             }}>
               {step.icon}
             </div>
-            <div style={{ fontSize: 'clamp(0.62rem, 2vw, 0.78rem)', color: step.done ? '#2d6a4f' : '#999', textAlign: 'center', fontWeight: step.done ? '600' : 'normal' }}>
+            <div style={{ fontSize: 'clamp(0.62rem, 2vw, 0.78rem)', color: step.done ? '#52b788' : 'rgba(255,255,255,0.55)', textAlign: 'center', fontWeight: step.done ? '600' : 'normal' }}>
               {step.label}
             </div>
           </div>
@@ -329,6 +329,11 @@ const OrderPage = () => {
                       </Col>
                     </Row>
                   </ListGroup.Item>
+                  {!order.isPaid && (
+                    <ListGroup.Item className='aq-payment-note'>
+                      <small>💳 لطفاً مبلغ فوق را کارت‌به‌کارت کرده و تصویر رسید را در پایین همین صفحه بارگذاری کنید.</small>
+                    </ListGroup.Item>
+                  )}
                 </ListGroup>
               </Card>
 
